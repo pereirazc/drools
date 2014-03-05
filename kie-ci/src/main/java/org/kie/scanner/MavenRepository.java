@@ -6,29 +6,30 @@ import org.apache.maven.settings.Repository;
 import org.apache.maven.settings.RepositoryPolicy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.kie.api.builder.ReleaseId;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.kie.scanner.embedder.MavenSettings;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.collection.CollectRequest;
-import org.sonatype.aether.collection.CollectResult;
-import org.sonatype.aether.collection.DependencyCollectionException;
-import org.sonatype.aether.deployment.DeployRequest;
-import org.sonatype.aether.deployment.DeploymentException;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.graph.DependencyVisitor;
-import org.sonatype.aether.repository.Authentication;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.resolution.ArtifactRequest;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
-import org.sonatype.aether.resolution.ArtifactResult;
-import org.sonatype.aether.resolution.VersionRangeRequest;
-import org.sonatype.aether.resolution.VersionRangeResolutionException;
-import org.sonatype.aether.resolution.VersionRangeResult;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.SubArtifact;
-import org.sonatype.aether.version.Version;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.CollectResult;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.deployment.DeployRequest;
+import org.eclipse.aether.deployment.DeploymentException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.graph.DependencyVisitor;
+import org.eclipse.aether.repository.Authentication;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.VersionRangeRequest;
+import org.eclipse.aether.resolution.VersionRangeResolutionException;
+import org.eclipse.aether.resolution.VersionRangeResult;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.util.artifact.SubArtifact;
+import org.eclipse.aether.version.Version;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -78,22 +79,29 @@ public class MavenRepository {
     }
 
     private static RemoteRepository toRemoteRepository(Settings settings, Repository repository) {
-        RemoteRepository remote = new RemoteRepository( repository.getId(), repository.getLayout(), repository.getUrl() );
-        setPolicy(remote, repository.getSnapshots(), true);
-        setPolicy(remote, repository.getReleases(), false);
+        RemoteRepository.Builder remoteBuilder = new RemoteRepository.Builder( repository.getId(), repository.getLayout(), repository.getUrl() );
+        setPolicy(remoteBuilder, repository.getSnapshots(), true);
+        setPolicy(remoteBuilder, repository.getReleases(), false);
         Server server = settings.getServer( repository.getId() );
         if (server != null) {
-            remote.setAuthentication( new Authentication(server.getUsername(), server.getPassword()) );
+            remoteBuilder.setAuthentication( new AuthenticationBuilder().addUsername(server.getUsername())
+                                                                        .addPassword(server.getPassword())
+                                                                        .build() );
         }
-        return remote;
+        return remoteBuilder.build();
     }
 
-    private static void setPolicy(RemoteRepository remote, RepositoryPolicy policy, boolean snapshot) {
+    private static void setPolicy(RemoteRepository.Builder builder, RepositoryPolicy policy, boolean snapshot) {
         if (policy != null) {
-            remote.setPolicy(snapshot,
-                             new org.sonatype.aether.repository.RepositoryPolicy(policy.isEnabled(),
-                                                                                 policy.getUpdatePolicy(),
-                                                                                 policy.getChecksumPolicy()));
+            org.eclipse.aether.repository.RepositoryPolicy repoPolicy =
+                    new org.eclipse.aether.repository.RepositoryPolicy(policy.isEnabled(),
+                                                                       policy.getUpdatePolicy(),
+                                                                       policy.getChecksumPolicy());
+            if (snapshot) {
+                builder.setSnapshotPolicy(repoPolicy);
+            } else {
+                builder.setReleasePolicy(repoPolicy);
+            }
         }
     }
 

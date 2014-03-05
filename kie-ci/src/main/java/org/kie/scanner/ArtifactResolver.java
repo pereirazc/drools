@@ -8,7 +8,7 @@ import org.kie.scanner.embedder.EmbeddedPomParser;
 import org.kie.api.builder.ReleaseId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.Artifact;
 
 import java.io.File;
 import java.io.FileInputStream;

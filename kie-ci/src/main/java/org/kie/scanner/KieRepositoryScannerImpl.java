@@ -16,7 +16,7 @@ import org.kie.api.builder.model.KieModuleModel;
 import org.kie.api.runtime.KieContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.Artifact;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,7 +100,7 @@ public class KieRepositoryScannerImpl implements InternalKieScanner {
     }
 
     public ReleaseId getScannerReleaseId() {
-        return ((InternalKieContainer)kieContainer).getContainerReleaseId();
+        return kieContainer.getContainerReleaseId();
     }
 
     public ReleaseId getCurrentReleaseId() {
