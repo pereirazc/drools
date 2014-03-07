@@ -8,7 +8,8 @@ import org.drools.builder.KnowledgeBuilderResults;
 import org.drools.builder.ResourceConfiguration;
 import org.drools.builder.ResourceType;
 import org.drools.builder.ResultSeverity;
-import org.drools.compiler.compiler.PackageBuilder;
+import org.drools.compiler.compiler.PackageBuilderConfiguration;
+import org.drools.core.RuleBase;
 import org.drools.definition.KnowledgePackage;
 import org.drools.impl.adapters.CompositeKnowledgeBuilderAdapter;
 import org.drools.impl.adapters.KnowledgeBaseAdapter;
@@ -26,8 +27,33 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
 
     private final org.drools.compiler.builder.impl.KnowledgeBuilderImpl delegate;
 
-    public KnowledgeBuilderImpl(PackageBuilder pkgBuilder) {
-        delegate = new org.drools.compiler.builder.impl.KnowledgeBuilderImpl(pkgBuilder);
+    public KnowledgeBuilderImpl() {
+        delegate = new org.drools.compiler.builder.impl.KnowledgeBuilderImpl();
+    }
+
+    public KnowledgeBuilderImpl(final org.drools.core.rule.Package pkg) {
+        this(pkg,
+             null);
+    }
+
+    public KnowledgeBuilderImpl(final RuleBase ruleBase) {
+        this(ruleBase,
+             null);
+    }
+
+    public KnowledgeBuilderImpl(final PackageBuilderConfiguration configuration) {
+        this((RuleBase) null,
+             configuration);
+    }
+
+    public KnowledgeBuilderImpl(RuleBase ruleBase,
+                                PackageBuilderConfiguration configuration) {
+        delegate = new org.drools.compiler.builder.impl.KnowledgeBuilderImpl(ruleBase, configuration);
+    }
+
+    public KnowledgeBuilderImpl(org.drools.core.rule.Package pkg,
+                                PackageBuilderConfiguration configuration) {
+        delegate = new org.drools.compiler.builder.impl.KnowledgeBuilderImpl(pkg, configuration);
     }
 
     public void add(Resource resource, ResourceType type) {

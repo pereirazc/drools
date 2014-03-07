@@ -1,12 +1,8 @@
-package org.drools.compiler.compiler;
+package org.drools.compiler.builder.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.drools.compiler.compiler.PackageBuilder.TypeDefinition;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl.TypeDefinition;
+import org.drools.compiler.compiler.BPMN2ProcessFactory;
+import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.CompositePackageDescr;
 import org.drools.compiler.lang.descr.ImportDescr;
 import org.drools.compiler.lang.descr.PackageDescr;
@@ -20,9 +16,15 @@ import org.kie.internal.builder.CompositeKnowledgeBuilder;
 import org.kie.internal.builder.ResourceChange;
 import org.kie.internal.builder.ResourceChangeSet;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder {
 
-    private final PackageBuilder pkgBuilder;
+    private final KnowledgeBuilderImpl kBuilder;
 
     private final Map<ResourceType, List<ResourceDescr>> resourcesByType = new HashMap<ResourceType, List<ResourceDescr>>();
 
@@ -30,8 +32,8 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
 
     public ResourceType currentType = null;
 
-    public CompositeKnowledgeBuilderImpl(PackageBuilder pkgBuilder) {
-        this.pkgBuilder = pkgBuilder;
+    public CompositeKnowledgeBuilderImpl(KnowledgeBuilderImpl kBuilder) {
+        this.kBuilder = kBuilder;
     }
 
     public CompositeKnowledgeBuilder type(ResourceType type) {
@@ -81,7 +83,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
 
     public void build() {
         buildException = null;
-        pkgBuilder.registerBuildResources(getResources());
+        kBuilder.registerBuildResources(getResources());
         registerDSL();
         buildResources();
         buildPackages();
@@ -103,9 +105,9 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         if (resourcesByType != null) {
             for (ResourceDescr resourceDescr : resourcesByType) {
                 try {
-                    pkgBuilder.setAssetFilter(resourceDescr.getFilter());
-                    pkgBuilder.addDsl(resourceDescr.resource);
-                    pkgBuilder.setAssetFilter(null);
+                    kBuilder.setAssetFilter(resourceDescr.getFilter());
+                    kBuilder.addDsl(resourceDescr.resource);
+                    kBuilder.setAssetFilter(null);
                 } catch (RuntimeException e) {
                     if (buildException == null) {
                         buildException = e;
@@ -124,8 +126,8 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         if (resourcesByType != null) {
             for (ResourceDescr resourceDescr : resourcesByType) {
                 try {
-                    pkgBuilder.setAssetFilter(resourceDescr.getFilter());
-                    pkgBuilder.addProcessFromXml(resourceDescr.resource);
+                    kBuilder.setAssetFilter(resourceDescr.getFilter());
+                    kBuilder.addProcessFromXml(resourceDescr.resource);
                 } catch (RuntimeException e) {
                     if (buildException == null) {
                         buildException = e;
@@ -135,7 +137,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
                         buildException = new RuntimeException( e );
                     }
                 } finally{
-                    pkgBuilder.setAssetFilter(null);
+                    kBuilder.setAssetFilter(null);
                 }
             }
         }
@@ -144,9 +146,9 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         if (resourcesByType != null) {
             for (ResourceDescr resourceDescr : resourcesByType) {
                 try {
-                    BPMN2ProcessFactory.configurePackageBuilder( pkgBuilder );
-                    pkgBuilder.setAssetFilter(resourceDescr.getFilter());
-                    pkgBuilder.addProcessFromXml(resourceDescr.resource);
+                    BPMN2ProcessFactory.configurePackageBuilder(kBuilder);
+                    kBuilder.setAssetFilter(resourceDescr.getFilter());
+                    kBuilder.addProcessFromXml(resourceDescr.resource);
                 } catch (RuntimeException e) {
                     if (buildException == null) {
                         buildException = e;
@@ -156,7 +158,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
                         buildException = new RuntimeException( e );
                     }
                 } finally{
-                    pkgBuilder.setAssetFilter(null);
+                    kBuilder.setAssetFilter(null);
                 }
             }
         }
@@ -165,8 +167,8 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         if (resourcesByType != null) {
             for (ResourceDescr resourceDescr : resourcesByType) {
                 try {
-                    pkgBuilder.setAssetFilter(resourceDescr.getFilter());
-                    pkgBuilder.addPackageFromInputStream(resourceDescr.resource);
+                    kBuilder.setAssetFilter(resourceDescr.getFilter());
+                    kBuilder.addPackageFromInputStream(resourceDescr.resource);
                 } catch (RuntimeException e) {
                     if (buildException == null) {
                         buildException = e;
@@ -176,7 +178,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
                         buildException = new RuntimeException( e );
                     }
                 } finally{
-                    pkgBuilder.setAssetFilter(null);
+                    kBuilder.setAssetFilter(null);
                 }
             }
         }
@@ -185,8 +187,8 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         if (resourcesByType != null) {
             for (ResourceDescr resourceDescr : resourcesByType) {
                 try {
-                    pkgBuilder.setAssetFilter(resourceDescr.getFilter());
-                    pkgBuilder.addPackageFromChangeSet(resourceDescr.resource);
+                    kBuilder.setAssetFilter(resourceDescr.getFilter());
+                    kBuilder.addPackageFromChangeSet(resourceDescr.resource);
                 } catch (RuntimeException e) {
                     if (buildException == null) {
                         buildException = e;
@@ -196,7 +198,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
                         buildException = new RuntimeException( e );
                     }
                 } finally{
-                    pkgBuilder.setAssetFilter(null);
+                    kBuilder.setAssetFilter(null);
                 }
             }
         }
@@ -205,8 +207,8 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         if (resourcesByType != null) {
             for (ResourceDescr resourceDescr : resourcesByType) {
                 try {
-                    pkgBuilder.setAssetFilter(resourceDescr.getFilter());
-                    pkgBuilder.addPackageFromXSD(resourceDescr.resource, (JaxbConfigurationImpl) resourceDescr.configuration);
+                    kBuilder.setAssetFilter(resourceDescr.getFilter());
+                    kBuilder.addPackageFromXSD(resourceDescr.resource, (JaxbConfigurationImpl) resourceDescr.configuration);
                 } catch (RuntimeException e) {
                     if (buildException == null) {
                         buildException = e;
@@ -216,7 +218,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
                         buildException = new RuntimeException( e );
                     }
                 } finally{
-                    pkgBuilder.setAssetFilter(null);
+                    kBuilder.setAssetFilter(null);
                 }
             }
         }
@@ -225,8 +227,8 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         if (resourcesByType != null) {
             for (ResourceDescr resourceDescr : resourcesByType) {
                 try {
-                    pkgBuilder.setAssetFilter(resourceDescr.getFilter());
-                    pkgBuilder.addPackageFromPMML(resourceDescr.resource, ResourceType.PMML, resourceDescr.configuration);
+                    kBuilder.setAssetFilter(resourceDescr.getFilter());
+                    kBuilder.addPackageFromPMML(resourceDescr.resource, ResourceType.PMML, resourceDescr.configuration);
                 } catch (RuntimeException e) {
                     if (buildException == null) {
                         buildException = e;
@@ -236,7 +238,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
                         buildException = new RuntimeException( e );
                     }
                 } finally{
-                    pkgBuilder.setAssetFilter(null);
+                    kBuilder.setAssetFilter(null);
                 }
             }
         }
@@ -246,9 +248,9 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         try {
             for (Map.Entry<ResourceType, List<ResourceDescr>> entry : resourcesByType.entrySet()) {
                 for (ResourceDescr resourceDescr : entry.getValue()) {
-                    pkgBuilder.setAssetFilter(resourceDescr.getFilter());
-                    pkgBuilder.addPackageForExternalType(resourceDescr.resource, entry.getKey(), resourceDescr.configuration);
-                    pkgBuilder.setAssetFilter(null);
+                    kBuilder.setAssetFilter(resourceDescr.getFilter());
+                    kBuilder.addPackageForExternalType(resourceDescr.resource, entry.getKey(), resourceDescr.configuration);
+                    kBuilder.setAssetFilter(null);
                 }
             }
         } catch (RuntimeException e) {
@@ -260,50 +262,50 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
 
     private void buildRules(Collection<CompositePackageDescr> packages) {
         for (CompositePackageDescr packageDescr : packages) {
-            pkgBuilder.setAssetFilter(packageDescr.getFilter());
-            PackageRegistry pkgRegistry = pkgBuilder.getPackageRegistry(packageDescr.getNamespace());
-            pkgBuilder.processOtherDeclarations(pkgRegistry, packageDescr);
-            pkgBuilder.compileAllRules(packageDescr, pkgRegistry);
-            pkgBuilder.setAssetFilter(null);
+            kBuilder.setAssetFilter(packageDescr.getFilter());
+            PackageRegistry pkgRegistry = kBuilder.getPackageRegistry(packageDescr.getNamespace());
+            kBuilder.processOtherDeclarations(pkgRegistry, packageDescr);
+            kBuilder.compileAllRules(packageDescr, pkgRegistry);
+            kBuilder.setAssetFilter(null);
         }
     }
 
     private void buildTypeDeclarations(Collection<CompositePackageDescr> packages) {
         for (CompositePackageDescr packageDescr : packages) {
             for (TypeDeclarationDescr typeDeclarationDescr : packageDescr.getTypeDeclarations()) {
-                if (pkgBuilder.isEmpty( typeDeclarationDescr.getNamespace() )) {
+                if (kBuilder.isEmpty( typeDeclarationDescr.getNamespace() )) {
                     typeDeclarationDescr.setNamespace( packageDescr.getNamespace() ); // set the default namespace
                 }
-                pkgBuilder.registerGeneratedType(typeDeclarationDescr);
+                kBuilder.registerGeneratedType(typeDeclarationDescr);
             }
         }
 
-        List<PackageBuilder.TypeDefinition> unresolvedTypes = new ArrayList<PackageBuilder.TypeDefinition>();
+        List<TypeDefinition> unresolvedTypes = new ArrayList<TypeDefinition>();
         for (CompositePackageDescr packageDescr : packages) {
             buildTypeDeclarations(packageDescr, unresolvedTypes);
         }
 
-        for (PackageBuilder.TypeDefinition unresolvedType : unresolvedTypes) {
-            pkgBuilder.processUnresolvedType(pkgBuilder.getPackageRegistry(unresolvedType.getNamespace()), unresolvedType);
+        for (TypeDefinition unresolvedType : unresolvedTypes) {
+            kBuilder.processUnresolvedType(kBuilder.getPackageRegistry(unresolvedType.getNamespace()), unresolvedType);
         }
 
         for (CompositePackageDescr packageDescr : packages) {
             for (ImportDescr importDescr : packageDescr.getImports()) {
-                pkgBuilder.getPackageRegistry(packageDescr.getNamespace()).addImport( importDescr );
+                kBuilder.getPackageRegistry(packageDescr.getNamespace()).addImport( importDescr );
             }
         }
     }
 
-    private List<PackageBuilder.TypeDefinition> buildTypeDeclarations(CompositePackageDescr packageDescr, List<PackageBuilder.TypeDefinition> unresolvedTypes) {
-        pkgBuilder.setAssetFilter(packageDescr.getFilter());
-        PackageRegistry pkgRegistry = pkgBuilder.createPackageRegistry(packageDescr);
+    private List<TypeDefinition> buildTypeDeclarations(CompositePackageDescr packageDescr, List<TypeDefinition> unresolvedTypes) {
+        kBuilder.setAssetFilter(packageDescr.getFilter());
+        PackageRegistry pkgRegistry = kBuilder.createPackageRegistry(packageDescr);
         if (pkgRegistry == null) {
             return null;
         }
 
-        pkgBuilder.processEntryPointDeclarations(pkgRegistry, packageDescr);
-        List<TypeDefinition> processTypeDeclarations = pkgBuilder.processTypeDeclarations(pkgRegistry, packageDescr, unresolvedTypes);
-        pkgBuilder.setAssetFilter(null);
+        kBuilder.processEntryPointDeclarations(pkgRegistry, packageDescr);
+        List<TypeDefinition> processTypeDeclarations = kBuilder.processTypeDeclarations(pkgRegistry, packageDescr, unresolvedTypes);
+        kBuilder.setAssetFilter(null);
         return processTypeDeclarations;
     }
 
@@ -326,7 +328,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         if (resourcesByType != null) {
             for (ResourceDescr resourceDescr : resourcesByType) {
                 try {
-                    registerPackageDescr(resourceDescr, packages, resourceDescr.resource, mapper.map(pkgBuilder, resourceDescr));
+                    registerPackageDescr(resourceDescr, packages, resourceDescr.resource, mapper.map(kBuilder, resourceDescr));
                 } catch (RuntimeException e) {
                     if (buildException == null) {
                         buildException = e;
@@ -373,11 +375,11 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
             }
         }
         
-        public PackageBuilder.AssetFilter getFilter() {
+        public KnowledgeBuilderImpl.AssetFilter getFilter() {
             return changeMap == null ? null : this.new ChangeSetAssetFilter();
         }
         
-        private class ChangeSetAssetFilter implements PackageBuilder.AssetFilter {
+        private class ChangeSetAssetFilter implements KnowledgeBuilderImpl.AssetFilter {
             @Override
             public Action accept(String pkgName, String assetName) {
                 ResourceChange change = changeMap.get(assetName);
@@ -396,36 +398,36 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
     }
 
     private interface ResourceToPkgDescrMapper {
-        PackageDescr map(PackageBuilder pkgBuilder, ResourceDescr resourceDescr) throws Exception;
+        PackageDescr map(KnowledgeBuilderImpl kBuilder, ResourceDescr resourceDescr) throws Exception;
     }
 
     private static final ResourceToPkgDescrMapper DRL_TO_PKG_DESCR = new ResourceToPkgDescrMapper() {
-        public PackageDescr map(PackageBuilder pkgBuilder, ResourceDescr resourceDescr) throws Exception {
-            return pkgBuilder.drlToPackageDescr(resourceDescr.resource);
+        public PackageDescr map(KnowledgeBuilderImpl kBuilder, ResourceDescr resourceDescr) throws Exception {
+            return kBuilder.drlToPackageDescr(resourceDescr.resource);
         }
     };
 
     private static final ResourceToPkgDescrMapper DSLR_TO_PKG_DESCR = new ResourceToPkgDescrMapper() {
-        public PackageDescr map(PackageBuilder pkgBuilder, ResourceDescr resourceDescr) throws Exception {
-            return pkgBuilder.dslrToPackageDescr(resourceDescr.resource);
+        public PackageDescr map(KnowledgeBuilderImpl kBuilder, ResourceDescr resourceDescr) throws Exception {
+            return kBuilder.dslrToPackageDescr(resourceDescr.resource);
         }
     };
 
     private static final ResourceToPkgDescrMapper XML_TO_PKG_DESCR = new ResourceToPkgDescrMapper() {
-        public PackageDescr map(PackageBuilder pkgBuilder, ResourceDescr resourceDescr) throws Exception {
-            return pkgBuilder.xmlToPackageDescr(resourceDescr.resource);
+        public PackageDescr map(KnowledgeBuilderImpl kBuilder, ResourceDescr resourceDescr) throws Exception {
+            return kBuilder.xmlToPackageDescr(resourceDescr.resource);
         }
     };
 
     private static final ResourceToPkgDescrMapper DTABLE_TO_PKG_DESCR = new ResourceToPkgDescrMapper() {
-        public PackageDescr map(PackageBuilder pkgBuilder, ResourceDescr resourceDescr) throws Exception {
-            return pkgBuilder.decisionTableToPackageDescr(resourceDescr.resource, resourceDescr.configuration);
+        public PackageDescr map(KnowledgeBuilderImpl kBuilder, ResourceDescr resourceDescr) throws Exception {
+            return kBuilder.decisionTableToPackageDescr(resourceDescr.resource, resourceDescr.configuration);
         }
     };
 
     private static final ResourceToPkgDescrMapper SCARD_TO_PKG_DESCR = new ResourceToPkgDescrMapper() {
-        public PackageDescr map(PackageBuilder pkgBuilder, ResourceDescr resourceDescr) throws Exception {
-            return pkgBuilder.scoreCardToPackageDescr(resourceDescr.resource, resourceDescr.configuration);
+        public PackageDescr map(KnowledgeBuilderImpl kBuilder, ResourceDescr resourceDescr) throws Exception {
+            return kBuilder.scoreCardToPackageDescr(resourceDescr.resource, resourceDescr.configuration);
         }
     };
 }

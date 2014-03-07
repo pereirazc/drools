@@ -16,23 +16,22 @@
 
 package org.drools.compiler.rule.builder;
 
-import java.util.Stack;
-
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.compiler.lang.descr.AnnotationDescr;
 import org.drools.compiler.lang.descr.QueryDescr;
 import org.drools.compiler.lang.descr.RuleDescr;
 import org.drools.core.beliefsystem.abductive.Abductive;
 import org.drools.core.rule.AbductiveQuery;
-import org.drools.core.rule.Declaration;
 import org.drools.core.rule.Package;
 import org.drools.core.rule.Pattern;
 import org.drools.core.rule.Query;
 import org.drools.core.rule.Rule;
 import org.drools.core.rule.RuleConditionElement;
 import org.drools.core.spi.DeclarationScopeResolver;
+
+import java.util.Stack;
 
 /**
  * A context for the current build
@@ -64,14 +63,14 @@ public class RuleBuildContext extends PackageBuildContext {
     /**
      * Default constructor
      */
-    public RuleBuildContext(final PackageBuilder pkgBuilder,
+    public RuleBuildContext(final KnowledgeBuilderImpl kBuilder,
                             final RuleDescr ruleDescr,
                             final DialectCompiletimeRegistry dialectCompiletimeRegistry,
                             final Package pkg,
                             final Dialect defaultDialect) {
         this.buildStack = new Stack<RuleConditionElement>();
 
-        this.declarationResolver = new DeclarationScopeResolver(pkgBuilder.getGlobals(),
+        this.declarationResolver = new DeclarationScopeResolver(kBuilder.getGlobals(),
                                                                 this.buildStack);
         this.declarationResolver.setPackage(pkg);
         this.ruleDescr = ruleDescr;
@@ -90,7 +89,7 @@ public class RuleBuildContext extends PackageBuildContext {
         this.rule.setDialect(ruleDescr.getDialect());
         this.rule.setLoadOrder( ruleDescr.getLoadOrder() );
 
-        init(pkgBuilder, pkg, ruleDescr, dialectCompiletimeRegistry, defaultDialect, this.rule);
+        init(kBuilder, pkg, ruleDescr, dialectCompiletimeRegistry, defaultDialect, this.rule);
 
         if (this.rule.getDialect() == null) {
             this.rule.setDialect(getDialect().getId());
@@ -101,7 +100,7 @@ public class RuleBuildContext extends PackageBuildContext {
             dialect.init( ruleDescr );
         }
 
-        compilerFactory = pkgBuilder.getPackageBuilderConfiguration().getComponentFactory();
+        compilerFactory = kBuilder.getPackageBuilderConfiguration().getComponentFactory();
 
     }
 

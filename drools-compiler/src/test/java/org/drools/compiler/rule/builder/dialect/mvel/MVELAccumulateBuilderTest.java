@@ -1,8 +1,8 @@
 package org.drools.compiler.rule.builder.dialect.mvel;
 
 import org.drools.compiler.Cheese;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.core.RuleBaseFactory;
 import org.drools.core.WorkingMemory;
@@ -28,7 +28,7 @@ public class MVELAccumulateBuilderTest {
 
     @Test
     public void testSimpleExpression() {
-        PackageBuilder pkgBuilder = new PackageBuilder();
+        KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl();
         pkgBuilder.addPackage( new PackageDescr( "pkg1" ) );
 
         final Package pkg = pkgBuilder.getPackage();

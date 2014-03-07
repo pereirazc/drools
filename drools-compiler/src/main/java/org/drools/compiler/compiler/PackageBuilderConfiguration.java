@@ -358,12 +358,13 @@ public class PackageBuilderConfiguration
                                    dialectConf );
     }
 
-    public DialectCompiletimeRegistry buildDialectRegistry(PackageBuilder packageBuilder,
+    public DialectCompiletimeRegistry buildDialectRegistry(ClassLoader rootClassLoader,
+                                                           PackageBuilderConfiguration pkgConf,
                                                            PackageRegistry pkgRegistry,
                                                            Package pkg) {
         DialectCompiletimeRegistry registry = new DialectCompiletimeRegistry();
         for ( DialectConfiguration conf : this.dialectConfigurations.values() ) {
-            Dialect dialect = conf.newDialect( packageBuilder, pkgRegistry, pkg );
+            Dialect dialect = conf.newDialect( rootClassLoader, pkgConf, pkgRegistry, pkg );
             registry.addDialect( dialect.getId(), dialect );
         }
         return registry;

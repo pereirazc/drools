@@ -132,7 +132,7 @@ public class MVELConsequenceBuilder
                                                             dialect.getInterceptors(),
                                                             text,
                                                             new BoundIdentifiers(DeclarationScopeResolver.getDeclarationClasses(decls),
-                                                                                 context.getPackageBuilder().getGlobals(),
+                                                                                 context.getKnowledgeBuilder().getGlobals(),
                                                                                  null,
                                                                                  KnowledgeHelper.class),
                                                             null,

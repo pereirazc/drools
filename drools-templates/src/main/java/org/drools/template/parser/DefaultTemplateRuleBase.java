@@ -16,10 +16,10 @@
 
 package org.drools.template.parser;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.RuleBase;
 import org.drools.core.RuleBaseFactory;
 import org.drools.core.StatefulSession;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.core.rule.Package;
 import org.drools.template.model.*;
 
@@ -129,7 +129,7 @@ public class DefaultTemplateRuleBase implements TemplateRuleBase {
             //            logger.info(drl);
             // read in the source
             Reader source = new StringReader(drl);
-            PackageBuilder builder = new PackageBuilder();
+            KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
             builder.addPackageFromDrl(source);
             Package pkg = builder.getPackage();
 

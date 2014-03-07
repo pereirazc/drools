@@ -276,7 +276,7 @@ public class QueryElementBuilder
                 try {
                     MVELDialectRuntimeData data = ( MVELDialectRuntimeData) context.getPkg().getDialectRuntimeRegistry().getDialectData( "mvel" );
                     ParserConfiguration conf = data.getParserConfiguration();
-                    conf.setClassLoader( context.getPackageBuilder().getRootClassLoader() );
+                    conf.setClassLoader( context.getKnowledgeBuilder().getRootClassLoader() );
 
                     arguments.set( pos,
                     MVELSafeHelper.getEvaluator().executeExpression( MVEL.compileExpression( expr, new ParserContext( conf ) ) ) );
@@ -373,7 +373,7 @@ public class QueryElementBuilder
             try {
                 MVELDialectRuntimeData data = ( MVELDialectRuntimeData) context.getPkg().getDialectRuntimeRegistry().getDialectData( "mvel" );
                 ParserConfiguration conf = data.getParserConfiguration();
-                conf.setClassLoader( context.getPackageBuilder().getRootClassLoader() );
+                conf.setClassLoader( context.getKnowledgeBuilder().getRootClassLoader() );
 
                 arguments.set( position, MVELSafeHelper.getEvaluator().executeExpression( MVEL.compileExpression( rewrittenExpr, new ParserContext( conf ) ) ) );
             } catch ( Exception e ) {

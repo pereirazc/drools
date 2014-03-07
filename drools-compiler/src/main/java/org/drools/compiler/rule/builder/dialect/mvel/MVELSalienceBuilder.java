@@ -37,7 +37,7 @@ public class MVELSalienceBuilder
                                                                                            context.getRuleDescr(),
                                                                                            (String) context.getRuleDescr().getSalience(),
                                                                                            new BoundIdentifiers(context.getDeclarationResolver().getDeclarationClasses( decls ),
-                                                                                                                context.getPackageBuilder().getGlobals() ) );
+                                                                                                                context.getKnowledgeBuilder().getGlobals() ) );
             context.setTypesafe( analysis.isTypesafe() );
             final BoundIdentifiers usedIdentifiers = analysis.getBoundIdentifiers();
             int i = usedIdentifiers.getDeclrClasses().keySet().size();

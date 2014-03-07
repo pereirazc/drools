@@ -34,7 +34,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 
-import org.drools.compiler.compiler.PackageBuilder;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.lang.descr.PackageDescr;
 import org.drools.core.rule.Package;
 import org.drools.core.xml.SemanticModules;
@@ -88,7 +88,7 @@ public class RuleExecutionSetProviderImpl
             final PackageDescr packageDescr = xmlPackageReader.getPackageDescr();
 
             //          pre build the package
-            final PackageBuilder builder = new PackageBuilder();
+            final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
             builder.addPackage( packageDescr );
             final Package pkg = builder.getPackage();
 

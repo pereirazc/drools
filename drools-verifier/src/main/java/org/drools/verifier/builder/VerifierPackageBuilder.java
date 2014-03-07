@@ -16,7 +16,7 @@
 
 package org.drools.verifier.builder;
 
-import org.drools.compiler.compiler.PackageBuilder;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.PackageBuilderErrors;
 import org.drools.compiler.lang.descr.PackageDescr;
@@ -54,7 +54,7 @@ class VerifierPackageBuilder {
         return innerBuilder.getErrors();
     }
 
-    class InnerBuilder extends PackageBuilder {
+    class InnerBuilder extends KnowledgeBuilderImpl {
         public InnerBuilder() {
             super( new PackageBuilderConfiguration() );
         }

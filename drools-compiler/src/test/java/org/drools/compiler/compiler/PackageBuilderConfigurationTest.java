@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.base.TypeResolver;
 import org.drools.compiler.lang.descr.AndDescr;
 import org.drools.compiler.lang.descr.AttributeDescr;
@@ -219,15 +220,12 @@ public class PackageBuilderConfigurationTest {
                          mockConf );
         cfg1.setDefaultDialect( "mock" );
 
-        PackageBuilder builder = new PackageBuilder( pkg,
-                                                     cfg1 );
+        KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl( pkg, cfg1 );
 
         PackageRegistry pkgRegistry = builder.getPackageRegistry( pkg.getName() );
         DialectCompiletimeRegistry dialectRegistry = pkgRegistry.getDialectCompiletimeRegistry();
         MockDialect mockDialect2 = (MockDialect) dialectRegistry.getDialect( cfg1.getDefaultDialect() );
 
-        assertSame( builder,
-                    mockDialect2.getPackageBuilder() );
         assertSame( pkg,
                     mockDialect2.getPkg() );
         assertNull( mockDialect2.getRuleDescr() );
@@ -270,10 +268,12 @@ public class PackageBuilderConfigurationTest {
             DialectConfiguration {
         private PackageBuilderConfiguration conf;
 
-        public Dialect newDialect( PackageBuilder pkgBuilder,
+        public Dialect newDialect( ClassLoader rootClassLoader,
+                                   PackageBuilderConfiguration pkgConf,
                                    PackageRegistry pkgRegistry,
                                    Package pkg ) {
-            return new MockDialect( pkgBuilder,
+            return new MockDialect( rootClassLoader,
+                                    pkgConf,
                                     pkgRegistry,
                                     pkg );
         }
@@ -291,7 +291,6 @@ public class PackageBuilderConfigurationTest {
     public static class MockDialect
         implements
             Dialect {
-        private PackageBuilder builder;
         private Package        pkg;
         private RuleDescr      ruleDescr;
         private Rule           rule;
@@ -300,19 +299,15 @@ public class PackageBuilderConfigurationTest {
 
         private boolean        compileAll    = false;
 
-        public MockDialect(PackageBuilder builder,
+        public MockDialect(ClassLoader rootClassLoader,
+                           PackageBuilderConfiguration pkgConf,
                            PackageRegistry pkgRegistry,
                            Package pkg) {
-            this.builder = builder;
             this.pkg = pkg;
         }
 
         public void init( RuleDescr ruleDescr ) {
             this.ruleDescr = ruleDescr;
-        }
-
-        public PackageBuilder getPackageBuilder() {
-            return builder;
         }
 
         public Package getPkg() {

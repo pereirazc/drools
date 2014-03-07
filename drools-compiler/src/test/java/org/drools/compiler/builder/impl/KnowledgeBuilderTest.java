@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.compiler.compiler;
+package org.drools.compiler.builder.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -33,7 +33,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.drools.compiler.Cheese;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.commons.jci.compilers.NativeJavaCompiler;
+import org.drools.compiler.compiler.Dialect;
+import org.drools.compiler.compiler.DialectCompiletimeRegistry;
+import org.drools.compiler.compiler.DroolsParserException;
+import org.drools.compiler.compiler.DuplicateFunction;
+import org.drools.compiler.compiler.DuplicateRule;
+import org.drools.compiler.compiler.PackageBuilderConfiguration;
+import org.drools.compiler.compiler.ParserError;
 import org.drools.core.FactHandle;
 import org.drools.compiler.Primitives;
 import org.drools.core.RuleBaseFactory;
@@ -104,7 +112,7 @@ import org.kie.api.definition.type.FactField;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.utils.ClassLoaderUtil;
 
-public class PackageBuilderTest extends DroolsTestCase {
+public class KnowledgeBuilderTest extends DroolsTestCase {
     
     @After
     public void tearDown() {
@@ -115,7 +123,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testErrors() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -150,14 +158,14 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testErrorsInParser() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         builder.addPackageFromDrl( new InputStreamReader( this.getClass().getResourceAsStream( "bad_rule.drl" ) ) );
         assertTrue( builder.hasErrors() );
     }
 
     @Test
     public void testReload() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -228,7 +236,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testSerializable() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -291,7 +299,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     @Test
     @Ignore
     public void testNoPackageName() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         try {
             builder.addPackage( new PackageDescr( null ) );
             fail( "should have errored here." );
@@ -312,7 +320,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testErrorReset() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         builder.addPackageFromDrl( new StringReader( "package foo \n rule ORB" ) );
         assertTrue( builder.hasErrors() );
@@ -326,7 +334,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testLiteral() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -351,7 +359,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testReturnValue() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -387,7 +395,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testReturnValueMethodCompare() {
-        final PackageBuilder builder1 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder1 = new KnowledgeBuilderImpl();
         final PackageDescr packageDescr1 = new PackageDescr( "package1" );
         createReturnValueRule( packageDescr1,
                                " x + y " );
@@ -398,7 +406,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         final Pattern pattern1 = (Pattern) builder1.getPackage().getRules()[0].getLhs().getChildren().get( 0 );
         final Constraint returnValue1 = pattern1.getConstraints().get( 0 );
 
-        final PackageBuilder builder2 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder2 = new KnowledgeBuilderImpl();
         final PackageDescr packageDescr2 = new PackageDescr( "package2" );
         createReturnValueRule( packageDescr2,
                                " x + y " );
@@ -406,7 +414,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         final Pattern pattern2 = (Pattern) builder2.getPackage().getRules()[0].getLhs().getChildren().get( 0 );
         final Constraint returnValue2 = pattern2.getConstraints().get( 0 );
 
-        final PackageBuilder builder3 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder3 = new KnowledgeBuilderImpl();
         final PackageDescr packageDescr3 = new PackageDescr( "package3" );
         createReturnValueRule( packageDescr3,
                                " x - y " );
@@ -422,7 +430,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testPredicate() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -459,7 +467,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testPredicateMethodCompare() {
-        final PackageBuilder builder1 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder1 = new KnowledgeBuilderImpl();
         final PackageDescr packageDescr1 = new PackageDescr( "package1" );
         createPredicateRule( packageDescr1,
                              "eval(x==y)" );
@@ -470,7 +478,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         final Pattern pattern1 = (Pattern) builder1.getPackage().getRules()[0].getLhs().getChildren().get( 0 );
         final PredicateConstraint predicate1 = (PredicateConstraint) pattern1.getConstraints().get( 0 );
 
-        final PackageBuilder builder2 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder2 = new KnowledgeBuilderImpl();
         final PackageDescr packageDescr2 = new PackageDescr( "package2" );
         createPredicateRule( packageDescr2,
                              "eval(x==y)" );
@@ -482,7 +490,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         final Pattern pattern2 = (Pattern) builder2.getPackage().getRules()[0].getLhs().getChildren().get( 0 );
         final PredicateConstraint predicate2 = (PredicateConstraint) pattern2.getConstraints().get( 0 );
 
-        final PackageBuilder builder3 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder3 = new KnowledgeBuilderImpl();
         if ( builder3.hasErrors() ) {
             fail( builder3.getErrors().toString() );
          }        
@@ -501,7 +509,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testEval() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -543,21 +551,21 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testEvalMethodCompare() {
-        final PackageBuilder builder1 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder1 = new KnowledgeBuilderImpl();
         final PackageDescr packageDescr1 = new PackageDescr( "package1" );
         createEvalRule( packageDescr1,
                         "1==1" );
         builder1.addPackage( packageDescr1 );
         final EvalCondition eval1 = (EvalCondition) builder1.getPackage().getRules()[0].getLhs().getChildren().get( 0 );
 
-        final PackageBuilder builder2 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder2 = new KnowledgeBuilderImpl();
         final PackageDescr packageDescr2 = new PackageDescr( "package2" );
         createEvalRule( packageDescr2,
                         "1==1" );
         builder2.addPackage( packageDescr2 );
         final EvalCondition eval2 = (EvalCondition) builder2.getPackage().getRules()[0].getLhs().getChildren().get( 0 );
 
-        final PackageBuilder builder3 = new PackageBuilder();
+        final KnowledgeBuilderImpl builder3 = new KnowledgeBuilderImpl();
         final PackageDescr packageDescr3 = new PackageDescr( "package3" );
         createEvalRule( packageDescr3,
                         "1==3" );
@@ -572,7 +580,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testOr() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         final Rule rule = createRule( new OrDescr(),
                                       builder,
                                       "update(stilton);" );
@@ -591,7 +599,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testAnd() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         final Rule rule = createRule( new AndDescr(),
                                       builder,
                                       "update(stilton);" );
@@ -610,7 +618,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testNot() throws Exception {
-        PackageBuilder builder = new PackageBuilder();
+        KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         // Make sure we can't accessa  variable bound inside the not node
         Rule rule = createRule( new NotDescr(),
@@ -619,7 +627,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
         assertTrue( builder.hasErrors() );
 
-        builder = new PackageBuilder();
+        builder = new KnowledgeBuilderImpl();
         rule = createRule( new NotDescr(),
                            builder,
                            "" );
@@ -638,7 +646,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testExists() throws Exception {
-        PackageBuilder builder = new PackageBuilder();
+        KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         // Make sure we can't accessa  variable bound inside the not node
         Rule rule = createRule( new ExistsDescr(),
@@ -647,7 +655,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         
         assertTrue( builder.hasErrors() );
 
-        builder = new PackageBuilder();
+        builder = new KnowledgeBuilderImpl();
         rule = createRule( new ExistsDescr(),
                            builder,
                            "" );
@@ -709,7 +717,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testNull() {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -742,7 +750,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     public void testWarnings() {
         System.setProperty( "drools.kbuilder.severity." + DuplicateRule.KEY, "WARNING");
         
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         
         final PackageDescr packageDescr1 = createBasicPackageWithOneRule(11, 1);
         
@@ -760,7 +768,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     public void testWarningsReportAsErrors() {
         System.setProperty( "drools.kbuilder.severity." + DuplicateRule.KEY, "ERROR");
         PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
-        final PackageBuilder builder = new PackageBuilder(cfg);
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl(cfg);
         
         final PackageDescr packageDescr1 = createBasicPackageWithOneRule(11, 1);
         
@@ -779,7 +787,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         
         System.setProperty( "drools.kbuilder.severity." + DuplicateRule.KEY, "WARNING");
         
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         
         final PackageDescr packageDescr1 = createBasicPackageWithOneRule(11, 1);
         
@@ -803,7 +811,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         System.setProperty( "drools.kbuilder.severity." + DuplicateRule.KEY, "WARNING");
         System.setProperty( "drools.kbuilder.severity." + DuplicateFunction.KEY, "ERROR");
         
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         
         final PackageDescr packageDescr1 = createBasicPackageWithOneRule(11, 1);
         
@@ -828,7 +836,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         System.setProperty( "drools.kbuilder.severity." + DuplicateRule.KEY, "WARNING");
         System.setProperty( "drools.kbuilder.severity." + DuplicateFunction.KEY, "ERROR");
         
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         
         final PackageDescr packageDescr1 = createBasicPackageWithOneRule(11, 1);
         
@@ -851,7 +859,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     @Test
     public void testWarnOnFunctionReplacement() throws DroolsParserException, IOException {
         System.setProperty( "drools.kbuilder.severity." + DuplicateFunction.KEY, "WARNING");
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         builder.addPackageFromDrl( new StringReader( "package org.drools\n" + "function boolean testIt() {\n" + "  return true;\n" + "}\n" ) );
         builder.addPackageFromDrl( new StringReader( "package org.drools\n" + "function boolean testIt() {\n" + "  return false;\n" + "}\n" ) );
         assertTrue(builder.hasWarnings());
@@ -861,7 +869,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     @Test
     public void testDuplicateRuleNames() throws Exception {
 
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         RuleDescr ruleDescr;
         AndDescr lhs;
@@ -932,7 +940,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test @Ignore // TODO we now allow bindings on declarations, so update the test for this
     public void testDuplicateDeclaration() {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -969,7 +977,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     @Test
     public void testCompilerConfiguration() throws Exception {
         // test default is eclipse jdt core
-        PackageBuilder builder = new PackageBuilder();
+        KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         PackageDescr pkgDescr = new PackageDescr( "org.drools.compiler.test" );
         builder.addPackage( pkgDescr );
         DialectCompiletimeRegistry reg = builder.getPackageRegistry( pkgDescr.getName() ).getDialectCompiletimeRegistry();
@@ -1002,7 +1010,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         conf = new PackageBuilderConfiguration();
         javaConf = (JavaDialectConfiguration) conf.getDialectConfiguration( "java" );
         javaConf.setCompiler( JavaDialectConfiguration.JANINO );
-        builder = new PackageBuilder( conf );
+        builder = new KnowledgeBuilderImpl( conf );
         builder.addPackage( pkgDescr );
 
         dialectName = (String) dialectField.get( builder );
@@ -1016,7 +1024,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         conf = new PackageBuilderConfiguration();
         javaConf = (JavaDialectConfiguration) conf.getDialectConfiguration( "java" );
         javaConf.setCompiler( JavaDialectConfiguration.ECLIPSE );
-        builder = new PackageBuilder( conf );
+        builder = new KnowledgeBuilderImpl( conf );
         builder.addPackage( pkgDescr );
 
         dialectName = (String) dialectField.get( builder );
@@ -1037,7 +1045,7 @@ public class PackageBuilderTest extends DroolsTestCase {
                                     "org.drools.compiler.StockTick" );
         pkgDescr.addTypeDeclaration( typeDescr );
 
-        PackageBuilder builder = new PackageBuilder();
+        KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         builder.addPackage( pkgDescr );
         if ( builder.hasErrors() ) {
             fail( builder.getErrors().toString() );
@@ -1070,7 +1078,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
         pkgDescr.addTypeDeclaration( typeDescr );
 
-        PackageBuilder builder = new PackageBuilder();
+        KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         builder.addPackage( pkgDescr );
 
         Package pkg = builder.getPackage();
@@ -1094,7 +1102,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testPackageMerge() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         try {
             builder.addPackage( new PackageDescr( "org.drools" ) );
 
@@ -1177,7 +1185,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     }
 
     private void createLiteralRule( final BaseDescr descr ) {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -1200,7 +1208,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     }
 
     private Rule createRule( final ConditionalElementDescr ceDescr,
-                             final PackageBuilder builder,
+                             final KnowledgeBuilderImpl builder,
                              final String consequence ) throws Exception {
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule-1" );
@@ -1237,7 +1245,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         JavaDialectConfiguration javaConf = (JavaDialectConfiguration) cfg.getDialectConfiguration( "java" );
         javaConf.setCompiler( JavaDialectConfiguration.JANINO );
 
-        PackageBuilder bldr = new PackageBuilder( cfg );
+        KnowledgeBuilderImpl bldr = new KnowledgeBuilderImpl( cfg );
         bldr.addPackageFromDrl( new StringReader( "package testBuilderPackageConfig \n import java.util.List" ) );
         bldr.addPackageFromDrl( new StringReader( "package testBuilderPackageConfig \n function void doSomething() {\n System.err.println(List.class.toString()); }" ) );
 
@@ -1248,7 +1256,7 @@ public class PackageBuilderTest extends DroolsTestCase {
     public void testSinglePackage() throws Exception {
         PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
         cfg.setAllowMultipleNamespaces( false );
-        PackageBuilder bldr = new PackageBuilder( cfg );
+        KnowledgeBuilderImpl bldr = new KnowledgeBuilderImpl( cfg );
         bldr.addPackageFromDrl( new StringReader( "package whee\n import org.drools.compiler.Cheese" ) );
         assertFalse( bldr.hasErrors() );
         bldr.addPackageFromDrl( new StringReader( "package whee\n import org.drools.compiler.Person" ) );
@@ -1263,7 +1271,7 @@ public class PackageBuilderTest extends DroolsTestCase {
         cfg = new PackageBuilderConfiguration();
         assertEquals( true,
                       cfg.isAllowMultipleNamespaces() );
-        bldr = new PackageBuilder( cfg );
+        bldr = new KnowledgeBuilderImpl( cfg );
         bldr.addPackageFromDrl( new StringReader( "package whee\n import org.drools.compiler.Cheese" ) );
         assertFalse( bldr.hasErrors() );
         // following import will be added to the default package name
@@ -1278,7 +1286,7 @@ public class PackageBuilderTest extends DroolsTestCase {
 
     @Test
     public void testTimeWindowBehavior() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final TypeDeclarationDescr typeDeclDescr = new TypeDeclarationDescr( StockTick.class.getName() );
@@ -1332,7 +1340,7 @@ public class PackageBuilderTest extends DroolsTestCase {
                      + "cheese : String \n"
                      + "end";
 
-        PackageBuilder builder = new PackageBuilder();
+        KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         builder.addPackageFromDrl( new StringReader( drl ) );
 

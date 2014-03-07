@@ -24,15 +24,13 @@ public class PackageRegistry {
 
     private final TypeResolver               typeResolver;
 
-    public PackageRegistry(PackageBuilder packageBuilder, Package pkg) {
+    public PackageRegistry(ClassLoader rootClassLoader, PackageBuilderConfiguration pkgConf, Package pkg) {
         this.pkg = pkg;
-        this.dialectCompiletimeRegistry = packageBuilder.getPackageBuilderConfiguration().buildDialectRegistry( packageBuilder,
-                                                                                                                this,
-                                                                                                                pkg );
+        this.dialectCompiletimeRegistry = pkgConf.buildDialectRegistry( rootClassLoader, pkgConf, this, pkg );
         this.dialectRuntimeRegistry = pkg.getDialectRuntimeRegistry();
 
         this.typeResolver = new ClassTypeResolver( new HashSet<String>( this.pkg.getImports().keySet() ),
-                                                   packageBuilder.getRootClassLoader(),
+                                                   rootClassLoader,
                                                    this.pkg.getName() );
 
         this.typeResolver.addImport( pkg.getName() + ".*" );

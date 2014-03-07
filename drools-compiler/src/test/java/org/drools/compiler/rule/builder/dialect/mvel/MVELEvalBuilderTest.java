@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.drools.compiler.Cheese;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.core.RuleBase;
 import org.drools.core.WorkingMemory;
 import org.drools.core.common.InternalWorkingMemory;
@@ -51,7 +51,7 @@ public class MVELEvalBuilderTest {
         final Package pkg = new Package( "pkg1" );
         final RuleDescr ruleDescr = new RuleDescr( "rule 1" );
 
-        PackageBuilder pkgBuilder = new PackageBuilder( pkg );
+        KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg );
         final PackageBuilderConfiguration conf = pkgBuilder.getPackageBuilderConfiguration();
         DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
         MVELDialect mvelDialect = ( MVELDialect ) dialectRegistry.getDialect( "mvel" );

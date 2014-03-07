@@ -3,8 +3,8 @@ package org.drools.compiler.reteoo;
 import java.io.IOException;
 import java.io.StringReader;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DroolsParserException;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.core.RuleBaseConfiguration;
 import org.drools.core.reteoo.ReteooBuilder;
 import org.drools.core.reteoo.ReteooRuleBase;
@@ -58,7 +58,7 @@ public class ReteooBuilderPerformanceTest {
         StringReader    reader  = new StringReader(generateRules(ruleCount));
         
         System.out.println("Generating packages");
-        PackageBuilder pkgBuilder = new PackageBuilder();
+        KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl();
         try {
             pkgBuilder.addPackageFromDrl( reader );
         } catch ( IOException e ) { 

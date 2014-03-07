@@ -3,8 +3,8 @@ package org.drools.compiler.rule.builder.dialect.mvel;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.core.RuleBase;
 import org.drools.core.WorkingMemory;
 import org.drools.core.common.AgendaItemImpl;
@@ -46,7 +46,7 @@ public class MVELSalienceBuilderTest {
                                                     "(p.age + 20)/2" ) );
         ruleDescr.setConsequence( "" );
 
-        PackageBuilder pkgBuilder = new PackageBuilder( pkg );
+        KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg );
         DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
         MVELDialect mvelDialect = (MVELDialect) dialectRegistry.getDialect( "mvel" );
 

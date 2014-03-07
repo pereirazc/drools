@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.io.InputStreamReader;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.test.model.DroolsTestCase;
 import org.drools.compiler.rule.builder.dialect.java.JavaDialectConfiguration;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class Java5Test extends DroolsTestCase {
         javaConf.setCompiler( JavaDialectConfiguration.ECLIPSE );
         javaConf.setJavaLanguageLevel( "1.5" );
         
-        final PackageBuilder builder = new PackageBuilder( conf );
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl( conf );
         builder.addPackageFromDrl( new InputStreamReader( this.getClass().getResourceAsStream( "java5_rule.drl" ) ) );
         if ( builder.hasErrors() ) {
             fail( builder.getErrors().toString() );
@@ -37,7 +38,7 @@ public class Java5Test extends DroolsTestCase {
         final PackageBuilderConfiguration conf = new PackageBuilderConfiguration();
         JavaDialectConfiguration javaConf = ( JavaDialectConfiguration ) conf.getDialectConfiguration( "java" );
         javaConf.setCompiler( JavaDialectConfiguration.JANINO );
-        final PackageBuilder builder = new PackageBuilder( conf );
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl( conf );
         builder.addPackageFromDrl( new InputStreamReader( this.getClass().getResourceAsStream( "java5_rule.drl" ) ) );
         assertTrue( builder.hasErrors() );
     }

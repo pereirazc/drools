@@ -28,6 +28,7 @@ import org.drools.compiler.CheeseEqual;
 import org.drools.compiler.Cheesery;
 import org.drools.compiler.Cheesery.Maturity;
 import org.drools.compiler.Child;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.reteoo.integrationtests.CommonTestMethodBase;
 import org.drools.compiler.DomainObjectHolder;
 import org.drools.compiler.FactA;
@@ -66,7 +67,6 @@ import org.drools.compiler.Win;
 import org.drools.compiler.compiler.DescrBuildError;
 import org.drools.compiler.compiler.DrlParser;
 import org.drools.compiler.compiler.DroolsError;
-import org.drools.compiler.compiler.PackageBuilder.PackageMergeException;
 import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.ParserError;
 import org.drools.compiler.integrationtests.SerializationHelper;
@@ -4133,7 +4133,7 @@ public class MiscTest extends CommonTestMethodBase {
                                   kpkg.getRules().iterator().next().getName() );
                 }
             }
-        } catch ( PackageMergeException e ) {
+        } catch ( KnowledgeBuilderImpl.PackageMergeException e ) {
             fail( "unexpected exception: " + e.getMessage() );
         } catch ( RuntimeException e ) {
             e.printStackTrace();
@@ -4245,7 +4245,7 @@ public class MiscTest extends CommonTestMethodBase {
             assertTrue( results.contains( "p1.r1" ) );
             assertTrue( results.contains( "p2.r1" ) );
 
-        } catch ( PackageMergeException e ) {
+        } catch ( KnowledgeBuilderImpl.PackageMergeException e ) {
             fail( "Should not raise exception when merging different packages into the same rulebase: " + e.getMessage() );
         } catch ( Exception e ) {
             e.printStackTrace();

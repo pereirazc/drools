@@ -16,7 +16,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.compiler.compiler.PackageBuilderErrors;
 import org.drools.compiler.kie.util.ChangeSetBuilder;
 import org.drools.compiler.kie.util.KieJarChangeSet;
@@ -140,7 +139,7 @@ public class KieContainerImpl
             } else {
                 // attaching the builder to the kbase
                 KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder((KnowledgeBase) kBaseEntry.getValue());
-                PackageBuilder pkgbuilder = kbuilder instanceof PackageBuilder ? ((PackageBuilder) kbuilder) : ((KnowledgeBuilderImpl)kbuilder).getPackageBuilder();
+                KnowledgeBuilderImpl pkgbuilder = (KnowledgeBuilderImpl)kbuilder;
                 CompositeKnowledgeBuilder ckbuilder = kbuilder.batch();
 
                 boolean modifyingUsedClass = false;
@@ -205,11 +204,11 @@ public class KieContainerImpl
         return results;
     }
 
-    private void updateAllResources(InternalKieModule currentKM, InternalKieModule newKM, KieBaseModel kieBaseModel, PackageBuilder pkgbuilder, CompositeKnowledgeBuilder ckbuilder) {
+    private void updateAllResources(InternalKieModule currentKM, InternalKieModule newKM, KieBaseModel kieBaseModel, KnowledgeBuilderImpl kbuilder, CompositeKnowledgeBuilder ckbuilder) {
         for (String resourceName : currentKM.getFileNames()) {
             if ( !resourceName.endsWith( ".properties" ) && filterFileInKBase(currentKM, kieBaseModel, resourceName) ) {
                 Resource resource = currentKM.getResource(resourceName);
-                pkgbuilder.removeObjectsGeneratedFromResource( resource );
+                kbuilder.removeObjectsGeneratedFromResource(resource);
             }
         }
         for (String resourceName : newKM.getFileNames()) {
@@ -225,7 +224,7 @@ public class KieContainerImpl
                                              List<String> modifiedClasses,
                                              Entry<String, KieBase> kBaseEntry,
                                              KieBaseModel kieBaseModel,
-                                             PackageBuilder pkgbuilder,
+                                             KnowledgeBuilderImpl kbuilder,
                                              CompositeKnowledgeBuilder ckbuilder) {
         int fileCount = modifiedClasses.size();
         for ( ResourceChangeSet rcs : cs.getChanges().values() ) {
@@ -243,7 +242,7 @@ public class KieContainerImpl
                         // the whole resource has to handled
                         if( rcs.getChangeType() == ChangeType.UPDATED ) {
                             Resource resource = currentKM.getResource(resourceName);
-                            pkgbuilder.removeObjectsGeneratedFromResource( resource );
+                            kbuilder.removeObjectsGeneratedFromResource(resource);
                         }
                         fileCount += newKM.addResourceToCompiler(ckbuilder, resourceName) ? 1 : 0;
                     }
@@ -267,11 +266,11 @@ public class KieContainerImpl
                             InternalKieModule newKM,
                             List<String> modifiedClasses,
                             KieBaseModel kieBaseModel,
-                            PackageBuilder pkgbuilder,
+                            KnowledgeBuilderImpl kbuilder,
                             CompositeKnowledgeBuilder ckbuilder) {
         Set<String> modifiedPackages = new HashSet<String>();
         if (!modifiedClasses.isEmpty()) {
-            ClassLoader rootClassLoader = pkgbuilder.getRootClassLoader();
+            ClassLoader rootClassLoader = kbuilder.getRootClassLoader();
             if ( rootClassLoader instanceof ProjectClassLoader) {
                 ProjectClassLoader projectClassLoader = (ProjectClassLoader) rootClassLoader;
                 projectClassLoader.reinitTypes();
@@ -281,13 +280,13 @@ public class KieContainerImpl
                     Class<?> clazz = projectClassLoader.defineClass(className, resourceName, bytes);
                     modifiedPackages.add(clazz.getPackage().getName());
                 }
-                pkgbuilder.setAllRuntimesDirty(modifiedPackages);
+                kbuilder.setAllRuntimesDirty(modifiedPackages);
             }
         }
 
         ckbuilder.build();
 
-        PackageBuilderErrors errors = pkgbuilder.getErrors();
+        PackageBuilderErrors errors = kbuilder.getErrors();
         if ( !errors.isEmpty() ) {
             for ( KnowledgeBuilderError error : errors.getErrors() ) {
                 results.addMessage(error);
@@ -296,7 +295,7 @@ public class KieContainerImpl
         }
 
         if (!modifiedClasses.isEmpty()) {
-            pkgbuilder.rewireClassObjectTypes(modifiedPackages);
+            kbuilder.rewireClassObjectTypes(modifiedPackages);
         }
     }
 

@@ -3,6 +3,7 @@ package org.drools.compiler.compiler;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.CheckedDroolsException;
 import org.drools.core.RuleBase;
 import org.drools.core.RuleBaseFactory;
@@ -32,7 +33,7 @@ public class RuleBaseLoader {
      */
     public RuleBase loadFromReader(final Reader drl) throws CheckedDroolsException,
                                                     IOException {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         builder.addPackageFromDrl( drl );
         return makeRuleBase( builder );
     }
@@ -44,7 +45,7 @@ public class RuleBaseLoader {
     public RuleBase loadFromReader(final Reader drl,
                                    final Reader dsl) throws CheckedDroolsException,
                                                     IOException {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
         builder.addPackageFromDrl( drl,
                                    dsl );
         return makeRuleBase( builder );
@@ -55,7 +56,7 @@ public class RuleBaseLoader {
         RuleBaseLoader.engineType = type;
     }
 
-    private RuleBase makeRuleBase(final PackageBuilder builder) throws CheckedDroolsException {
+    private RuleBase makeRuleBase(final KnowledgeBuilderImpl builder) throws CheckedDroolsException {
         if ( builder.hasErrors() ) {
             throw new CheckedDroolsException( "There were errors in the rule source: " + builder.getErrors().toString() );
         }

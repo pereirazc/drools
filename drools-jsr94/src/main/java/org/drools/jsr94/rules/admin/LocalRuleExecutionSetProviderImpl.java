@@ -27,9 +27,9 @@ import javax.rules.admin.LocalRuleExecutionSetProvider;
 import javax.rules.admin.RuleExecutionSet;
 import javax.rules.admin.RuleExecutionSetCreateException;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.IntegrationException;
 import org.drools.compiler.compiler.DroolsParserException;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.decisiontable.InputType;
 import org.drools.decisiontable.SpreadsheetCompiler;
@@ -119,12 +119,12 @@ public class LocalRuleExecutionSetProviderImpl
             if ( properties != null ) {
                 config = (PackageBuilderConfiguration) properties.get( Constants.RES_PACKAGEBUILDER_CONFIG );
             }
-            
-            PackageBuilder builder = null;
+
+            KnowledgeBuilderImpl builder = null;
             if ( config != null ) {
-                builder = new PackageBuilder(config);
+                builder = new KnowledgeBuilderImpl(config);
             } else {
-                builder = new PackageBuilder();
+                builder = new KnowledgeBuilderImpl();
             }
             
             Object dsrl = null;

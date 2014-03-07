@@ -11,7 +11,7 @@ public interface DialectConfiguration {
     
     public void init(PackageBuilderConfiguration  configuration);
     
-    public Dialect newDialect(PackageBuilder packageBuilder, PackageRegistry pkgRegistry, Package pkg);
+    public Dialect newDialect(ClassLoader rootClassLoader, PackageBuilderConfiguration pkgConf, PackageRegistry pkgRegistry, Package pkg);
     
     public PackageBuilderConfiguration getPackageBuilderConfiguration();
 }

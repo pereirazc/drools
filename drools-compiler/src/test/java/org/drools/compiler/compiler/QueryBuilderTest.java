@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.drools.compiler.Cheese;
 import org.drools.compiler.Person;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.RuleBaseFactory;
 import org.drools.core.definitions.impl.KnowledgePackageImp;
 import org.drools.core.impl.KnowledgeBaseImpl;
@@ -30,7 +31,7 @@ public class QueryBuilderTest extends DroolsTestCase {
 
     @Test
     public void testRuleWithQuery() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
 
@@ -109,7 +110,7 @@ public class QueryBuilderTest extends DroolsTestCase {
 
     @Test
     public void testQuery() throws Exception {
-        final PackageBuilder builder = new PackageBuilder();
+        final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl();
 
         final PackageDescr packageDescr = new PackageDescr( "p1" );
         final QueryDescr queryDescr = new QueryDescr( "query1" );

@@ -181,7 +181,7 @@ public class RuleBuilder {
             } else if ( name.equals( "date-effective" ) ) {
                 try {
                     Date date = DateUtils.parseDate( attributeDescr.getValue(),
-                                                     context.getPackageBuilder().getDateFormats()  );
+                                                     context.getKnowledgeBuilder().getDateFormats()  );
                     final Calendar cal = Calendar.getInstance();
                     cal.setTime( date );
                     rule.setDateEffective( cal );
@@ -193,7 +193,7 @@ public class RuleBuilder {
             } else if ( name.equals( "date-expires" ) ) {
                 try {
                     Date date = DateUtils.parseDate( attributeDescr.getValue(),
-                                                     context.getPackageBuilder().getDateFormats()  );
+                                                     context.getKnowledgeBuilder().getDateFormats()  );
                     final Calendar cal = Calendar.getInstance();
                     cal.setTime( date );
                     rule.setDateExpires( cal );
@@ -413,7 +413,7 @@ public class RuleBuilder {
             return null;
         }
         try {
-            DateUtils.parseDate( expr, context.getPackageBuilder().getDateFormats() );
+            DateUtils.parseDate( expr, context.getKnowledgeBuilder().getDateFormats() );
             expr = "\"" + expr + "\""; // if expr is a valid date wrap in quotes
         } catch (Exception e) { }
         return MVELObjectExpressionBuilder.build( expr, context );

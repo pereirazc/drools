@@ -21,12 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DescrBuildError;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.compiler.compiler.DroolsError;
 import org.drools.compiler.compiler.DroolsWarning;
-import org.drools.compiler.compiler.PackageBuilder;
 import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.lang.descr.BaseDescr;
 import org.drools.compiler.rule.builder.dialect.mvel.MVELDialect;
@@ -41,7 +41,7 @@ public class PackageBuildContext {
     // current package
     private Package                     pkg;
 
-    private PackageBuilder pkgBuilder;
+    private KnowledgeBuilderImpl        kBuilder;
 
     // the contianer descr
     private BaseDescr                   parentDescr;
@@ -78,13 +78,13 @@ public class PackageBuildContext {
     /**
      * Default constructor
      */
-    public void init(final PackageBuilder pkgBuilder,
+    public void init(final KnowledgeBuilderImpl kBuilder,
                      final Package pkg,
                      final BaseDescr parentDescr,
                      final DialectCompiletimeRegistry dialectRegistry,
                      final Dialect defaultDialect,
                      final Dialectable component) {
-        this.pkgBuilder = pkgBuilder;
+        this.kBuilder = kBuilder;
         
         this.pkg = pkg;
 
@@ -229,11 +229,11 @@ public class PackageBuildContext {
     }
 
     public PackageBuilderConfiguration getConfiguration() {
-        return this.pkgBuilder.getPackageBuilderConfiguration();
+        return this.kBuilder.getPackageBuilderConfiguration();
     }
     
-    public PackageBuilder getPackageBuilder() {
-        return this.pkgBuilder;
+    public KnowledgeBuilderImpl getKnowledgeBuilder() {
+        return this.kBuilder;
     }
 
     public boolean isTypesafe() {
