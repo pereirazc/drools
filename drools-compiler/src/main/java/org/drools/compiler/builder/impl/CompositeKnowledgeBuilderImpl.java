@@ -1,6 +1,6 @@
 package org.drools.compiler.builder.impl;
 
-import org.drools.compiler.builder.impl.KnowledgeBuilderImpl.TypeDefinition;
+import org.drools.compiler.builder.impl.TypeDefinition;
 import org.drools.compiler.compiler.BPMN2ProcessFactory;
 import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.CompositePackageDescr;
@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.drools.core.util.StringUtils.isEmpty;
 
 public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder {
 
@@ -273,10 +275,10 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
     private void buildTypeDeclarations(Collection<CompositePackageDescr> packages) {
         for (CompositePackageDescr packageDescr : packages) {
             for (TypeDeclarationDescr typeDeclarationDescr : packageDescr.getTypeDeclarations()) {
-                if (kBuilder.isEmpty( typeDeclarationDescr.getNamespace() )) {
+                if (isEmpty( typeDeclarationDescr.getNamespace() )) {
                     typeDeclarationDescr.setNamespace( packageDescr.getNamespace() ); // set the default namespace
                 }
-                kBuilder.registerGeneratedType(typeDeclarationDescr);
+                kBuilder.getTypeBuilder().registerGeneratedType(typeDeclarationDescr);
             }
         }
 
@@ -286,7 +288,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         }
 
         for (TypeDefinition unresolvedType : unresolvedTypes) {
-            kBuilder.processUnresolvedType(kBuilder.getPackageRegistry(unresolvedType.getNamespace()), unresolvedType);
+            kBuilder.getTypeBuilder().processUnresolvedType(kBuilder.getPackageRegistry(unresolvedType.getNamespace()), unresolvedType);
         }
 
         for (CompositePackageDescr packageDescr : packages) {
@@ -304,7 +306,7 @@ public class CompositeKnowledgeBuilderImpl implements CompositeKnowledgeBuilder 
         }
 
         kBuilder.processEntryPointDeclarations(pkgRegistry, packageDescr);
-        List<TypeDefinition> processTypeDeclarations = kBuilder.processTypeDeclarations(pkgRegistry, packageDescr, unresolvedTypes);
+        List<TypeDefinition> processTypeDeclarations = kBuilder.getTypeBuilder().processTypeDeclarations(pkgRegistry, packageDescr, unresolvedTypes);
         kBuilder.setAssetFilter(null);
         return processTypeDeclarations;
     }

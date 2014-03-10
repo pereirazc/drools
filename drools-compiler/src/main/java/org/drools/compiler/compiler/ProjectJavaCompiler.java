@@ -1,5 +1,6 @@
 package org.drools.compiler.compiler;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.errors.ErrorHandler;
 import org.drools.compiler.builder.impl.errors.SrcErrorHandler;
 import org.drools.compiler.commons.jci.compilers.CompilationResult;
@@ -23,7 +24,7 @@ public class ProjectJavaCompiler {
 
     private final JavaCompiler compiler;
 
-    public ProjectJavaCompiler(PackageBuilderConfiguration pkgConf) {
+    public ProjectJavaCompiler(KnowledgeBuilderConfigurationImpl pkgConf) {
         this((JavaDialectConfiguration) pkgConf.getDialectConfiguration("java"));
     }
 

@@ -6,7 +6,7 @@ import org.drools.builder.JaxbConfiguration;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderFactoryService;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.core.builder.conf.impl.JaxbConfigurationImpl;
 import org.drools.core.impl.KnowledgeBaseImpl;
 
@@ -19,11 +19,11 @@ import org.drools.impl.adapters.KnowledgeBuilderConfigurationAdapter;
 public class KnowledgeBuilderFactoryServiceImpl implements KnowledgeBuilderFactoryService {
 
     public KnowledgeBuilderConfiguration newKnowledgeBuilderConfiguration() {
-        return new KnowledgeBuilderConfigurationAdapter(new PackageBuilderConfiguration());
+        return new KnowledgeBuilderConfigurationAdapter(new KnowledgeBuilderConfigurationImpl());
     }
 
     public KnowledgeBuilderConfiguration newKnowledgeBuilderConfiguration(Properties properties, ClassLoader... classLoaders) {
-        return new KnowledgeBuilderConfigurationAdapter(new PackageBuilderConfiguration(properties, classLoaders));
+        return new KnowledgeBuilderConfigurationAdapter(new KnowledgeBuilderConfigurationImpl(properties, classLoaders));
     }
 
     public DecisionTableConfiguration newDecisionTableConfiguration() {
@@ -35,7 +35,7 @@ public class KnowledgeBuilderFactoryServiceImpl implements KnowledgeBuilderFacto
     }
 
     public KnowledgeBuilder newKnowledgeBuilder(KnowledgeBuilderConfiguration conf) {
-        return new KnowledgeBuilderImpl( (PackageBuilderConfiguration) ((KnowledgeBuilderConfigurationAdapter)conf).getDelegate() );
+        return new KnowledgeBuilderImpl( (KnowledgeBuilderConfigurationImpl) ((KnowledgeBuilderConfigurationAdapter)conf).getDelegate() );
     }
 
     public KnowledgeBuilder newKnowledgeBuilder(KnowledgeBase kbase) {
@@ -49,9 +49,9 @@ public class KnowledgeBuilderFactoryServiceImpl implements KnowledgeBuilderFacto
     public KnowledgeBuilder newKnowledgeBuilder(KnowledgeBase kbase,
                                                 KnowledgeBuilderConfiguration conf) {
         if ( kbase != null ) {
-            return new KnowledgeBuilderImpl( ((KnowledgeBaseImpl) kbase).ruleBase, (PackageBuilderConfiguration) conf );
+            return new KnowledgeBuilderImpl( ((KnowledgeBaseImpl) kbase).ruleBase, (KnowledgeBuilderConfigurationImpl) conf );
         } else {
-            return new KnowledgeBuilderImpl((PackageBuilderConfiguration) ((KnowledgeBuilderConfigurationAdapter)conf).getDelegate() );
+            return new KnowledgeBuilderImpl((KnowledgeBuilderConfigurationImpl) ((KnowledgeBuilderConfigurationAdapter)conf).getDelegate() );
         }
     }
 

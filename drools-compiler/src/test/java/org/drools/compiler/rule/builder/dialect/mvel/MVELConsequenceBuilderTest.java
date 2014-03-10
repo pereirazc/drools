@@ -1,6 +1,7 @@
 package org.drools.compiler.rule.builder.dialect.mvel;
 
 import org.drools.compiler.Cheese;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.RuleBase;
 import org.drools.core.RuleBaseFactory;
@@ -17,7 +18,6 @@ import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.compiler.compiler.DrlParser;
 import org.drools.compiler.compiler.DroolsParserException;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.AttributeDescr;
 import org.drools.compiler.lang.descr.PackageDescr;
@@ -25,7 +25,6 @@ import org.drools.compiler.lang.descr.RuleDescr;
 import org.drools.core.common.PropagationContextFactory;
 import org.drools.core.reteoo.CompositeObjectSinkAdapterTest;
 import org.drools.core.reteoo.LeftTupleImpl;
-import org.drools.compiler.reteoo.MockLeftTupleSink;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.Declaration;
@@ -133,10 +132,10 @@ public class MVELConsequenceBuilderTest {
         Properties properties = new Properties();
         properties.setProperty( "drools.dialect.default",
                                 "mvel" );
-        PackageBuilderConfiguration cfg1 = new PackageBuilderConfiguration( properties );
+        KnowledgeBuilderConfigurationImpl cfg1 = new KnowledgeBuilderConfigurationImpl( properties );
 
         KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg, cfg1 );
-        final PackageBuilderConfiguration conf = pkgBuilder.getPackageBuilderConfiguration();
+        final KnowledgeBuilderConfigurationImpl conf = pkgBuilder.getBuilderConfiguration();
         PackageRegistry pkgRegistry = pkgBuilder.getPackageRegistry( pkg.getName() );
         DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
         MVELDialect mvelDialect = (MVELDialect) dialectRegistry.getDialect( pkgRegistry.getDialect() );
@@ -259,7 +258,7 @@ public class MVELConsequenceBuilderTest {
             final RuleBuilder builder = new RuleBuilder();
 
             final KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg );
-            final PackageBuilderConfiguration conf = pkgBuilder.getPackageBuilderConfiguration();
+            final KnowledgeBuilderConfigurationImpl conf = pkgBuilder.getBuilderConfiguration();
             DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
             Dialect dialect = dialectRegistry.getDialect( "mvel" );
 
@@ -336,7 +335,7 @@ public class MVELConsequenceBuilderTest {
         Package pkg = new Package( "org.drools.compiler.test" );
         pkg.addImport( new ImportDeclaration( Cheese.class.getCanonicalName() ) );
 
-        PackageBuilderConfiguration conf = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl conf = new KnowledgeBuilderConfigurationImpl();
         KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg, conf );
 
         ruleDescr = new RuleDescr( "test consequence builder" );

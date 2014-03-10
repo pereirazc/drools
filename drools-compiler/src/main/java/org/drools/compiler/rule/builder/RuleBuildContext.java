@@ -100,7 +100,7 @@ public class RuleBuildContext extends PackageBuildContext {
             dialect.init( ruleDescr );
         }
 
-        compilerFactory = kBuilder.getPackageBuilderConfiguration().getComponentFactory();
+        compilerFactory = kBuilder.getBuilderConfiguration().getComponentFactory();
 
     }
 

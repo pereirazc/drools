@@ -168,7 +168,7 @@ public class DroolsJaxbHelperProviderImpl
         }
 
         if (useProjectClassLoader) {
-            ProjectJavaCompiler compiler = new ProjectJavaCompiler(kBuilder.getPackageBuilderConfiguration());
+            ProjectJavaCompiler compiler = new ProjectJavaCompiler(kBuilder.getBuilderConfiguration());
             List<KnowledgeBuilderResult> results = compiler.compileAll((ProjectClassLoader)kBuilder.getRootClassLoader(),
                                                                        srcNames,
                                                                        src);

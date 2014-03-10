@@ -1,12 +1,12 @@
 package org.drools.compiler.rule.builder.dialect.mvel;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.commons.jci.readers.MemoryResourceReader;
 import org.drools.compiler.compiler.AnalysisResult;
 import org.drools.compiler.compiler.BoundIdentifiers;
 import org.drools.compiler.compiler.DescrBuildError;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.ImportError;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.AccumulateDescr;
 import org.drools.compiler.lang.descr.AndDescr;
@@ -153,7 +153,7 @@ public class MVELDialect
     }
 
     public MVELDialect(ClassLoader rootClassLoader,
-                       PackageBuilderConfiguration pkgConf,
+                       KnowledgeBuilderConfigurationImpl pkgConf,
                        PackageRegistry pkgRegistry,
                        Package pkg) {
         this( rootClassLoader,
@@ -164,7 +164,7 @@ public class MVELDialect
     }
 
     public MVELDialect(ClassLoader rootClassLoader,
-                       PackageBuilderConfiguration pkgConf,
+                       KnowledgeBuilderConfigurationImpl pkgConf,
                        PackageRegistry pkgRegistry,
                        Package pkg,
                        String id) {

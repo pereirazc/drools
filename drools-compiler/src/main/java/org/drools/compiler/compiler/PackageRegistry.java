@@ -1,5 +1,6 @@
 package org.drools.compiler.compiler;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.core.base.ClassTypeResolver;
 import org.drools.core.base.TypeResolver;
 import org.drools.core.util.ClassUtils;
@@ -24,9 +25,9 @@ public class PackageRegistry {
 
     private final TypeResolver               typeResolver;
 
-    public PackageRegistry(ClassLoader rootClassLoader, PackageBuilderConfiguration pkgConf, Package pkg) {
+    public PackageRegistry(ClassLoader rootClassLoader, KnowledgeBuilderConfigurationImpl pkgConf, Package pkg) {
         this.pkg = pkg;
-        this.dialectCompiletimeRegistry = pkgConf.buildDialectRegistry( rootClassLoader, pkgConf, this, pkg );
+        this.dialectCompiletimeRegistry = pkgConf.buildDialectRegistry(rootClassLoader, pkgConf, this, pkg);
         this.dialectRuntimeRegistry = pkg.getDialectRuntimeRegistry();
 
         this.typeResolver = new ClassTypeResolver( new HashSet<String>( this.pkg.getImports().keySet() ),

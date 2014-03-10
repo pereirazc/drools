@@ -1,8 +1,8 @@
 package org.drools.compiler.rule.builder.dialect.java;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectConfiguration;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.core.RuntimeDroolsException;
 import org.drools.core.rule.Package;
@@ -51,14 +51,14 @@ public class JavaDialectConfiguration
 
     private String                      languageLevel;
 
-    private PackageBuilderConfiguration conf;
+    private KnowledgeBuilderConfigurationImpl conf;
 
     private int                         compiler;
 
     public JavaDialectConfiguration() {
     }
 
-    public void init(final PackageBuilderConfiguration conf) {
+    public void init(final KnowledgeBuilderConfigurationImpl conf) {
         this.conf = conf;
 
         setCompiler( getDefaultCompiler() );
@@ -66,11 +66,11 @@ public class JavaDialectConfiguration
         setJavaLanguageLevel( getDefaultLanguageLevel() );
     }
 
-    public PackageBuilderConfiguration getPackageBuilderConfiguration() {
+    public KnowledgeBuilderConfigurationImpl getPackageBuilderConfiguration() {
         return this.conf;
     }
 
-    public Dialect newDialect(ClassLoader rootClassLoader, PackageBuilderConfiguration pkgConf, PackageRegistry pkgRegistry, Package pkg) {
+    public Dialect newDialect(ClassLoader rootClassLoader, KnowledgeBuilderConfigurationImpl pkgConf, PackageRegistry pkgRegistry, Package pkg) {
         return new JavaDialect(rootClassLoader, pkgConf, pkgRegistry, pkg);
     }
 

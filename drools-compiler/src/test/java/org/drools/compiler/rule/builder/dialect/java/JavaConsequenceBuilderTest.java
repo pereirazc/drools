@@ -17,11 +17,11 @@ import java.util.Map.Entry;
 import org.antlr.runtime.RecognitionException;
 import org.drools.compiler.Cheese;
 import org.drools.compiler.Person;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.base.ClassObjectType;
 import org.drools.compiler.compiler.BoundIdentifiers;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.BindingDescr;
 import org.drools.compiler.lang.descr.RuleDescr;
@@ -47,7 +47,7 @@ public class JavaConsequenceBuilderTest {
         Package pkg = new Package( "org.drools" );
         pkg.addImport( new ImportDeclaration( "org.drools.compiler.Cheese" ) );
 
-        PackageBuilderConfiguration conf = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl conf = new KnowledgeBuilderConfigurationImpl();
         KnowledgeBuilderImpl kBuilder = new KnowledgeBuilderImpl( pkg, conf );
 
         ruleDescr = new RuleDescr( "test consequence builder" );

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.drools.compiler.Cheese;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.BoundIdentifiers;
 import org.drools.compiler.compiler.PackageRegistry;
@@ -20,7 +21,6 @@ import org.drools.core.base.mvel.MVELPredicateExpression;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.compiler.compiler.AnalysisResult;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.lang.descr.PredicateDescr;
 import org.drools.compiler.lang.descr.RuleDescr;
 import org.drools.core.reteoo.LeftTupleImpl;
@@ -51,7 +51,7 @@ public class MVELPredicateBuilderTest {
         final RuleDescr ruleDescr = new RuleDescr( "rule 1" );
 
         KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg );
-        final PackageBuilderConfiguration conf = pkgBuilder.getPackageBuilderConfiguration();
+        final KnowledgeBuilderConfigurationImpl conf = pkgBuilder.getBuilderConfiguration();
         PackageRegistry pkgRegistry = pkgBuilder.getPackageRegistry( pkg.getName() );
         MVELDialect mvelDialect = ( MVELDialect ) pkgRegistry.getDialectCompiletimeRegistry().getDialect( "mvel" );
 

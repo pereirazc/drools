@@ -1,9 +1,9 @@
 package org.drools.compiler.rule.builder.dialect.mvel;
 
 import org.drools.compiler.Cheese;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.core.RuleBaseFactory;
 import org.drools.core.WorkingMemory;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class MVELAccumulateBuilderTest {
         final Package pkg = pkgBuilder.getPackage();
         final RuleDescr ruleDescr = new RuleDescr( "rule 1" );
 
-        final PackageBuilderConfiguration conf = pkgBuilder.getPackageBuilderConfiguration();
+        final KnowledgeBuilderConfigurationImpl conf = pkgBuilder.getBuilderConfiguration();
         DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
         MVELDialect mvelDialect = (MVELDialect) dialectRegistry.getDialect( "mvel" );
 

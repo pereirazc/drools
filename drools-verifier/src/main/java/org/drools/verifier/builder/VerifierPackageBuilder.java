@@ -16,8 +16,8 @@
 
 package org.drools.verifier.builder;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.PackageBuilderErrors;
 import org.drools.compiler.lang.descr.PackageDescr;
 import org.kie.api.io.Resource;
@@ -56,7 +56,7 @@ class VerifierPackageBuilder {
 
     class InnerBuilder extends KnowledgeBuilderImpl {
         public InnerBuilder() {
-            super( new PackageBuilderConfiguration() );
+            super( new KnowledgeBuilderConfigurationImpl() );
         }
 
         @Override

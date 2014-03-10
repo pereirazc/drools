@@ -33,20 +33,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.drools.compiler.Cheese;
-import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.commons.jci.compilers.NativeJavaCompiler;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.compiler.compiler.DroolsParserException;
 import org.drools.compiler.compiler.DuplicateFunction;
 import org.drools.compiler.compiler.DuplicateRule;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.ParserError;
 import org.drools.core.FactHandle;
 import org.drools.compiler.Primitives;
 import org.drools.core.RuleBaseFactory;
 import org.drools.compiler.StockTick;
-import org.drools.core.WorkingMemory;
 import org.drools.core.base.ClassObjectType;
 import org.drools.core.base.DefaultKnowledgeHelper;
 import org.drools.core.common.ActivationGroupNode;
@@ -100,7 +97,6 @@ import org.drools.core.rule.SlidingTimeWindow;
 import org.drools.core.rule.TypeDeclaration;
 import org.drools.compiler.rule.builder.dialect.java.JavaDialectConfiguration;
 import org.drools.core.spi.Activation;
-import org.drools.core.spi.AgendaGroup;
 import org.drools.core.spi.CompiledInvoker;
 import org.drools.core.spi.Consequence;
 import org.drools.core.spi.Constraint;
@@ -110,7 +106,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.definition.type.FactField;
 import org.kie.api.runtime.KieSession;
-import org.kie.internal.utils.ClassLoaderUtil;
 
 public class KnowledgeBuilderTest extends DroolsTestCase {
     
@@ -767,7 +762,7 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
     @Test
     public void testWarningsReportAsErrors() {
         System.setProperty( "drools.kbuilder.severity." + DuplicateRule.KEY, "ERROR");
-        PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
         final KnowledgeBuilderImpl builder = new KnowledgeBuilderImpl(cfg);
         
         final PackageDescr packageDescr1 = createBasicPackageWithOneRule(11, 1);
@@ -993,7 +988,7 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
         compilerField.setAccessible( true );
         JavaCompiler compiler = (JavaCompiler) compilerField.get( dialect );
 
-        PackageBuilderConfiguration conf = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl conf = new KnowledgeBuilderConfigurationImpl();
         JavaDialectConfiguration javaConf = (JavaDialectConfiguration) conf.getDialectConfiguration( "java" );
         switch( javaConf.getCompiler() ) {
             case JavaDialectConfiguration.NATIVE : assertSame( NativeJavaCompiler.class, compiler.getClass() );
@@ -1007,7 +1002,7 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
         }
 
         // test JANINO with property settings
-        conf = new PackageBuilderConfiguration();
+        conf = new KnowledgeBuilderConfigurationImpl();
         javaConf = (JavaDialectConfiguration) conf.getDialectConfiguration( "java" );
         javaConf.setCompiler( JavaDialectConfiguration.JANINO );
         builder = new KnowledgeBuilderImpl( conf );
@@ -1021,7 +1016,7 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
                     compiler.getClass() );
 
         // test eclipse jdt core with property settings and default source level
-        conf = new PackageBuilderConfiguration();
+        conf = new KnowledgeBuilderConfigurationImpl();
         javaConf = (JavaDialectConfiguration) conf.getDialectConfiguration( "java" );
         javaConf.setCompiler( JavaDialectConfiguration.ECLIPSE );
         builder = new KnowledgeBuilderImpl( conf );
@@ -1241,7 +1236,7 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
 
     @Test
     public void testJaninoWithStaticImports() throws Exception {
-        PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
         JavaDialectConfiguration javaConf = (JavaDialectConfiguration) cfg.getDialectConfiguration( "java" );
         javaConf.setCompiler( JavaDialectConfiguration.JANINO );
 
@@ -1254,7 +1249,7 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
 
     @Test
     public void testSinglePackage() throws Exception {
-        PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
         cfg.setAllowMultipleNamespaces( false );
         KnowledgeBuilderImpl bldr = new KnowledgeBuilderImpl( cfg );
         bldr.addPackageFromDrl( new StringReader( "package whee\n import org.drools.compiler.Cheese" ) );
@@ -1268,7 +1263,7 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
         assertEquals( 1,
                       bldr.getPackages().length );
 
-        cfg = new PackageBuilderConfiguration();
+        cfg = new KnowledgeBuilderConfigurationImpl();
         assertEquals( true,
                       cfg.isAllowMultipleNamespaces() );
         bldr = new KnowledgeBuilderImpl( cfg );

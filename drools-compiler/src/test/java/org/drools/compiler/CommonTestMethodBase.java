@@ -2,8 +2,7 @@ package org.drools.compiler;
 
 import java.util.Collection;
 
-import org.drools.compiler.compiler.DrlParser;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.integrationtests.SerializationHelper;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.lang.descr.PackageDescr;
@@ -185,7 +184,7 @@ public class CommonTestMethodBase extends Assert {
 		Collection<KnowledgePackage> knowledgePackages = null;
         if ( serialize ) {
             try {
-                knowledgePackages = SerializationHelper.serializeObject(kbuilder.getKnowledgePackages(),  ((PackageBuilderConfiguration)kbuilderConf).getClassLoader() );
+                knowledgePackages = SerializationHelper.serializeObject(kbuilder.getKnowledgePackages(),  ((KnowledgeBuilderConfigurationImpl)kbuilderConf).getClassLoader() );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

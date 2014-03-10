@@ -5,11 +5,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.BoundIdentifiers;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.AccumulateDescr;
 import org.drools.compiler.lang.descr.BindingDescr;
@@ -48,7 +48,7 @@ public class JavaAccumulateBuilderTest {
         //org.drools.core.rule.Package pkg = new org.kie.rule.Package( "org.kie" );
         final KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl();
         pkgBuilder.addPackage( new PackageDescr( "org.drools" ) );
-        final PackageBuilderConfiguration conf = pkgBuilder.getPackageBuilderConfiguration();
+        final KnowledgeBuilderConfigurationImpl conf = pkgBuilder.getBuilderConfiguration();
         PackageRegistry pkgReg = pkgBuilder.getPackageRegistry( "org.drools" );
         Package pkg = pkgReg.getPackage();
         DialectCompiletimeRegistry dialectRegistry = pkgReg.getDialectCompiletimeRegistry();

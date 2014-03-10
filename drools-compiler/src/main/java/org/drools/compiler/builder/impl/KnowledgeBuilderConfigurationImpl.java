@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.compiler.compiler;
+package org.drools.compiler.builder.impl;
 
 import java.io.File;
 import java.net.URL;
@@ -24,6 +24,11 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import org.drools.compiler.compiler.Dialect;
+import org.drools.compiler.compiler.DialectCompiletimeRegistry;
+import org.drools.compiler.compiler.DialectConfiguration;
+import org.drools.compiler.compiler.DrlParser;
+import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.compiler.xml.RulesSemanticModule;
 import org.drools.compiler.rule.builder.DroolsCompilerComponentFactory;
 import org.drools.core.RuntimeDroolsException;
@@ -58,7 +63,6 @@ import org.kie.internal.builder.conf.ProcessStringEscapesOption;
 import org.kie.internal.builder.conf.PropertySpecificOption;
 import org.kie.internal.builder.conf.SingleValueKnowledgeBuilderOption;
 import org.kie.internal.utils.ChainedProperties;
-import org.kie.internal.utils.ClassLoaderUtil;
 
 import static org.drools.core.common.ProjectClassLoader.createProjectClassLoader;
 
@@ -91,7 +95,7 @@ import static org.drools.core.common.ProjectClassLoader.createProjectClassLoader
  * drools.problem.severity.<ident> = ERROR|WARNING|INFO
  * 
  */
-public class PackageBuilderConfiguration
+public class KnowledgeBuilderConfigurationImpl
         implements
         KnowledgeBuilderConfiguration {
 
@@ -147,7 +151,7 @@ public class PackageBuilderConfiguration
      * Constructor that sets the parent class loader for the package being built/compiled
      * @param classLoaders
      */
-    public PackageBuilderConfiguration(ClassLoader... classLoaders) {
+    public KnowledgeBuilderConfigurationImpl(ClassLoader... classLoaders) {
         init( null,
               classLoaders );
     }
@@ -156,7 +160,7 @@ public class PackageBuilderConfiguration
      * Programmatic properties file, added with lease precedence
      * @param properties
      */
-    public PackageBuilderConfiguration(Properties properties) {
+    public KnowledgeBuilderConfigurationImpl(Properties properties) {
         init( properties,
               (ClassLoader[]) null );
     }
@@ -166,13 +170,13 @@ public class PackageBuilderConfiguration
      * @param classLoaders
      * @param properties
      */
-    public PackageBuilderConfiguration(Properties properties,
-                                       ClassLoader... classLoaders) {
+    public KnowledgeBuilderConfigurationImpl(Properties properties,
+                                             ClassLoader... classLoaders) {
         init( properties,
               classLoaders );
     }
 
-    public PackageBuilderConfiguration() {
+    public KnowledgeBuilderConfigurationImpl() {
         init( null,
               (ClassLoader[]) null );
     }
@@ -359,7 +363,7 @@ public class PackageBuilderConfiguration
     }
 
     public DialectCompiletimeRegistry buildDialectRegistry(ClassLoader rootClassLoader,
-                                                           PackageBuilderConfiguration pkgConf,
+                                                           KnowledgeBuilderConfigurationImpl pkgConf,
                                                            PackageRegistry pkgRegistry,
                                                            Package pkg) {
         DialectCompiletimeRegistry registry = new DialectCompiletimeRegistry();

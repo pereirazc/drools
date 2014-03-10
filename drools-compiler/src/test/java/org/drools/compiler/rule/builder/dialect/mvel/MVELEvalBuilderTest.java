@@ -4,16 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.drools.compiler.Cheese;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.core.RuleBase;
-import org.drools.core.WorkingMemory;
 import org.drools.core.common.InternalWorkingMemory;
-import org.drools.core.phreak.SegmentUtilities;
-import org.drools.core.reteoo.LeftInputAdapterNode;
-import org.drools.core.reteoo.RightTuple;
-import org.drools.core.reteoo.RuleTerminalNode;
-import org.drools.core.spi.PropagationContext;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -24,7 +19,6 @@ import org.drools.core.base.ClassFieldAccessorStore;
 import org.drools.core.base.ClassObjectType;
 import org.drools.core.base.mvel.MVELEvalExpression;
 import org.drools.core.common.InternalFactHandle;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.lang.descr.EvalDescr;
 import org.drools.compiler.lang.descr.RuleDescr;
 import org.drools.core.reteoo.LeftTupleImpl;
@@ -52,7 +46,7 @@ public class MVELEvalBuilderTest {
         final RuleDescr ruleDescr = new RuleDescr( "rule 1" );
 
         KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg );
-        final PackageBuilderConfiguration conf = pkgBuilder.getPackageBuilderConfiguration();
+        final KnowledgeBuilderConfigurationImpl conf = pkgBuilder.getBuilderConfiguration();
         DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
         MVELDialect mvelDialect = ( MVELDialect ) dialectRegistry.getDialect( "mvel" );
 

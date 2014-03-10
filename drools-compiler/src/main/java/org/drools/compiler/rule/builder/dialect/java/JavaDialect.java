@@ -1,5 +1,6 @@
 package org.drools.compiler.rule.builder.dialect.java;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.errors.ErrorHandler;
 import org.drools.compiler.builder.impl.errors.FunctionErrorHandler;
 import org.drools.compiler.builder.impl.errors.RuleErrorHandler;
@@ -14,7 +15,6 @@ import org.drools.compiler.compiler.AnalysisResult;
 import org.drools.compiler.compiler.BoundIdentifiers;
 import org.drools.compiler.compiler.DescrBuildError;
 import org.drools.compiler.compiler.Dialect;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.AccumulateDescr;
 import org.drools.compiler.lang.descr.AndDescr;
@@ -141,7 +141,7 @@ public class JavaDialect
     private JavaCompiler                             compiler;
     private final Package                            pkg;
     private final ClassLoader                        rootClassLoader;
-    private final PackageBuilderConfiguration        pkgConf;
+    private final KnowledgeBuilderConfigurationImpl pkgConf;
     private final List<String>                       generatedClassList;
     private final MemoryResourceReader               src;
     private final PackageStore                       packageStoreWrapper;
@@ -151,7 +151,7 @@ public class JavaDialect
     private final PackageRegistry packageRegistry;
 
     public JavaDialect(ClassLoader rootClassLoader,
-                       PackageBuilderConfiguration pkgConf,
+                       KnowledgeBuilderConfigurationImpl pkgConf,
                        PackageRegistry pkgRegistry,
                        Package pkg) {
         this.rootClassLoader = rootClassLoader;

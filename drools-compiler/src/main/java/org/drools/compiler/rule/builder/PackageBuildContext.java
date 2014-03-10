@@ -21,13 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DescrBuildError;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.compiler.compiler.DroolsError;
 import org.drools.compiler.compiler.DroolsWarning;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.lang.descr.BaseDescr;
 import org.drools.compiler.rule.builder.dialect.mvel.MVELDialect;
 import org.drools.core.rule.Dialectable;
@@ -228,8 +228,8 @@ public class PackageBuildContext {
         return this.counter++;
     }
 
-    public PackageBuilderConfiguration getConfiguration() {
-        return this.kBuilder.getPackageBuilderConfiguration();
+    public KnowledgeBuilderConfigurationImpl getConfiguration() {
+        return this.kBuilder.getBuilderConfiguration();
     }
     
     public KnowledgeBuilderImpl getKnowledgeBuilder() {

@@ -1,14 +1,11 @@
 package org.drools.reteoo.integrationtests;
 
-import org.drools.compiler.compiler.DrlParser;
-import org.drools.compiler.compiler.DroolsParserException;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.lang.descr.PackageDescr;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalRuleBase;
 import org.drools.core.impl.KnowledgeBaseImpl;
-import org.drools.core.integrationtests.SerializationHelper;
 import org.drools.core.runtime.rule.impl.AgendaImpl;
 import org.junit.Assert;
 import org.kie.api.KieBaseConfiguration;
@@ -27,16 +24,12 @@ import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.builder.conf.LanguageLevelOption;
 import org.kie.internal.builder.conf.RuleEngineOption;
 import org.kie.internal.definition.KnowledgePackage;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.StatelessKnowledgeSession;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Collection;
 
 /**
@@ -190,7 +183,7 @@ public class CommonTestMethodBase extends Assert {
         Collection<KnowledgePackage> knowledgePackages = null;
         if ( serialize ) {
             try {
-                knowledgePackages = org.drools.compiler.integrationtests.SerializationHelper.serializeObject(kbuilder.getKnowledgePackages(), ((PackageBuilderConfiguration) kbuilderConf).getClassLoader());
+                knowledgePackages = org.drools.compiler.integrationtests.SerializationHelper.serializeObject(kbuilder.getKnowledgePackages(), ((KnowledgeBuilderConfigurationImpl) kbuilderConf).getClassLoader());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

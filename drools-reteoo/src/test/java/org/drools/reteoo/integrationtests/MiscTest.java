@@ -28,8 +28,8 @@ import org.drools.compiler.CheeseEqual;
 import org.drools.compiler.Cheesery;
 import org.drools.compiler.Cheesery.Maturity;
 import org.drools.compiler.Child;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
-import org.drools.reteoo.integrationtests.CommonTestMethodBase;
 import org.drools.compiler.DomainObjectHolder;
 import org.drools.compiler.FactA;
 import org.drools.compiler.FactB;
@@ -67,7 +67,6 @@ import org.drools.compiler.Win;
 import org.drools.compiler.compiler.DescrBuildError;
 import org.drools.compiler.compiler.DrlParser;
 import org.drools.compiler.compiler.DroolsError;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.ParserError;
 import org.drools.compiler.integrationtests.SerializationHelper;
 import org.drools.compiler.lang.DrlDumper;
@@ -109,7 +108,6 @@ import org.kie.api.io.ResourceType;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
-import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
@@ -118,7 +116,6 @@ import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderError;
 import org.kie.internal.builder.KnowledgeBuilderErrors;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.builder.conf.DefaultPackageNameOption;
 import org.kie.internal.builder.conf.LanguageLevelOption;
 import org.kie.internal.builder.conf.RuleEngineOption;
 import org.kie.internal.command.CommandFactory;
@@ -152,7 +149,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -2124,7 +2120,7 @@ public class MiscTest extends CommonTestMethodBase {
         assertEquals( 13,
                       poisonError.getLine() );
 
-        PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
         JavaDialectConfiguration javaConf = (JavaDialectConfiguration) cfg.getDialectConfiguration( "java" );
         switch ( javaConf.getCompiler() ) {
             case JavaDialectConfiguration.NATIVE : assertTrue( errors[2].getMessage().contains( "illegal" ) );
@@ -9339,7 +9335,7 @@ public class MiscTest extends CommonTestMethodBase {
                         "   System.out.println( $valOne.toLowerCase() );\n" +
                         "end\n";
 
-        PackageBuilderConfiguration pkgBuilderCfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl pkgBuilderCfg = new KnowledgeBuilderConfigurationImpl();
         MVELDialectConfiguration mvelConf = (MVELDialectConfiguration) pkgBuilderCfg.getDialectConfiguration( "mvel" );
         mvelConf.setStrict( false );
         mvelConf.setLangLevel( 5 );
@@ -9676,7 +9672,7 @@ public class MiscTest extends CommonTestMethodBase {
                      "   System.out.println( $valOne.clone() );\n" +
                      "end\n";
 
-        PackageBuilderConfiguration pkgBuilderCfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl pkgBuilderCfg = new KnowledgeBuilderConfigurationImpl();
         MVELDialectConfiguration mvelConf = (MVELDialectConfiguration) pkgBuilderCfg.getDialectConfiguration( "mvel" );
         mvelConf.setStrict( false );
         mvelConf.setLangLevel( 5 );

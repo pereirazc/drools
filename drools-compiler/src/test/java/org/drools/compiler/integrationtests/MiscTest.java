@@ -28,6 +28,7 @@ import org.drools.compiler.CheeseEqual;
 import org.drools.compiler.Cheesery;
 import org.drools.compiler.Cheesery.Maturity;
 import org.drools.compiler.Child;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.ClassObjectFilter;
 import org.drools.compiler.CommonTestMethodBase;
@@ -80,7 +81,6 @@ import org.drools.compiler.Target;
 import org.drools.compiler.compiler.DescrBuildError;
 import org.drools.compiler.compiler.DrlParser;
 import org.drools.compiler.compiler.DroolsError;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.compiler.compiler.ParserError;
 import org.drools.core.impl.EnvironmentFactory;
 import org.drools.compiler.lang.DrlDumper;
@@ -95,7 +95,6 @@ import org.drools.compiler.rule.builder.dialect.java.JavaDialectConfiguration;
 import org.drools.compiler.rule.builder.dialect.mvel.MVELDialectConfiguration;
 import org.drools.core.runtime.rule.impl.AgendaImpl;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
@@ -106,7 +105,6 @@ import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderError;
 import org.kie.internal.builder.KnowledgeBuilderErrors;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.builder.conf.DefaultPackageNameOption;
 import org.kie.internal.builder.conf.RuleEngineOption;
 import org.kie.internal.builder.conf.LanguageLevelOption;
 import org.kie.internal.command.CommandFactory;
@@ -151,7 +149,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -2121,7 +2118,7 @@ import static org.mockito.Mockito.verify;
          assertEquals( 13,
                        poisonError.getLine() );
 
-         PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+         KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
          JavaDialectConfiguration javaConf = (JavaDialectConfiguration) cfg.getDialectConfiguration( "java" );
          switch ( javaConf.getCompiler() ) {
              case JavaDialectConfiguration.NATIVE : assertTrue( errors[2].getMessage().contains( "illegal" ) );
@@ -9337,7 +9334,7 @@ import static org.mockito.Mockito.verify;
                          "   System.out.println( $valOne.toLowerCase() );\n" +
                          "end\n";
 
-         PackageBuilderConfiguration pkgBuilderCfg = new PackageBuilderConfiguration();
+         KnowledgeBuilderConfigurationImpl pkgBuilderCfg = new KnowledgeBuilderConfigurationImpl();
          MVELDialectConfiguration mvelConf = (MVELDialectConfiguration) pkgBuilderCfg.getDialectConfiguration( "mvel" );
          mvelConf.setStrict( false );
          mvelConf.setLangLevel( 5 );
@@ -9674,7 +9671,7 @@ import static org.mockito.Mockito.verify;
                       "   System.out.println( $valOne.clone() );\n" +
                       "end\n";
 
-         PackageBuilderConfiguration pkgBuilderCfg = new PackageBuilderConfiguration();
+         KnowledgeBuilderConfigurationImpl pkgBuilderCfg = new KnowledgeBuilderConfigurationImpl();
          MVELDialectConfiguration mvelConf = (MVELDialectConfiguration) pkgBuilderCfg.getDialectConfiguration( "mvel" );
          mvelConf.setStrict( false );
          mvelConf.setLangLevel( 5 );

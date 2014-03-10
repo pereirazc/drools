@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.base.TypeResolver;
 import org.drools.compiler.lang.descr.AndDescr;
@@ -101,24 +102,24 @@ public class PackageBuilderConfigurationTest {
 
     @Test
     public void testSystemProperties() {
-        PackageBuilderConfiguration cfg;
+        KnowledgeBuilderConfigurationImpl cfg;
         JavaDialectConfiguration javaConf;
 
         System.setProperty( "drools.dialect.java.compiler",
                             "JANINO" );
-        cfg = new PackageBuilderConfiguration();
+        cfg = new KnowledgeBuilderConfigurationImpl();
         javaConf = (JavaDialectConfiguration) cfg.getDialectConfiguration( "java" );
         assertEquals( JavaDialectConfiguration.JANINO,
                       javaConf.getCompiler() );
 
-        PackageBuilderConfiguration cfg2 = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg2 = new KnowledgeBuilderConfigurationImpl();
         JavaDialectConfiguration javaConf2 = (JavaDialectConfiguration) cfg2.getDialectConfiguration( "java" );
         assertEquals( javaConf.getCompiler(),
                       javaConf2.getCompiler() );
 
         System.setProperty( "drools.dialect.java.compiler",
                             "ECLIPSE" );
-        cfg = new PackageBuilderConfiguration();
+        cfg = new KnowledgeBuilderConfigurationImpl();
         javaConf = (JavaDialectConfiguration) cfg.getDialectConfiguration( "java" );
         assertEquals( JavaDialectConfiguration.ECLIPSE,
                       javaConf.getCompiler() );
@@ -131,7 +132,7 @@ public class PackageBuilderConfigurationTest {
         assertEquals( JavaDialectConfiguration.JANINO,
                       javaConf2.getCompiler() );
 
-        final PackageBuilderConfiguration cfg3 = new PackageBuilderConfiguration();
+        final KnowledgeBuilderConfigurationImpl cfg3 = new KnowledgeBuilderConfigurationImpl();
         JavaDialectConfiguration javaConf3 = (JavaDialectConfiguration) cfg3.getDialectConfiguration( "java" );
         assertEquals( javaConf.getCompiler(),
                       javaConf3.getCompiler() );
@@ -139,17 +140,17 @@ public class PackageBuilderConfigurationTest {
 
     @Test
     public void testProgrammaticProperties() {
-        PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
         assertTrue( cfg.getDefaultDialect().equals( "java" ) );
 
         Properties properties = new Properties();
         properties.setProperty( "drools.dialect.default",
                                 "mvel" );
-        PackageBuilderConfiguration cfg1 = new PackageBuilderConfiguration( properties );
+        KnowledgeBuilderConfigurationImpl cfg1 = new KnowledgeBuilderConfigurationImpl( properties );
         assertEquals( "mvel",
                       cfg1.getDefaultDialect() );
 
-        final PackageBuilderConfiguration cfg2 = new PackageBuilderConfiguration( properties );
+        final KnowledgeBuilderConfigurationImpl cfg2 = new KnowledgeBuilderConfigurationImpl( properties );
         assertEquals( cfg1.getDefaultDialect().getClass(),
                       cfg2.getDefaultDialect().getClass() );
     }
@@ -157,9 +158,9 @@ public class PackageBuilderConfigurationTest {
     @Test
     public void testProgramaticProperties2() {
         JavaDialectConfiguration javaConf = new JavaDialectConfiguration();
-        javaConf.init( new PackageBuilderConfiguration() );
+        javaConf.init( new KnowledgeBuilderConfigurationImpl() );
         javaConf.setCompiler( JavaDialectConfiguration.ECLIPSE );
-        PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
         cfg.setDialectConfiguration( "java",
                                      javaConf );
         JavaDialectConfiguration javaConf2 = (JavaDialectConfiguration) cfg.getDialectConfiguration( "java" );
@@ -169,9 +170,9 @@ public class PackageBuilderConfigurationTest {
                       javaConf2.getCompiler() );
 
         javaConf = new JavaDialectConfiguration();
-        javaConf.init( new PackageBuilderConfiguration() );
+        javaConf.init( new KnowledgeBuilderConfigurationImpl() );
         javaConf.setCompiler( JavaDialectConfiguration.JANINO );
-        cfg = new PackageBuilderConfiguration();
+        cfg = new KnowledgeBuilderConfigurationImpl();
         cfg.setDialectConfiguration( "java",
                                      javaConf );
         javaConf2 = (JavaDialectConfiguration) cfg.getDialectConfiguration( "java" );
@@ -185,7 +186,7 @@ public class PackageBuilderConfigurationTest {
     public void testResultSeverity() {
         System.setProperty( "drools.kbuilder.severity." + DuplicateFunction.KEY,
                             "ERROR" );
-        PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
         assertEquals( cfg.getOptionKeys( KBuilderSeverityOption.class ).size(),
                       1 );
         assertEquals( cfg.getOption( KBuilderSeverityOption.class,
@@ -198,7 +199,7 @@ public class PackageBuilderConfigurationTest {
     public void testResultSeverityNonExistingValueDefaultToInfo() {
         System.setProperty( "drools.kbuilder.severity." + DuplicateFunction.KEY,
                             "FOO" );
-        PackageBuilderConfiguration cfg = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg = new KnowledgeBuilderConfigurationImpl();
         assertEquals( cfg.getOptionKeys( KBuilderSeverityOption.class ).size(),
                       1 );
         assertEquals( cfg.getOption( KBuilderSeverityOption.class,
@@ -211,7 +212,7 @@ public class PackageBuilderConfigurationTest {
     public void testMockDialect() {
         Package pkg = new Package( "org.pkg1" );
 
-        PackageBuilderConfiguration cfg1 = new PackageBuilderConfiguration();
+        KnowledgeBuilderConfigurationImpl cfg1 = new KnowledgeBuilderConfigurationImpl();
         MockDialectConfiguration mockConf = new MockDialectConfiguration();
         //        cfg1.buildDialectRegistry().addDialect( "mock",
         //                                                mockConf.getDialect() );
@@ -266,10 +267,10 @@ public class PackageBuilderConfigurationTest {
     public static class MockDialectConfiguration
         implements
             DialectConfiguration {
-        private PackageBuilderConfiguration conf;
+        private KnowledgeBuilderConfigurationImpl conf;
 
         public Dialect newDialect( ClassLoader rootClassLoader,
-                                   PackageBuilderConfiguration pkgConf,
+                                   KnowledgeBuilderConfigurationImpl pkgConf,
                                    PackageRegistry pkgRegistry,
                                    Package pkg ) {
             return new MockDialect( rootClassLoader,
@@ -278,11 +279,11 @@ public class PackageBuilderConfigurationTest {
                                     pkg );
         }
 
-        public PackageBuilderConfiguration getPackageBuilderConfiguration() {
+        public KnowledgeBuilderConfigurationImpl getPackageBuilderConfiguration() {
             return this.conf;
         }
 
-        public void init( PackageBuilderConfiguration configuration ) {
+        public void init( KnowledgeBuilderConfigurationImpl configuration ) {
             this.conf = configuration;
         }
 
@@ -300,7 +301,7 @@ public class PackageBuilderConfigurationTest {
         private boolean        compileAll    = false;
 
         public MockDialect(ClassLoader rootClassLoader,
-                           PackageBuilderConfiguration pkgConf,
+                           KnowledgeBuilderConfigurationImpl pkgConf,
                            PackageRegistry pkgRegistry,
                            Package pkg) {
             this.pkg = pkg;

@@ -4,7 +4,6 @@ import java.util.Properties;
 
 import org.drools.core.builder.conf.impl.DecisionTableConfigurationImpl;
 import org.drools.core.builder.conf.impl.JaxbConfigurationImpl;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.core.builder.conf.impl.ScoreCardConfigurationImpl;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.kie.internal.KnowledgeBase;
@@ -20,11 +19,11 @@ import org.kie.internal.builder.ScoreCardConfiguration;
 public class KnowledgeBuilderFactoryServiceImpl implements KnowledgeBuilderFactoryService {
     
     public KnowledgeBuilderConfiguration newKnowledgeBuilderConfiguration() {
-        return new PackageBuilderConfiguration();
+        return new KnowledgeBuilderConfigurationImpl();
     }
     
     public KnowledgeBuilderConfiguration newKnowledgeBuilderConfiguration(Properties properties, ClassLoader... classLoaders) {
-        return new PackageBuilderConfiguration(properties, classLoaders);
+        return new KnowledgeBuilderConfigurationImpl(properties, classLoaders);
     }
     
     public DecisionTableConfiguration newDecisionTableConfiguration() {
@@ -40,7 +39,7 @@ public class KnowledgeBuilderFactoryServiceImpl implements KnowledgeBuilderFacto
     }
 
     public KnowledgeBuilder newKnowledgeBuilder(KnowledgeBuilderConfiguration conf) {
-        return new KnowledgeBuilderImpl( (PackageBuilderConfiguration) conf );
+        return new KnowledgeBuilderImpl( (KnowledgeBuilderConfigurationImpl) conf );
     }
 
     public KnowledgeBuilder newKnowledgeBuilder(KnowledgeBase kbase) {
@@ -54,9 +53,9 @@ public class KnowledgeBuilderFactoryServiceImpl implements KnowledgeBuilderFacto
     public KnowledgeBuilder newKnowledgeBuilder(KnowledgeBase kbase,
                                                 KnowledgeBuilderConfiguration conf) {
         if ( kbase != null ) {
-            return new KnowledgeBuilderImpl( ((KnowledgeBaseImpl) kbase).ruleBase, (PackageBuilderConfiguration) conf );
+            return new KnowledgeBuilderImpl( ((KnowledgeBaseImpl) kbase).ruleBase, (KnowledgeBuilderConfigurationImpl) conf );
         } else {
-            return new KnowledgeBuilderImpl((PackageBuilderConfiguration) conf );
+            return new KnowledgeBuilderImpl((KnowledgeBuilderConfigurationImpl) conf );
         }        
     }
 

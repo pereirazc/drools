@@ -27,10 +27,10 @@ import javax.rules.admin.LocalRuleExecutionSetProvider;
 import javax.rules.admin.RuleExecutionSet;
 import javax.rules.admin.RuleExecutionSetCreateException;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.IntegrationException;
 import org.drools.compiler.compiler.DroolsParserException;
-import org.drools.compiler.compiler.PackageBuilderConfiguration;
 import org.drools.decisiontable.InputType;
 import org.drools.decisiontable.SpreadsheetCompiler;
 import org.drools.jsr94.rules.Constants;
@@ -114,10 +114,10 @@ public class LocalRuleExecutionSetProviderImpl
     public RuleExecutionSet createRuleExecutionSet(final Reader ruleExecutionSetReader,
                                                    final Map properties) throws RuleExecutionSetCreateException {
         try {
-            PackageBuilderConfiguration config= null;
+            KnowledgeBuilderConfigurationImpl config= null;
             
             if ( properties != null ) {
-                config = (PackageBuilderConfiguration) properties.get( Constants.RES_PACKAGEBUILDER_CONFIG );
+                config = (KnowledgeBuilderConfigurationImpl) properties.get( Constants.RES_PACKAGEBUILDER_CONFIG );
             }
 
             KnowledgeBuilderImpl builder = null;
