@@ -352,7 +352,7 @@ public class PhreakPropagationContext
         if ( pkgName.equals( "java.lang" ) || pkgName.equals( "java.util" ) ) {
             return Collections.EMPTY_LIST;
         }
-        Package pkg = workingMemory.getRuleBase().getPackage( pkgName );
+        Package pkg = workingMemory.getKnowledgeBase().getPackage( pkgName );
         TypeDeclaration tdecl =  pkg != null ? pkg.getTypeDeclaration( classType ) : null;
         return tdecl != null ? tdecl.getSettableProperties() : Collections.EMPTY_LIST;
     }

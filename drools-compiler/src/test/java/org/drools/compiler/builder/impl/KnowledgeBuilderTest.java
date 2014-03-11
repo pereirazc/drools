@@ -16,23 +16,12 @@
 
 package org.drools.compiler.builder.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.drools.compiler.Cheese;
+import org.drools.compiler.Primitives;
+import org.drools.compiler.StockTick;
+import org.drools.compiler.commons.jci.compilers.EclipseJavaCompiler;
+import org.drools.compiler.commons.jci.compilers.JaninoJavaCompiler;
+import org.drools.compiler.commons.jci.compilers.JavaCompiler;
 import org.drools.compiler.commons.jci.compilers.NativeJavaCompiler;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
@@ -40,26 +29,6 @@ import org.drools.compiler.compiler.DroolsParserException;
 import org.drools.compiler.compiler.DuplicateFunction;
 import org.drools.compiler.compiler.DuplicateRule;
 import org.drools.compiler.compiler.ParserError;
-import org.drools.core.FactHandle;
-import org.drools.compiler.Primitives;
-import org.drools.core.RuleBaseFactory;
-import org.drools.compiler.StockTick;
-import org.drools.core.base.ClassObjectType;
-import org.drools.core.base.DefaultKnowledgeHelper;
-import org.drools.core.common.ActivationGroupNode;
-import org.drools.core.common.ActivationNode;
-import org.drools.core.common.InternalAgendaGroup;
-import org.drools.core.common.InternalFactHandle;
-import org.drools.core.common.InternalRuleFlowGroup;
-import org.drools.core.common.LogicalDependency;
-import org.drools.compiler.commons.jci.compilers.EclipseJavaCompiler;
-import org.drools.compiler.commons.jci.compilers.JaninoJavaCompiler;
-import org.drools.compiler.commons.jci.compilers.JavaCompiler;
-import org.drools.core.impl.KnowledgeBaseImpl;
-import org.drools.core.impl.StatefulKnowledgeSessionImpl;
-import org.drools.core.test.model.DroolsTestCase;
-import org.drools.core.util.LinkedList;
-import org.drools.core.util.LinkedListNode;
 import org.drools.compiler.integrationtests.SerializationHelper;
 import org.drools.compiler.lang.descr.AndDescr;
 import org.drools.compiler.lang.descr.BaseDescr;
@@ -79,9 +48,20 @@ import org.drools.compiler.lang.descr.PatternDescr;
 import org.drools.compiler.lang.descr.RuleDescr;
 import org.drools.compiler.lang.descr.TypeDeclarationDescr;
 import org.drools.compiler.lang.descr.TypeFieldDescr;
+import org.drools.compiler.rule.builder.dialect.java.JavaDialectConfiguration;
+import org.drools.core.FactHandle;
+import org.drools.core.base.ClassObjectType;
+import org.drools.core.base.DefaultKnowledgeHelper;
+import org.drools.core.common.ActivationGroupNode;
+import org.drools.core.common.ActivationNode;
+import org.drools.core.common.InternalAgendaGroup;
+import org.drools.core.common.InternalFactHandle;
+import org.drools.core.common.InternalRuleFlowGroup;
+import org.drools.core.common.LogicalDependency;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.reteoo.CompositeObjectSinkAdapterTest;
 import org.drools.core.reteoo.LeftTupleImpl;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.Behavior;
@@ -95,17 +75,31 @@ import org.drools.core.rule.PredicateConstraint;
 import org.drools.core.rule.Rule;
 import org.drools.core.rule.SlidingTimeWindow;
 import org.drools.core.rule.TypeDeclaration;
-import org.drools.compiler.rule.builder.dialect.java.JavaDialectConfiguration;
 import org.drools.core.spi.Activation;
 import org.drools.core.spi.CompiledInvoker;
 import org.drools.core.spi.Consequence;
 import org.drools.core.spi.Constraint;
 import org.drools.core.spi.PropagationContext;
+import org.drools.core.test.model.DroolsTestCase;
+import org.drools.core.util.LinkedList;
+import org.drools.core.util.LinkedListNode;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.definition.type.FactField;
 import org.kie.api.runtime.KieSession;
+import org.kie.internal.KnowledgeBaseFactory;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class KnowledgeBuilderTest extends DroolsTestCase {
     
@@ -182,17 +176,16 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
         assertLength( 0,
                       builder.getErrors().getErrors() );
 
-        final ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        ruleBase.getGlobals().put( "map",
-                                   Map.class );
-        final KieSession workingMemory = new KnowledgeBaseImpl( ruleBase ).newStatefulKnowledgeSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase)KnowledgeBaseFactory.newKnowledgeBase();
+        kBase.getGlobals().put( "map", Map.class );
+        final KieSession workingMemory = kBase.newStatefulKnowledgeSession();
 
         final HashMap map = new HashMap();
         workingMemory.setGlobal( "map",
                                  map );
 
         final LeftTupleImpl tuple = new MockTuple( new HashMap() );
-        tuple.setLeftTupleSink( new RuleTerminalNode(1, new CompositeObjectSinkAdapterTest.MockBetaNode(), rule,rule.getLhs(), 0,new BuildContext(ruleBase, null) )  );        
+        tuple.setLeftTupleSink( new RuleTerminalNode(1, new CompositeObjectSinkAdapterTest.MockBetaNode(), rule,rule.getLhs(), 0,new BuildContext(kBase, null) )  );
         final Activation activation = new MockActivation( rule,
                                                           0,
                                                           rule.getLhs(),
@@ -260,15 +253,14 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
         final Package newPkg = SerializationHelper.serializeObject( pkg );
         final Rule newRule = newPkg.getRule( "rule-1" );
 
-        final ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase)KnowledgeBaseFactory.newKnowledgeBase();
 
         // It's been serialised so we have to simulate the re-wiring process
-        newPkg.getDialectRuntimeRegistry().onAdd( ruleBase.getRootClassLoader() );
+        newPkg.getDialectRuntimeRegistry().onAdd( kBase.getRootClassLoader() );
         newPkg.getDialectRuntimeRegistry().onBeforeExecute();
 
-        ruleBase.getGlobals().put( "map",
-                                   Map.class );
-        final KieSession workingMemory = new KnowledgeBaseImpl( ruleBase ).newStatefulKnowledgeSession();
+        kBase.getGlobals().put( "map", Map.class );
+        final KieSession workingMemory = kBase.newStatefulKnowledgeSession();
 
         final HashMap map = new HashMap();
 
@@ -276,7 +268,7 @@ public class KnowledgeBuilderTest extends DroolsTestCase {
                                  map );
 
         final LeftTupleImpl tuple = new MockTuple( new HashMap() );
-        tuple.setLeftTupleSink( new RuleTerminalNode(1, new CompositeObjectSinkAdapterTest.MockBetaNode(), newRule,newRule.getLhs(), 0, new BuildContext(ruleBase, null) )  );
+        tuple.setLeftTupleSink( new RuleTerminalNode(1, new CompositeObjectSinkAdapterTest.MockBetaNode(), newRule,newRule.getLhs(), 0, new BuildContext(kBase, null) )  );
         final Activation activation = new MockActivation( newRule,
                                                           0,
                                                           newRule.getLhs(),

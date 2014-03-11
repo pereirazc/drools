@@ -78,7 +78,7 @@ public class MVELObjectExpression
                                                            rule, null, leftTuple, null, wm, wm.getGlobalResolver() );
         
         // do we have any functions for this namespace?
-        Package pkg = wm.getRuleBase().getPackage( "MAIN" );
+        Package pkg = wm.getKnowledgeBase().getPackage( "MAIN" );
         if ( pkg != null ) {
             MVELDialectRuntimeData data = (MVELDialectRuntimeData) pkg.getDialectRuntimeRegistry().getDialectData( this.id );
             factory.setNextFactory( data.getFunctionFactory() );

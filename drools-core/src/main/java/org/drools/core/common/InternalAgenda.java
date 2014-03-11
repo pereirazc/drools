@@ -17,6 +17,7 @@
 package org.drools.core.common;
 
 import org.drools.core.Agenda;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.phreak.RuleAgendaItem;
 import org.drools.core.reteoo.LeftTuple;
 import org.drools.core.reteoo.PathMemory;
@@ -117,7 +118,7 @@ public interface InternalAgenda
      * @param fireLimit the maximum number of activations that may fire. If -1, then it will
      *                  fire until no more activations exist.
      *
-     * @param limit
+     * @param fireLimit
      * @return the number of rules that were actually fired
      */
     public int fireAllRules(AgendaFilter agendaFilter,
@@ -150,7 +151,7 @@ public interface InternalAgenda
     public AgendaGroup getAgendaGroup(String name);
 
     public AgendaGroup getAgendaGroup(final String name,
-                                      InternalRuleBase ruleBase);
+                                      InternalKnowledgeBase kBase);
 
     public ActivationGroup getActivationGroup(String name);
 

@@ -382,9 +382,9 @@ public class Misc2Test extends CommonTestMethodBase {
         KieBaseEventListener listener = new DefaultKieBaseEventListener();
         kbase.addEventListener(listener);
         kbase.addEventListener(listener);
-        assertEquals(1, ((KnowledgeBaseImpl) kbase).getRuleBase().getRuleBaseEventListeners().size());
+        assertEquals(1, ((KnowledgeBaseImpl) kbase).getRuleBaseEventListeners().size());
         kbase.removeEventListener(listener);
-        assertEquals(0, ((KnowledgeBaseImpl) kbase).getRuleBase().getRuleBaseEventListeners().size());
+        assertEquals(0, ((KnowledgeBaseImpl) kbase).getRuleBaseEventListeners().size());
     }
 
     @Test
@@ -5049,7 +5049,7 @@ public class Misc2Test extends CommonTestMethodBase {
             ksession.fireAllRules();
         }
 
-        Rete rete = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete();
+        Rete rete = ((KnowledgeBaseImpl)kbase).getRete();
         JoinNode joinNode = null;
         for (ObjectTypeNode otn : rete.getObjectTypeNodes()) {
             if ( String.class == otn.getObjectType().getValueType().getClassType() ) {
@@ -5198,7 +5198,7 @@ public class Misc2Test extends CommonTestMethodBase {
             ksession.fireAllRules();
         }
 
-        Rete rete = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete();
+        Rete rete = ((KnowledgeBaseImpl)kbase).getRete();
         LeftInputAdapterNode liaNode = null;
         for (ObjectTypeNode otn : rete.getObjectTypeNodes()) {
             if ( String.class == otn.getObjectType().getValueType().getClassType() ) {

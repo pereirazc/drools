@@ -6,8 +6,8 @@ import java.io.StringReader;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DroolsParserException;
 import org.drools.core.RuleBaseConfiguration;
+import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.reteoo.ReteooBuilder;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -49,7 +49,7 @@ public class ReteooBuilderPerformanceTest {
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
 
         for (int i = 0; i < reteBuilders.length; i++) {
-            reteBuilders[i] = new ReteooBuilder(new ReteooRuleBase( "id1", conf ));
+            reteBuilders[i] = new ReteooBuilder(new KnowledgeBaseImpl( "id1", conf ));
         }
         return reteBuilders;
     }

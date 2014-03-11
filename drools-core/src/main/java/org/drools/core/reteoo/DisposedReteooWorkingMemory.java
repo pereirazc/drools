@@ -43,9 +43,10 @@ import org.drools.core.common.TruthMaintenanceSystem;
 import org.drools.core.common.WorkingMemoryAction;
 import org.drools.core.event.AgendaEventListener;
 import org.drools.core.event.AgendaEventSupport;
-import org.drools.core.event.RuleBaseEventListener;
+import org.drools.core.event.KnowledgeBaseEventListener;
 import org.drools.core.event.WorkingMemoryEventListener;
 import org.drools.core.event.WorkingMemoryEventSupport;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.rule.EntryPointId;
 import org.drools.core.rule.Rule;
 import org.drools.core.runtime.impl.ExecutionResultImpl;
@@ -290,6 +291,10 @@ public class DisposedReteooWorkingMemory implements ReteooWorkingMemoryInterface
         throw new IllegalStateException( ERRORMSG );
     }
 
+    public InternalKnowledgeBase getKnowledgeBase() {
+        throw new IllegalStateException( ERRORMSG );
+    }
+
     public RuleBase getRuleBase() {
         throw new IllegalStateException( ERRORMSG );
     }
@@ -422,15 +427,15 @@ public class DisposedReteooWorkingMemory implements ReteooWorkingMemoryInterface
         throw new IllegalStateException( ERRORMSG );
     }
 
-    public void addEventListener( RuleBaseEventListener listener ) {
+    public void addEventListener( KnowledgeBaseEventListener listener ) {
         throw new IllegalStateException( ERRORMSG );
     }
 
-    public void removeEventListener( RuleBaseEventListener listener ) {
+    public void removeEventListener( KnowledgeBaseEventListener listener ) {
         throw new IllegalStateException( ERRORMSG );
     }
 
-    public List<RuleBaseEventListener> getRuleBaseEventListeners() {
+    public List<KnowledgeBaseEventListener> getRuleBaseEventListeners() {
         throw new IllegalStateException( ERRORMSG );
     }
 

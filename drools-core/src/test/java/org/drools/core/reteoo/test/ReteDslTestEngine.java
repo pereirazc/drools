@@ -45,6 +45,7 @@ import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.Memory;
 import org.drools.core.common.PropagationContextFactory;
+import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.NodeTypeEnums;
 import org.drools.core.util.Iterator;
@@ -61,7 +62,6 @@ import org.drools.core.reteoo.LeftTupleSink;
 import org.drools.core.reteoo.ModifyPreviousTuples;
 import org.drools.core.reteoo.ObjectSink;
 import org.drools.core.reteoo.ObjectTypeNode;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.RightInputAdapterNode;
 import org.drools.core.reteoo.RightInputAdapterNode.RiaNodeMemory;
 import org.drools.core.reteoo.RightTuple;
@@ -257,8 +257,8 @@ public class ReteDslTestEngine {
 
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
 
-        ReteooRuleBase rbase = new ReteooRuleBase( "ID",
-                                                   conf );
+        KnowledgeBaseImpl rbase = new KnowledgeBaseImpl( "ID",
+                                                         conf );
         BuildContext buildContext = new BuildContext( rbase,
                                                       rbase.getReteooBuilder().getIdGenerator() );
 
@@ -354,7 +354,7 @@ public class ReteDslTestEngine {
                           InternalWorkingMemory wm) {
         
         final boolean lrUnlinkingEnabled = ((BuildContext) context
-                .get( BUILD_CONTEXT )).getRuleBase().getConfiguration()
+                .get( BUILD_CONTEXT )).getKnowledgeBase().getConfiguration()
                 .isPhreakEnabled();
 
         try {

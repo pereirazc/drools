@@ -4,8 +4,10 @@ import org.drools.compiler.Cheese;
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.WorkingMemory;
+import org.drools.core.common.InternalWorkingMemory;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -23,6 +25,7 @@ import org.drools.core.rule.Accumulate;
 import org.drools.core.rule.MVELDialectRuntimeData;
 import org.drools.core.rule.Package;
 import org.drools.compiler.rule.builder.RuleBuildContext;
+import org.kie.internal.KnowledgeBaseFactory;
 
 public class MVELAccumulateBuilderTest {
 
@@ -59,8 +62,9 @@ public class MVELAccumulateBuilderTest {
 
         ((MVELCompileable) acc.getAccumulators()[0]).compile( (MVELDialectRuntimeData) pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectRuntimeRegistry().getDialectData( "mvel" ) );
 
-        final RuleBase ruleBase = RuleBaseFactory.newRuleBase();
-        final WorkingMemory wm = ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         MockLeftTupleSink sink = new MockLeftTupleSink();
         final Cheese cheddar1 = new Cheese( "cheddar",

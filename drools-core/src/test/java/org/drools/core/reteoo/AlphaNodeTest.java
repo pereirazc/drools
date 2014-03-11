@@ -17,14 +17,16 @@
 package org.drools.core.reteoo;
 
 import org.drools.core.FactException;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.base.ClassFieldAccessorCache;
 import org.drools.core.base.ClassFieldAccessorStore;
 import org.drools.core.base.ClassFieldReader;
 import org.drools.core.base.FieldFactory;
 import org.drools.core.common.AbstractWorkingMemory;
 import org.drools.core.common.DefaultFactHandle;
+import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.PropagationContextFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.test.model.Cheese;
 import org.drools.core.test.model.DroolsTestCase;
 import org.drools.core.reteoo.AlphaNode.AlphaMemory;
@@ -37,6 +39,8 @@ import org.drools.core.spi.InternalReadAccessor;
 import org.drools.core.spi.PropagationContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.internal.KnowledgeBaseFactory;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 import java.beans.IntrospectionException;
 
@@ -55,13 +59,14 @@ public class AlphaNodeTest extends DroolsTestCase {
 
     @Test
     public void testLiteralConstraintAssertObjectWithoutMemory() throws Exception {
-        ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        BuildContext buildContext = new BuildContext( ruleBase,
-                                                      ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator() );
-        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        BuildContext buildContext = new BuildContext( kBase,
+                                                      kBase.getReteooBuilder().getIdGenerator() );
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         final Rule rule = new Rule( "test-rule" );
-        PropagationContextFactory pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        PropagationContextFactory pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
         final PropagationContext context = pctxFactory.createPropagationContext(0, PropagationContext.INSERTION, null, null, null);
 
         final MockObjectSource source = new MockObjectSource( buildContext.getNextId() );
@@ -85,7 +90,7 @@ public class AlphaNodeTest extends DroolsTestCase {
 
         final Cheese cheddar = new Cheese( "cheddar",
                                            5 );
-        final DefaultFactHandle f0 = (DefaultFactHandle) workingMemory.insert( cheddar );
+        final DefaultFactHandle f0 = (DefaultFactHandle) ksession.insert( cheddar );
 
         // check sink is empty
         assertLength( 0,
@@ -129,13 +134,14 @@ public class AlphaNodeTest extends DroolsTestCase {
      */
     @Test
     public void testReturnValueConstraintAssertObject() throws Exception {
-        ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        BuildContext buildContext = new BuildContext( ruleBase,
-                                                      ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator() );
-        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        BuildContext buildContext = new BuildContext( kBase,
+                                                      kBase.getReteooBuilder().getIdGenerator() );
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         final Rule rule = new Rule( "test-rule" );
-        PropagationContextFactory pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        PropagationContextFactory pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
         final PropagationContext context = pctxFactory.createPropagationContext(0, PropagationContext.INSERTION, null, null, null);
 
         final MockObjectSource source = new MockObjectSource( buildContext.getNextId() );
@@ -193,13 +199,14 @@ public class AlphaNodeTest extends DroolsTestCase {
     public void testUpdateSinkWithoutMemory() throws FactException,
                                              IntrospectionException {
         // An AlphaNode should try and repropagate from its source
-        ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        BuildContext buildContext = new BuildContext( ruleBase,
-                                                      ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator() );
-        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        BuildContext buildContext = new BuildContext( kBase,
+                                                      kBase.getReteooBuilder().getIdGenerator() );
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         final Rule rule = new Rule( "test-rule" );
-        PropagationContextFactory pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        PropagationContextFactory pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
         final PropagationContext context = pctxFactory.createPropagationContext(0, PropagationContext.INSERTION, null, null, null);
 
         final MockObjectSource source = new MockObjectSource( buildContext.getNextId() );

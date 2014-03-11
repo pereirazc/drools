@@ -654,7 +654,7 @@ public class ReteAccumulateNode extends AccumulateNode {
             } else {
                 // retract
                 // we can't use the expiration context here, because it wouldn't cancel existing activations. however, isAllowed is false so activations should not fire
-                PropagationContextFactory pctxFactory =((InternalRuleBase)workingMemory.getRuleBase()).getConfiguration().getComponentFactory().getPropagationContextFactory();
+                PropagationContextFactory pctxFactory = workingMemory.getKnowledgeBase().getConfiguration().getComponentFactory().getPropagationContextFactory();
                 PropagationContext cancelContext = pctxFactory.createPropagationContext(workingMemory.getNextPropagationIdCounter(), org.kie.api.runtime.rule.PropagationContext.DELETION, (Rule) context.getRule(),
                                                                                         context.getLeftTupleOrigin(), (InternalFactHandle) context.getFactHandle());
                 this.sink.propagateRetractLeftTuple( leftTuple,

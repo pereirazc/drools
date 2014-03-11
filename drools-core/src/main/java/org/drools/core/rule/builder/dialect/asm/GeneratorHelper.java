@@ -114,7 +114,7 @@ public final class GeneratorHelper {
     }
 
     static TypeResolver getTypeResolver(final InvokerStub stub, final WorkingMemory workingMemory, final ClassLoader classLoader) {
-        org.drools.core.rule.Package pkg = workingMemory.getRuleBase().getPackage(stub.getPackageName());
+        org.drools.core.rule.Package pkg = workingMemory.getKnowledgeBase().getPackage(stub.getPackageName());
         TypeResolver typeResolver = pkg == null ? null : pkg.getTypeResolver();
         if (typeResolver == null) {
             Set<String> imports = new HashSet<String>();

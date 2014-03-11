@@ -92,7 +92,7 @@ public class EntryPointNode extends ObjectSource
                           final BuildContext context) {
         this( id,
               context.getPartitionId(),
-              context.getRuleBase().getConfiguration().isMultithreadEvaluation(),
+              context.getKnowledgeBase().getConfiguration().isMultithreadEvaluation(),
               objectSource,
               context.getCurrentEntryPoint() ); // irrelevant for this node, since it overrides sink management
     }
@@ -423,7 +423,7 @@ public class EntryPointNode extends ObjectSource
         if (context == null ) {
             return;
         }
-        if ( context.getRuleBase().getConfiguration().isPhreakEnabled() ) {
+        if ( context.getKnowledgeBase().getConfiguration().isPhreakEnabled() ) {
             for ( InternalWorkingMemory workingMemory : context.getWorkingMemories() ) {
                 workingMemory.updateEntryPointsCache();
             }
@@ -432,7 +432,7 @@ public class EntryPointNode extends ObjectSource
 
         for ( InternalWorkingMemory workingMemory : context.getWorkingMemories() ) {
             workingMemory.updateEntryPointsCache();
-            PropagationContextFactory pctxFactory =((InternalRuleBase)workingMemory.getRuleBase()).getConfiguration().getComponentFactory().getPropagationContextFactory();
+            PropagationContextFactory pctxFactory = workingMemory.getKnowledgeBase().getConfiguration().getComponentFactory().getPropagationContextFactory();
             final PropagationContext propagationContext = pctxFactory.createPropagationContext(workingMemory.getNextPropagationIdCounter(), PropagationContext.RULE_ADDITION, null, null, null);
             this.source.updateSink( this,
                                     propagationContext,

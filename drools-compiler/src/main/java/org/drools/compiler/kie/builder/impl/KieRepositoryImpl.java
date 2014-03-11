@@ -137,6 +137,9 @@ public class KieRepositoryImpl
 
         public void stop() { }
 
+        @Override
+        public void shutdown() { }
+
         public void scanNow() { }
 
         public void setKieContainer(KieContainer kieContainer) { }

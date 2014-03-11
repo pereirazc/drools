@@ -20,6 +20,7 @@ import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.NamedEntryPoint;
 import org.drools.core.common.RuleBasePartitionId;
 import org.drools.core.impl.EnvironmentFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.compiler.integrationtests.marshalling.util.OldOutputMarshallerMethods;
 import org.drools.core.marshalling.impl.InputMarshaller;
@@ -30,7 +31,6 @@ import org.drools.core.marshalling.impl.ObjectMarshallingStrategyStoreImpl;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.ObjectSource;
 import org.drools.core.reteoo.Rete;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.rule.EntryPointId;
 import org.drools.core.reteoo.builder.NodeFactory;
 import org.junit.Assert;
@@ -47,19 +47,17 @@ import org.kie.api.runtime.rule.EntryPoint;
 
 public class FactHandleMarshallingTest {
 
-    private RuleBase createRuleBase() { 
+    private InternalKnowledgeBase createKnowledgeBase() {
         KieBaseConfiguration config = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
         config.setOption( EventProcessingOption.STREAM );
-        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase( config );
-        RuleBase ruleBase = ((KnowledgeBaseImpl) kbase).getRuleBase();
-        return ruleBase;
+        return (InternalKnowledgeBase)KnowledgeBaseFactory.newKnowledgeBase( config );
     }
     
-    private InternalFactHandle createEventFactHandle(AbstractWorkingMemory wm, RuleBase ruleBase) { 
+    private InternalFactHandle createEventFactHandle(AbstractWorkingMemory wm, InternalKnowledgeBase kBase) {
         // EntryPointNode
-        Rete rete = ((ReteooRuleBase) ruleBase).getRete();
+        Rete rete = kBase.getRete();
 
-        NodeFactory nFacotry = ((ReteooRuleBase) ruleBase).getConfiguration().getComponentFactory().getNodeFactoryService();
+        NodeFactory nFacotry = kBase.getConfiguration().getComponentFactory().getNodeFactoryService();
 
         RuleBasePartitionId partionId = new RuleBasePartitionId("P-MAIN");
         EntryPointNode entryPointNode = nFacotry.buildEntryPointNode(1, partionId, false, (ObjectSource) rete , EntryPointId.DEFAULT);
@@ -70,21 +68,21 @@ public class FactHandleMarshallingTest {
         return factHandle;
     }
        
-    private AbstractWorkingMemory createWorkingMemory(RuleBase ruleBase) { 
+    private AbstractWorkingMemory createWorkingMemory(InternalKnowledgeBase kBase) {
         // WorkingMemoryEntryPoint
         KieSessionConfiguration ksconf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
         ksconf.setOption( ClockTypeOption.get( "pseudo" ) );
         SessionConfiguration sessionConf = ((SessionConfiguration) ksconf);
-        AbstractWorkingMemory wm = new AbstractWorkingMemory(1, (InternalRuleBase) ruleBase, true, sessionConf, EnvironmentFactory.newEnvironment());
+        AbstractWorkingMemory wm = new AbstractWorkingMemory(1, kBase, true, sessionConf, EnvironmentFactory.newEnvironment());
         
         return wm;
     }
     
     @Test
-    public void backwardsCompatibleEventFactHandleTest() throws IOException, ClassNotFoundException { 
-        RuleBase ruleBase = createRuleBase();
-        AbstractWorkingMemory wm = createWorkingMemory(ruleBase);
-        InternalFactHandle factHandle = createEventFactHandle(wm, ruleBase);
+    public void backwardsCompatibleEventFactHandleTest() throws IOException, ClassNotFoundException {
+        InternalKnowledgeBase kBase = createKnowledgeBase();
+        AbstractWorkingMemory wm = createWorkingMemory(kBase);
+        InternalFactHandle factHandle = createEventFactHandle(wm, kBase);
         
         // marshall/serialize workItem
         byte [] byteArray;

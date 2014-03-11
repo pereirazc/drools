@@ -1,5 +1,6 @@
 package org.drools.template.parser;
 
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.core.rule.GroupElement;
 import org.drools.core.rule.IndexableConstraint;
 import org.drools.core.rule.Package;
@@ -48,7 +49,7 @@ public class DefaultTemplateRuleBaseTest {
 
         };
         DefaultTemplateRuleBase ruleBase = new DefaultTemplateRuleBase(tc);
-        Package[] packages = ruleBase.newStatefulSession().getRuleBase().getPackages();
+        Package[] packages = ((KnowledgeBuilderImpl)ruleBase.newStatefulSession().getKieBase()).getPackages();
         assertEquals(1, packages.length);
         Map<String, String> globals = packages[0].getGlobals();
         assertEquals(DefaultGenerator.class.getName(), globals.get("generator"));

@@ -64,8 +64,7 @@ public class TruthMaintenanceSystem {
         this.equalityKeyMap.setComparator( EqualityKeyComparator.getInstance() );
 
 
-        InternalRuleBase rbase = ( InternalRuleBase ) wm.getRuleBase();
-        beliefSystem = rbase.getConfiguration().getComponentFactory().getBeliefSystemFactory().createBeliefSystem(wm.getSessionConfiguration().getBeliefSystemType(), ep, this);
+        beliefSystem = wm.getKnowledgeBase().getConfiguration().getComponentFactory().getBeliefSystemFactory().createBeliefSystem(wm.getSessionConfiguration().getBeliefSystemType(), ep, this);
     }
 
     public ObjectHashMap getEqualityKeyMap() {

@@ -188,7 +188,7 @@ public class SlidingTimeWindow
                 queue.queue.remove();
                 if( handle.isValid()) {
                     // if not expired yet, expire it
-                    PropagationContextFactory pctxFactory = ((InternalRuleBase) workingMemory.getRuleBase()).getConfiguration().getComponentFactory().getPropagationContextFactory();
+                    PropagationContextFactory pctxFactory = workingMemory.getKnowledgeBase().getConfiguration().getComponentFactory().getPropagationContextFactory();
                     final PropagationContext expiresPctx = pctxFactory.createPropagationContext(workingMemory.getNextPropagationIdCounter(), PropagationContext.EXPIRATION,
                                                                                                 null, null, handle);
                     ObjectTypeNode.doRetractObject(handle, expiresPctx, workingMemory);

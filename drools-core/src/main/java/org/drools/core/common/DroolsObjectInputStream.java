@@ -24,6 +24,7 @@ import java.io.ObjectStreamClass;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.rule.Package;
 
 public class DroolsObjectInputStream extends ObjectInputStream
@@ -54,7 +55,7 @@ public class DroolsObjectInputStream extends ObjectInputStream
 
     private ClassLoader                     parentClassLoader;
     private ClassLoader                     classLoader;
-    private InternalRuleBase                ruleBase;
+    private InternalKnowledgeBase           kBase;
     private InternalWorkingMemory           workingMemory;
     private Package                         pkg;
 
@@ -108,13 +109,13 @@ public class DroolsObjectInputStream extends ObjectInputStream
         return this.classLoader;
     }
 
-    public InternalRuleBase getRuleBase() {
-        return ruleBase;
+    public InternalKnowledgeBase getKnowledgeBase() {
+        return kBase;
     }
 
-    public void setRuleBase(InternalRuleBase ruleBase) {
-        this.ruleBase = ruleBase;
-        this.classLoader = this.ruleBase.getRootClassLoader();
+    public void setKnowledgeBase(InternalKnowledgeBase kBase) {
+        this.kBase = kBase;
+        this.classLoader = this.kBase.getRootClassLoader();
     }
 
     public InternalWorkingMemory getWorkingMemory() {

@@ -1113,9 +1113,9 @@ public class TypeDeclarationBuilder {
                     if (parent == null) {
                         kbuilder.addBuilderResult(new TypeDeclarationError(typeDescr, "Declared class " + typeDescr.getTypeName() + " can't extend class " + typeDescr.getSuperTypeName() + ", it should be declared"));
                     } else {
-                        if (parent.getNature() == TypeDeclaration.Nature.DECLARATION && kbuilder.getRuleBase() != null) {
+                        if (parent.getNature() == TypeDeclaration.Nature.DECLARATION && kbuilder.getKnowledgeBase() != null) {
                             // trying to find a definition
-                            parent = kbuilder.getRuleBase().getPackagesMap().get(typeDescr.getSuperTypeNamespace()).getTypeDeclaration(typeDescr.getSuperTypeName());
+                            parent = kbuilder.getKnowledgeBase().getPackagesMap().get(typeDescr.getSuperTypeNamespace()).getTypeDeclaration(typeDescr.getSuperTypeName());
                         }
                     }
                 }
@@ -2017,8 +2017,8 @@ public class TypeDeclarationBuilder {
         byte[] bytecode = cb.buildClass(def, kbuilder.getRootClassLoader());
         String resourceName = convertClassToResourcePath(fullName);
         dialect.putClassDefinition(resourceName, bytecode);
-        if (kbuilder.getRuleBase() != null) {
-            kbuilder.getRuleBase().registerAndLoadTypeDefinition(fullName, bytecode);
+        if (kbuilder.getKnowledgeBase() != null) {
+            kbuilder.getKnowledgeBase().registerAndLoadTypeDefinition(fullName, bytecode);
         } else {
             if (kbuilder.getRootClassLoader() instanceof ProjectClassLoader) {
                 ((ProjectClassLoader) kbuilder.getRootClassLoader()).defineClass(fullName, resourceName, bytecode);

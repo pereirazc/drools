@@ -1549,7 +1549,7 @@ public class BackwardChainingTest extends CommonTestMethodBase {
 
         // Get the accumulate node, so we can test it's memory later
         // now check beta memory was correctly cleared
-        List<ObjectTypeNode> nodes = ((InternalRuleBase) ((KnowledgeBaseImpl) kbase).ruleBase).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> nodes = ((KnowledgeBaseImpl) kbase).getRete().getObjectTypeNodes();
         ObjectTypeNode node = null;
         for ( ObjectTypeNode n : nodes ) {
             if ( ((ClassObjectType) n.getObjectType()).getClassType() == String.class ) {

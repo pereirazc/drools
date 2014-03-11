@@ -17,9 +17,7 @@
 package org.drools.core.reteoo;
 
 import org.drools.core.FactException;
-import org.drools.core.FactHandle;
 import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.base.ClassObjectType;
 import org.drools.core.base.ShadowProxy;
 import org.drools.core.common.AbstractWorkingMemory;
@@ -27,6 +25,8 @@ import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.PropagationContextFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.reteoo.ReteooBuilder.IdGenerator;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.EntryPointId;
@@ -36,6 +36,8 @@ import org.drools.core.test.model.DroolsTestCase;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.api.runtime.rule.FactHandle;
+import org.kie.internal.KnowledgeBaseFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,18 +53,19 @@ import static org.junit.Assert.assertTrue;
 
 public class ReteTest extends DroolsTestCase {
     private PropagationContextFactory pctxFactory;
-    private ReteooRuleBase ruleBase;
+    private InternalKnowledgeBase kBase;
     private BuildContext   buildContext;
     private EntryPointNode entryPoint;
 
     @Before
     public void setUp() throws Exception {
-        this.ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        this.pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
-        this.buildContext = new BuildContext(ruleBase,
-                                             ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator());
+        this.kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+
+        this.pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        this.buildContext = new BuildContext(kBase,
+                                             kBase.getReteooBuilder().getIdGenerator());
         this.entryPoint = new EntryPointNode(0,
-                                             this.ruleBase.getRete(),
+                                             kBase.getRete(),
                                              buildContext);
         this.entryPoint.attach(buildContext);
 
@@ -75,7 +78,7 @@ public class ReteTest extends DroolsTestCase {
      */
     @Test
     public void testObjectTypeNodes() throws Exception {
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
 
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode(1,
                                                                  this.entryPoint,
@@ -106,10 +109,11 @@ public class ReteTest extends DroolsTestCase {
      */
     @Test
     public void testCache() throws FactException {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) this.ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         // Create a Rete network with ObjectTypeNodes for List, Collection and ArrayList
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         ObjectTypeNode objectTypeNode = new ObjectTypeNode(1,
                                                            this.entryPoint,
                                                            new ClassObjectType(List.class),
@@ -172,10 +176,11 @@ public class ReteTest extends DroolsTestCase {
      */
     @Test
     public void testAssertObject() throws Exception {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) this.ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         // Create a Rete network with ObjectTypeNodes for List, Collection and ArrayList
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode(1,
                                                                  this.entryPoint,
                                                                  new ClassObjectType(List.class),
@@ -225,15 +230,15 @@ public class ReteTest extends DroolsTestCase {
 
     @Test
     public void testAssertObjectWithNoMatchingObjectTypeNode() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) this.ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
 
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         assertEquals(1,
                      rete.getObjectTypeNodes().size());
 
         List list = new ArrayList();
 
-        workingMemory.insert(list);
+        ksession.insert(list);
 
         assertEquals(2,
                      rete.getObjectTypeNodes().size());
@@ -242,10 +247,10 @@ public class ReteTest extends DroolsTestCase {
     @Test
     @Ignore
     public void testHierarchy() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) this.ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
 
-        final Rete rete = ruleBase.getRete();
-        final IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
+        final Rete rete = kBase.getRete();
+        final IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
 
         // Attach a List ObjectTypeNode
         final ObjectTypeNode listOtn = new ObjectTypeNode(idGenerator.getNextId(),
@@ -255,7 +260,7 @@ public class ReteTest extends DroolsTestCase {
         listOtn.attach(buildContext);
 
         // Will automatically create an ArrayList ObjectTypeNode
-        FactHandle handle = workingMemory.insert(new ArrayList());
+        FactHandle handle = ksession.insert(new ArrayList());
 
         // Check we have three ObjectTypeNodes, List, ArrayList and InitialFactImpl
         assertEquals(3,
@@ -266,7 +271,7 @@ public class ReteTest extends DroolsTestCase {
                    rete.getObjectTypeNodes(EntryPointId.DEFAULT).get(new ClassObjectType(List.class)));
 
         // ArrayConf should match two ObjectTypenodes for List and ArrayList
-        ClassObjectTypeConf arrayConf = (ClassObjectTypeConf) workingMemory.getObjectTypeConfigurationRegistry().getObjectTypeConf(this.entryPoint.getEntryPoint(), new ArrayList());
+        ClassObjectTypeConf arrayConf = (ClassObjectTypeConf) ksession.getObjectTypeConfigurationRegistry().getObjectTypeConf(this.entryPoint.getEntryPoint(), new ArrayList());
         final ObjectTypeNode arrayOtn = arrayConf.getConcreteObjectTypeNode();
         assertEquals(2,
                      arrayConf.getObjectTypeNodes().length);
@@ -279,7 +284,7 @@ public class ReteTest extends DroolsTestCase {
         assertTrue(nodes.contains(listOtn));
 
         // Nodes are there, retract the fact so we can check both nodes are populated
-        workingMemory.retract(handle);
+        ksession.retract(handle);
 
         // Add MockSinks so we can track assertions
         final MockObjectSink listSink = new MockObjectSink();
@@ -288,7 +293,7 @@ public class ReteTest extends DroolsTestCase {
         final MockObjectSink arraySink = new MockObjectSink();
         listOtn.addObjectSink(arraySink);
 
-        workingMemory.insert(new ArrayList());
+        ksession.insert(new ArrayList());
         assertEquals(1,
                      listSink.getAsserted().size());
         assertEquals(1,
@@ -302,7 +307,7 @@ public class ReteTest extends DroolsTestCase {
         final MockObjectSink collectionSink = new MockObjectSink();
         collectionOtn.addObjectSink(collectionSink);
 
-        collectionOtn.attach(new TestBuildContext(new InternalWorkingMemory[]{workingMemory}));
+        collectionOtn.attach(new TestBuildContext(kBase));
 
         assertEquals(1,
                      collectionSink.getAsserted().size());
@@ -322,10 +327,11 @@ public class ReteTest extends DroolsTestCase {
      */
     @Test
     public void testRetractObject() throws Exception {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) this.ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         // Create a Rete network with ObjectTypeNodes for List, Collection and ArrayList
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode(1,
                                                                  this.entryPoint,
                                                                  new ClassObjectType(List.class),
@@ -384,10 +390,11 @@ public class ReteTest extends DroolsTestCase {
 
     @Test
     public void testIsShadowed() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) this.ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         // Create a Rete network with ObjectTypeNodes for List, Collection and ArrayList
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode(1,
                                                                  this.entryPoint,
                                                                  new ClassObjectType(Cheese.class),
@@ -421,14 +428,14 @@ public class ReteTest extends DroolsTestCase {
         properties.setProperty("drools.shadowProxyExcludes",
                                "org.drools.core.test.model.Cheese");
         RuleBaseConfiguration conf = new RuleBaseConfiguration(properties);
-        final ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase(conf);
-        buildContext = new BuildContext(ruleBase,
-                                        ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator());
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(conf);
+        buildContext = new BuildContext(kBase,
+                                        kBase.getReteooBuilder().getIdGenerator());
         final AbstractWorkingMemory workingMemory = new AbstractWorkingMemory(1,
-                                                                              ruleBase);
+                                                                              kBase);
 
         // Create a Rete network with ObjectTypeNodes for List, Collection and ArrayList
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final EntryPointNode entryPoint = new EntryPointNode(0,
                                                              rete,
                                                              buildContext);
@@ -462,16 +469,11 @@ public class ReteTest extends DroolsTestCase {
     }
 
     public static class TestBuildContext extends BuildContext {
-        InternalWorkingMemory[] workingMemories;
+        InternalKnowledgeBase kBase;
 
-        TestBuildContext(InternalWorkingMemory[] workingMemories) {
-            super(workingMemories[0] != null ? (InternalRuleBase) workingMemories[0].getRuleBase() : null,
-                  null);
-            this.workingMemories = workingMemories;
-        }
-
-        public InternalWorkingMemory[] getWorkingMemories() {
-            return workingMemories;
+        TestBuildContext(InternalKnowledgeBase kBase) {
+            super(kBase, null);
+            this.kBase = kBase;
         }
     }
 }

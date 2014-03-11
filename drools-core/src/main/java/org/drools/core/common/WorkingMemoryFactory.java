@@ -4,17 +4,18 @@ import org.drools.core.SessionConfiguration;
 import org.drools.core.event.AgendaEventSupport;
 import org.drools.core.event.RuleEventListenerSupport;
 import org.drools.core.event.WorkingMemoryEventSupport;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.spi.FactHandleFactory;
 import org.kie.api.runtime.Environment;
 
 public interface WorkingMemoryFactory {
     InternalWorkingMemory createWorkingMemory(final int id,
-                                              final InternalRuleBase ruleBase,
+                                              final InternalKnowledgeBase kBase,
                                               final SessionConfiguration config,
                                               final Environment environment);
 
     InternalWorkingMemory createWorkingMemory(final int id,
-                                              final InternalRuleBase ruleBase,
+                                              final InternalKnowledgeBase kBase,
                                               final FactHandleFactory handleFactory,
                                               final InternalFactHandle initialFactHandle,
                                               final long propagationContext,
@@ -23,7 +24,7 @@ public interface WorkingMemoryFactory {
                                               final Environment environment);
 
     InternalWorkingMemory createWorkingMemory(final int id,
-                                              final InternalRuleBase ruleBase,
+                                              final InternalKnowledgeBase kBase,
                                               final FactHandleFactory handleFactory,
                                               final InternalFactHandle initialFactHandle,
                                               final long propagationContext,

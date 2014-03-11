@@ -290,8 +290,8 @@ public class PersisterHelper {
 		ClassLoader classLoader = null;
                 if (context.classLoader != null ){
                     classLoader = context.classLoader;
-                } else if(context.ruleBase != null){
-                    classLoader = context.ruleBase.getRootClassLoader();
+                } else if(context.kBase != null){
+                    classLoader = context.kBase.getRootClassLoader();
                 }
                 ctx.read( new DroolsObjectInputStream( _entry.getData().newInput(), classLoader) );
             }

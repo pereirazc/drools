@@ -31,9 +31,10 @@ import org.drools.core.common.TruthMaintenanceSystem;
 import org.drools.core.common.WorkingMemoryAction;
 import org.drools.core.event.AgendaEventListener;
 import org.drools.core.event.AgendaEventSupport;
-import org.drools.core.event.RuleBaseEventListener;
+import org.drools.core.event.KnowledgeBaseEventListener;
 import org.drools.core.event.WorkingMemoryEventListener;
 import org.drools.core.event.WorkingMemoryEventSupport;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.process.instance.WorkItemManager;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.LIANodePropagation;
@@ -272,6 +273,11 @@ public class MockWorkingMemory implements InternalWorkingMemory {
         return null;
     }
 
+    public InternalKnowledgeBase getKnowledgeBase() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public Object getObject(org.kie.api.runtime.rule.FactHandle handle) {
         // TODO Auto-generated method stub
         return null;
@@ -299,11 +305,6 @@ public class MockWorkingMemory implements InternalWorkingMemory {
 
     public QueryResults getQueryResults(String query,
                                         Object[] arguments) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public RuleBase getRuleBase() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -409,17 +410,17 @@ public class MockWorkingMemory implements InternalWorkingMemory {
         
     }
 
-    public void addEventListener(RuleBaseEventListener listener) {
+    public void addEventListener(KnowledgeBaseEventListener listener) {
         // TODO Auto-generated method stub
         
     }
 
-    public List<RuleBaseEventListener> getRuleBaseEventListeners() {
+    public List<KnowledgeBaseEventListener> getRuleBaseEventListeners() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void removeEventListener(RuleBaseEventListener listener) {
+    public void removeEventListener(KnowledgeBaseEventListener listener) {
         // TODO Auto-generated method stub
         
     }

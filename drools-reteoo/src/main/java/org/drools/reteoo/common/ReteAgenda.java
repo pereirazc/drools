@@ -30,13 +30,13 @@ import org.drools.core.common.EventSupport;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalAgendaGroup;
 import org.drools.core.common.InternalFactHandle;
-import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.InternalRuleFlowGroup;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.InternalWorkingMemoryEntryPoint;
 import org.drools.core.common.ScheduledAgendaItem;
 import org.drools.core.common.Scheduler;
 import org.drools.core.common.TruthMaintenanceSystemHelper;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.phreak.RuleAgendaItem;
 import org.drools.core.reteoo.LeftTuple;
 import org.drools.core.reteoo.ObjectTypeConf;
@@ -155,36 +155,36 @@ public class ReteAgenda
     /**
      * Construct.
      *
-     * @param rb
+     * @param kBase
      *            The <code>InternalRuleBase</code> of this agenda.
      */
-    public ReteAgenda(InternalRuleBase rb) {
-        this(rb,
+    public ReteAgenda(InternalKnowledgeBase kBase) {
+        this(kBase,
              true);
     }
 
     /**
      * Construct.
      *
-     * @param rb
+     * @param kBase
      *            The <code>InternalRuleBase</code> of this agenda.
      * @param initMain
      *            Flag to initialize the MAIN agenda group
      */
-    public ReteAgenda(InternalRuleBase rb,
+    public ReteAgenda(InternalKnowledgeBase kBase,
                       boolean initMain) {
 
         this.agendaGroups = new HashMap<String, InternalAgendaGroup>();
         this.activationGroups = new HashMap<String, ActivationGroup>();
         this.focusStack = new LinkedList<AgendaGroup>();
         this.scheduledActivations = new org.drools.core.util.LinkedList<ScheduledAgendaItem>();
-        this.agendaGroupFactory = rb.getConfiguration().getAgendaGroupFactory();
+        this.agendaGroupFactory = kBase.getConfiguration().getAgendaGroupFactory();
 
         if (initMain) {
             // MAIN should always be the first AgendaGroup and can never be
             // removed
             this.main = agendaGroupFactory.createAgendaGroup(AgendaGroup.MAIN,
-                                                             rb);
+                                                             kBase);
 
             this.agendaGroups.put(AgendaGroup.MAIN,
                                   this.main);
@@ -193,15 +193,15 @@ public class ReteAgenda
         }
         eager = new LinkedList<RuleAgendaItem>();
 
-        Object object = ClassUtils.instantiateObject(rb.getConfiguration().getConsequenceExceptionHandler(),
-                                                     rb.getConfiguration().getClassLoader());
+        Object object = ClassUtils.instantiateObject(kBase.getConfiguration().getConsequenceExceptionHandler(),
+                                                     kBase.getConfiguration().getClassLoader());
         if (object instanceof ConsequenceExceptionHandler) {
             this.legacyConsequenceExceptionHandler = (ConsequenceExceptionHandler) object;
         } else {
             this.consequenceExceptionHandler = (org.kie.api.runtime.rule.ConsequenceExceptionHandler) object;
         }
 
-        this.declarativeAgenda = rb.getConfiguration().isDeclarativeAgenda();
+        this.declarativeAgenda = kBase.getConfiguration().isDeclarativeAgenda();
     }
 
     public RuleAgendaItem createRuleAgendaItem(final int salience,
@@ -253,7 +253,7 @@ public class ReteAgenda
 
     public void setWorkingMemory(final InternalWorkingMemory workingMemory) {
         this.workingMemory = workingMemory;
-        RuleBaseConfiguration rbc = ((InternalRuleBase) this.workingMemory.getRuleBase()).getConfiguration();
+        RuleBaseConfiguration rbc = this.workingMemory.getKnowledgeBase().getConfiguration();
         if ( rbc.isSequential() ) {
             this.knowledgeHelper = rbc.getComponentFactory().getKnowledgeHelperFactory().newSequentialKnowledgeHelper( this.workingMemory );
         } else {
@@ -830,11 +830,11 @@ public class ReteAgenda
      * @see org.kie.common.AgendaI#getAgendaGroup(java.lang.String)
      */
     public AgendaGroup getAgendaGroup(final String name) {
-        return getAgendaGroup( name, workingMemory == null ? null : ((InternalRuleBase) workingMemory.getRuleBase()) );
+        return getAgendaGroup( name, workingMemory == null ? null : workingMemory.getKnowledgeBase() );
     }
 
     public AgendaGroup getAgendaGroup(final String name,
-                                      InternalRuleBase ruleBase) {
+                                      InternalKnowledgeBase kBase) {
         String groupName = (name == null || name.length() == 0) ? AgendaGroup.MAIN : name;
 
         InternalAgendaGroup agendaGroup = this.agendaGroups.get( groupName );
@@ -842,7 +842,7 @@ public class ReteAgenda
             // The AgendaGroup is defined but not yet added to the
             // Agenda, so create the AgendaGroup and add to the Agenda.
             agendaGroup = agendaGroupFactory.createAgendaGroup( name,
-                                                                ruleBase );
+                                                                kBase );
             addAgendaGroup( agendaGroup );
         }
 

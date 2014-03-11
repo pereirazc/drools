@@ -199,6 +199,13 @@ public class KieRepositoryScannerImpl implements InternalKieScanner {
         status = Status.STOPPED;
     }
 
+    public void shutdown() {
+        if( getStatus() != Status.SHUTDOWN ) {
+            stop(); // making sure it is stopped
+            status = Status.SHUTDOWN;
+        }
+    }
+
     private void startScanTask(long pollingInterval) {
         status = Status.RUNNING;
         timer = new Timer(true);

@@ -179,17 +179,17 @@ public class ProtobufInputMarshaller {
                                                                     Environment environment,
                                                                     SessionConfiguration config,
                                                                     ProtobufMessages.KnowledgeSession _session) throws IOException {
-        FactHandleFactory handleFactory = context.ruleBase.newFactHandleFactory( _session.getRuleData().getLastId(),
+        FactHandleFactory handleFactory = context.kBase.newFactHandleFactory( _session.getRuleData().getLastId(),
                                                                                  _session.getRuleData().getLastRecency() );
 
-        InternalAgenda agenda = context.ruleBase.getConfiguration().getComponentFactory().getAgendaFactory().createAgenda( context.ruleBase, false );
+        InternalAgenda agenda = context.kBase.getConfiguration().getComponentFactory().getAgendaFactory().createAgenda( context.kBase, false );
         readAgenda( context,
                     _session.getRuleData(),
                     agenda );
 
-        WorkingMemoryFactory wmFactory = context.ruleBase.getConfiguration().getComponentFactory().getWorkingMemoryFactory();
+        WorkingMemoryFactory wmFactory = context.kBase.getConfiguration().getComponentFactory().getWorkingMemoryFactory();
         AbstractWorkingMemory session = ( AbstractWorkingMemory ) wmFactory.createWorkingMemory( id,
-                                                                                                 context.ruleBase,
+                                                                                                 context.kBase,
                                                                                                  handleFactory,
                                                                                                  null,
                                                                                                  1, // pCTx starts at 1, as InitialFact is 0
@@ -240,8 +240,8 @@ public class ProtobufInputMarshaller {
 
         List<PropagationContext> pctxs = new ArrayList<PropagationContext>();
 
-        if ( context.ruleBase.getConfiguration().isPhreakEnabled() || _session.getRuleData().hasInitialFact() ) {
-            ((AbstractWorkingMemory)context.wm).initInitialFact(context.ruleBase, context);
+        if ( context.kBase.getConfiguration().isPhreakEnabled() || _session.getRuleData().hasInitialFact() ) {
+            ((AbstractWorkingMemory)context.wm).initInitialFact(context.kBase, context);
             context.handles.put( session.getInitialFactHandle().getId(), session.getInitialFactHandle() );
         }
 
@@ -392,7 +392,7 @@ public class ProtobufInputMarshaller {
         ProtobufMessages.Agenda _agenda = _ruleData.getAgenda();
 
         for ( org.drools.core.marshalling.impl.ProtobufMessages.Agenda.AgendaGroup _agendaGroup : _agenda.getAgendaGroupList() ) {
-            AgendaGroupQueueImpl group = (AgendaGroupQueueImpl) agenda.getAgendaGroup( _agendaGroup.getName(), context.ruleBase );
+            AgendaGroupQueueImpl group = (AgendaGroupQueueImpl) agenda.getAgendaGroup( _agendaGroup.getName(), context.kBase );
             group.setActive( _agendaGroup.getIsActive() );
             group.setAutoDeactivate( _agendaGroup.getIsAutoDeactivate() );
             group.setClearedForRecency( _agendaGroup.getClearedForRecency() );
@@ -412,7 +412,7 @@ public class ProtobufInputMarshaller {
         }
         
         for ( ProtobufMessages.Agenda.RuleFlowGroup _ruleFlowGroup : _agenda.getRuleFlowGroupList() ) {
-            AgendaGroupQueueImpl group = (AgendaGroupQueueImpl) agenda.getAgendaGroup( _ruleFlowGroup.getName(), context.ruleBase );
+            AgendaGroupQueueImpl group = (AgendaGroupQueueImpl) agenda.getAgendaGroup( _ruleFlowGroup.getName(), context.kBase );
             group.setActive( _ruleFlowGroup.getIsActive() );
             group.setAutoDeactivate( _ruleFlowGroup.getIsAutoDeactivate() );
             
@@ -490,7 +490,7 @@ public class ProtobufInputMarshaller {
         InternalWorkingMemoryEntryPoint ep = (InternalWorkingMemoryEntryPoint) handle.getEntryPoint();
         ObjectTypeConf typeConf = ((InternalWorkingMemoryEntryPoint) handle.getEntryPoint()).getObjectTypeConfigurationRegistry().getObjectTypeConf( ep.getEntryPoint(), object );
 
-        PropagationContextFactory pctxFactory =((InternalRuleBase)wm.getRuleBase()).getConfiguration().getComponentFactory().getPropagationContextFactory();
+        PropagationContextFactory pctxFactory = wm.getKnowledgeBase().getConfiguration().getComponentFactory().getPropagationContextFactory();
 
         PropagationContext propagationContext = pctxFactory.createPropagationContext(wm.getNextPropagationIdCounter(), PropagationContext.INSERTION, null, null, handle, ep.getEntryPoint(), context);
         // keeping this list for a later cleanup is necessary because of the lazy propagations that might occur
@@ -522,7 +522,7 @@ public class ProtobufInputMarshaller {
             object = strategy.unmarshal( context.strategyContexts.get( strategy ),
                                          context,
                                          _handle.getObject().toByteArray(),
-                                         (context.ruleBase == null) ? null : context.ruleBase.getRootClassLoader() );
+                                         (context.kBase == null) ? null : context.kBase.getRootClassLoader() );
         }
 
 
@@ -649,7 +649,7 @@ public class ProtobufInputMarshaller {
                         object = strategy.unmarshal( context.strategyContexts.get( strategy ),
                                                      context,
                                                      _logicalDependency.getObject().toByteArray(),
-                                                     (context.ruleBase == null) ? null : context.ruleBase.getRootClassLoader() );
+                                                     (context.kBase == null) ? null : context.kBase.getRootClassLoader() );
                     }
 
                     Object value = null;
@@ -658,7 +658,7 @@ public class ProtobufInputMarshaller {
                         value = strategy.unmarshal( context.strategyContexts.get( strategy ),
                                                     context,
                                                     _logicalDependency.getValue().toByteArray(),
-                                                    (context.ruleBase == null) ? null : context.ruleBase.getRootClassLoader() );
+                                                    (context.kBase == null) ? null : context.kBase.getRootClassLoader() );
                     }
 
                     ObjectTypeConf typeConf = context.wm.getObjectTypeConfigurationRegistry().getObjectTypeConf( ((NamedEntryPoint) handle.getEntryPoint()).getEntryPoint(),

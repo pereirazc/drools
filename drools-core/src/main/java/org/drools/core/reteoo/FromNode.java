@@ -80,7 +80,7 @@ public class FromNode extends LeftTupleSource
                     final From from) {
         super( id,
                context.getPartitionId(),
-               context.getRuleBase().getConfiguration().isMultithreadEvaluation() );
+               context.getKnowledgeBase().getConfiguration().isMultithreadEvaluation() );
         this.dataProvider = dataProvider;
         setLeftTupleSource(tupleSource);
         this.alphaConstraints = constraints;
@@ -142,7 +142,7 @@ public class FromNode extends LeftTupleSource
         ProtobufMessages.FactHandle _handle = null;
         if ( objectTypeConf == null ) {
             // use default entry point and object class. Notice that at this point object is assignable to resultClass
-            objectTypeConf = new ClassObjectTypeConf( workingMemory.getEntryPoint(), resultClass, (InternalRuleBase) workingMemory.getRuleBase() );
+            objectTypeConf = new ClassObjectTypeConf( workingMemory.getEntryPoint(), resultClass, workingMemory.getKnowledgeBase() );
         }
         if( context.getReaderContext() != null ) {
             Map<ProtobufInputMarshaller.TupleKey, List<FactHandle>> map = (Map<ProtobufInputMarshaller.TupleKey, List<ProtobufMessages.FactHandle>>) context.getReaderContext().nodeMemories.get( getId() );

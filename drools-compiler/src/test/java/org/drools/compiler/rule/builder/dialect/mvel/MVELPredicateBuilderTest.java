@@ -8,12 +8,13 @@ import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.BoundIdentifiers;
 import org.drools.compiler.compiler.PackageRegistry;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.drools.core.RuleBase;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.base.ClassFieldAccessorCache;
 import org.drools.core.base.ClassFieldAccessorStore;
 import org.drools.core.base.ClassObjectType;
@@ -33,6 +34,7 @@ import org.drools.core.rule.PredicateConstraint;
 import org.drools.core.rule.Rule;
 import org.drools.core.rule.PredicateConstraint.PredicateContextEntry;
 import org.drools.core.spi.InternalReadAccessor;
+import org.kie.internal.KnowledgeBaseFactory;
 
 public class MVELPredicateBuilderTest {
 
@@ -117,8 +119,9 @@ public class MVELPredicateBuilderTest {
         
         ( (MVELPredicateExpression) predicate.getPredicateExpression()).compile( (MVELDialectRuntimeData) pkgRegistry.getDialectRuntimeRegistry().getDialectData( "mvel" ) );
 
-        final RuleBase ruleBase = RuleBaseFactory.newRuleBase();
-        final InternalWorkingMemory wm = (InternalWorkingMemory) ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         final Cheese stilton = new Cheese( "stilton",
                                            10 );

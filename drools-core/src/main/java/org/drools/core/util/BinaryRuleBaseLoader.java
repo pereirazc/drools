@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.drools.core.RuleBase;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.RuntimeDroolsException;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.rule.Package;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.KnowledgeBaseFactory;
 
 /**
  * This loads up rulebases from binary packages.
@@ -31,7 +33,7 @@ import org.drools.core.rule.Package;
  */
 public class BinaryRuleBaseLoader {
 
-    private RuleBase    ruleBase;
+    private KnowledgeBase kBase;
     private ClassLoader classLoader;
 
     /**
@@ -40,7 +42,7 @@ public class BinaryRuleBaseLoader {
      * is Thread.currentThread.getContextClassLoader()
      */
     public BinaryRuleBaseLoader() {
-        this( RuleBaseFactory.newRuleBase(), null );
+        this( KnowledgeBaseFactory.newKnowledgeBase(), null );
     }
 
     /**
@@ -48,8 +50,8 @@ public class BinaryRuleBaseLoader {
      * Optional parent classLoader for the Package's internal ClassLoader
      * is Thread.currentThread.getContextClassLoader()
      */
-    public BinaryRuleBaseLoader(RuleBase rb) {
-        this( rb, null);
+    public BinaryRuleBaseLoader(KnowledgeBase kBase) {
+        this( kBase, null);
     }
 
     /**
@@ -58,14 +60,14 @@ public class BinaryRuleBaseLoader {
      * for the Package's internal ClassLoader, is Thread.currentThread.getContextClassLoader()
      * if not user specified.
      */
-    public BinaryRuleBaseLoader(RuleBase rb, ClassLoader classLoader) {
+    public BinaryRuleBaseLoader(KnowledgeBase kBase, ClassLoader classLoader) {
         if ( classLoader == null ) {
             classLoader = Thread.currentThread().getContextClassLoader();
             if ( classLoader == null ) {
                 classLoader = Thread.currentThread().getContextClassLoader();
             }
         }
-        this.ruleBase = rb;
+        this.kBase = kBase;
         this.classLoader = classLoader;
     }
 
@@ -130,15 +132,15 @@ public class BinaryRuleBaseLoader {
             throw new IllegalArgumentException( "Can't add a non valid package to a rulebase." );
         }
         try {
-            this.ruleBase.addPackage( pkg );
+            ((InternalKnowledgeBase)kBase).addPackage(pkg);
         } catch ( Exception e ) {
             throw new RuntimeDroolsException( "Unable to add package to the rulebase.",
                                               e );
         }
     }
 
-    public RuleBase getRuleBase() {
-        return this.ruleBase;
+    public KnowledgeBase getKnowledgeBase() {
+        return this.kBase;
     }
 
 }

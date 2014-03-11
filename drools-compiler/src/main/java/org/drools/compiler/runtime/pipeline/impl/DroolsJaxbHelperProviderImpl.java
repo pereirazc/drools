@@ -46,9 +46,8 @@ import org.drools.core.command.runtime.rule.ModifyCommand;
 import org.drools.core.command.runtime.rule.ModifyCommand.SetterImpl;
 import org.drools.core.command.runtime.rule.QueryCommand;
 import org.drools.core.common.DefaultFactHandle;
-import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.ProjectClassLoader;
-import org.drools.core.impl.KnowledgeBaseImpl;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.rule.TypeDeclaration;
 import org.drools.core.runtime.impl.ExecutionResultImpl;
 import org.drools.core.runtime.rule.impl.FlatQueryResults;
@@ -225,8 +224,7 @@ public class DroolsJaxbHelperProviderImpl
     public JAXBContext newJAXBContext(String[] classNames,
                                       Map<String, ? > properties,
                                       KnowledgeBase kbase) throws JAXBException {
-        ClassLoader classLoader = ((InternalRuleBase) ((KnowledgeBaseImpl) kbase)
-                .getRuleBase()).getRootClassLoader();
+        ClassLoader classLoader = ((InternalKnowledgeBase) kbase).getRootClassLoader();
         int i = 0;
         try {
             Class<?>[] classes = new Class[classNames.length

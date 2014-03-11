@@ -10,6 +10,7 @@ import org.drools.builder.ResourceType;
 import org.drools.builder.ResultSeverity;
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.core.RuleBase;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.definition.KnowledgePackage;
 import org.drools.impl.adapters.CompositeKnowledgeBuilderAdapter;
 import org.drools.impl.adapters.KnowledgeBaseAdapter;
@@ -36,19 +37,19 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
              null);
     }
 
-    public KnowledgeBuilderImpl(final RuleBase ruleBase) {
-        this(ruleBase,
+    public KnowledgeBuilderImpl(InternalKnowledgeBase kBase) {
+        this(kBase,
              null);
     }
 
     public KnowledgeBuilderImpl(final KnowledgeBuilderConfigurationImpl configuration) {
-        this((RuleBase) null,
+        this((InternalKnowledgeBase) null,
              configuration);
     }
 
-    public KnowledgeBuilderImpl(RuleBase ruleBase,
+    public KnowledgeBuilderImpl(InternalKnowledgeBase kBase,
                                 KnowledgeBuilderConfigurationImpl configuration) {
-        delegate = new org.drools.compiler.builder.impl.KnowledgeBuilderImpl(ruleBase, configuration);
+        delegate = new org.drools.compiler.builder.impl.KnowledgeBuilderImpl(kBase, configuration);
     }
 
     public KnowledgeBuilderImpl(org.drools.core.rule.Package pkg,

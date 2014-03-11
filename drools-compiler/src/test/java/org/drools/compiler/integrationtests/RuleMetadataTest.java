@@ -207,7 +207,7 @@ public class RuleMetadataTest extends CommonTestMethodBase {
     }
 
     private Rule getRule(KnowledgeBase kbase, String ruleName) {
-        return ((KnowledgeBaseImpl)kbase).ruleBase.getPackage("org.drools").getRule(ruleName);
+        return ((KnowledgeBaseImpl)kbase).getPackage("org.drools").getRule(ruleName);
     }
 
     public static class B {

@@ -1,20 +1,17 @@
 package org.drools.reteoo.common;
 
 import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.StatefulSession;
 import org.drools.core.base.DefaultKnowledgeHelper;
 import org.drools.core.common.AgendaItem;
 import org.drools.core.common.InternalAgenda;
+import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.LogicalDependency;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.reteoo.LeftTuple;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.RuleTerminalNodeLeftTuple;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.kie.api.KieBaseConfiguration;
-import org.kie.api.conf.EventProcessingOption;
-import org.kie.api.conf.MBeansOption;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.conf.RuleEngineOption;
 
@@ -27,8 +24,9 @@ public class AgendaItemTest {
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
         conf.setOption( RuleEngineOption.RETEOO );
 
-        ReteooRuleBase rbase = ( ReteooRuleBase ) RuleBaseFactory.newRuleBase(conf);
-        StatefulSession wm = rbase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(conf);
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         InternalAgenda agenda = ( InternalAgenda ) wm.getAgenda();
         AgendaItem item1 = new RuleTerminalNodeLeftTuple();
@@ -69,8 +67,9 @@ public class AgendaItemTest {
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
         conf.setOption( RuleEngineOption.RETEOO );
 
-        ReteooRuleBase rbase = ( ReteooRuleBase ) RuleBaseFactory.newRuleBase(conf);
-        StatefulSession wm = rbase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(conf);
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         InternalAgenda agenda = ( InternalAgenda ) wm.getAgenda();
         AgendaItem item1 = new RuleTerminalNodeLeftTuple();
@@ -138,8 +137,9 @@ public class AgendaItemTest {
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
         conf.setOption( RuleEngineOption.RETEOO );
 
-        ReteooRuleBase rbase = ( ReteooRuleBase ) RuleBaseFactory.newRuleBase(conf);
-        StatefulSession wm = rbase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(conf);
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         InternalAgenda agenda = ( InternalAgenda ) wm.getAgenda();
         AgendaItem item1 = new RuleTerminalNodeLeftTuple();
@@ -175,8 +175,9 @@ public class AgendaItemTest {
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
         conf.setOption( RuleEngineOption.RETEOO );
 
-        ReteooRuleBase rbase = ( ReteooRuleBase ) RuleBaseFactory.newRuleBase(conf);
-        StatefulSession wm = rbase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(conf);
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         InternalAgenda agenda = ( InternalAgenda ) wm.getAgenda();
         AgendaItem item1 = new RuleTerminalNodeLeftTuple();

@@ -80,7 +80,7 @@ public class QueryElementNode extends LeftTupleSource
                             final BuildContext context) {
         super( id,
                context.getPartitionId(),
-               context.getRuleBase().getConfiguration().isMultithreadEvaluation() );
+               context.getKnowledgeBase().getConfiguration().isMultithreadEvaluation() );
         setLeftTupleSource(tupleSource);
         this.queryElement = queryElement;
         this.tupleMemoryEnabled = tupleMemoryEnabled;

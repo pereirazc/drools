@@ -8,6 +8,9 @@ import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.core.RuleBase;
 import org.drools.core.WorkingMemory;
 import org.drools.core.common.AgendaItemImpl;
+import org.drools.core.common.InternalWorkingMemory;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.definition.rule.Rule;
@@ -15,7 +18,6 @@ import org.kie.api.definition.rule.Rule;
 import static org.junit.Assert.*;
 
 import org.drools.compiler.Person;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.base.ClassObjectType;
 import org.drools.core.base.DefaultKnowledgeHelper;
 import org.drools.core.base.mvel.MVELSalienceExpression;
@@ -33,10 +35,11 @@ import org.drools.compiler.rule.builder.SalienceBuilder;
 import org.drools.core.spi.ObjectType;
 import org.drools.core.spi.PatternExtractor;
 import org.drools.core.spi.Salience;
+import org.kie.internal.KnowledgeBaseFactory;
 
 public class MVELSalienceBuilderTest {
     private InstrumentedBuildContent context;
-    private RuleBase                 ruleBase;
+    private InternalKnowledgeBase kBase ;
 
     @Before
     public void setUp() throws Exception {
@@ -74,7 +77,7 @@ public class MVELSalienceBuilderTest {
         declarationResolver.setDeclarations( map );
         context.setDeclarationResolver( declarationResolver );
 
-        ruleBase = RuleBaseFactory.newRuleBase();
+        kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
         SalienceBuilder salienceBuilder = new MVELSalienceBuilder();
         salienceBuilder.build( context );
 
@@ -85,7 +88,8 @@ public class MVELSalienceBuilderTest {
 
     @Test
     public void testSimpleExpression() {
-        WorkingMemory wm = ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         final Person p = new Person( "mark",
                                      "",
@@ -114,7 +118,7 @@ public class MVELSalienceBuilderTest {
         final Thread[] threads = new Thread[tcount];
         for ( int i = 0; i < evals.length; i++ ) {
                         
-            evals[i] = new SalienceEvaluator( ruleBase,
+            evals[i] = new SalienceEvaluator( kBase,
                                               context,
                                               context.getRule(),
                                               context.getRule().getSalience(),
@@ -160,12 +164,14 @@ public class MVELSalienceBuilderTest {
 
         private boolean                  error;
 
-        public SalienceEvaluator(RuleBase ruleBase,
+        public SalienceEvaluator(InternalKnowledgeBase kBase,
                                  InstrumentedBuildContent context,
                                  Rule rule,
                                  Salience salience,
                                  Person person) {
-            wm = ruleBase.newStatefulSession();
+            StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+            InternalWorkingMemory wm = ksession.session;
+
             this.context = context;
             final InternalFactHandle f0 = (InternalFactHandle) wm.insert( person );
             tuple = new LeftTupleImpl( f0,

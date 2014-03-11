@@ -13,7 +13,6 @@ import org.drools.core.reteoo.LeftInputAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode.LiaNodeMemory;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.PathMemory;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.ReteooWorkingMemoryInterface;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.SegmentMemory;
@@ -550,7 +549,7 @@ public class AddRuleTest {
 
 
     private RuleTerminalNode getRtn(String ruleName, KnowledgeBase kbase) {
-        return ( RuleTerminalNode ) ((ReteooRuleBase)((KnowledgeBaseImpl) kbase).ruleBase).getReteooBuilder().getTerminalNodes(ruleName)[0];
+        return ( RuleTerminalNode ) ((KnowledgeBaseImpl) kbase).getReteooBuilder().getTerminalNodes(ruleName)[0];
     }
 
     private KnowledgeBase buildKnowledgeBase(String ruleName, String rule) {
@@ -613,7 +612,7 @@ public class AddRuleTest {
     }
 
     public ObjectTypeNode getObjectTypeNode(KnowledgeBase kbase, Class<?> nodeClass) {
-        List<ObjectTypeNode> nodes = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> nodes = ((KnowledgeBaseImpl)kbase).getRete().getObjectTypeNodes();
         for ( ObjectTypeNode n : nodes ) {
             if ( ((ClassObjectType)n.getObjectType()).getClassType() == nodeClass ) {
                 return n;

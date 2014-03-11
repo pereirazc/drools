@@ -41,7 +41,6 @@ import org.drools.core.common.InternalFactHandle;
 import org.drools.compiler.compiler.DroolsParserException;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.reteoo.ObjectTypeNode;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.rule.EntryPointId;
 import org.drools.core.spi.ObjectType;
 import org.drools.core.time.impl.PseudoClockScheduler;
@@ -569,7 +568,7 @@ public class StreamsTest extends CommonTestMethodBase {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase( kconf );
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
 
-        List<ObjectTypeNode> otns = ( (ReteooRuleBase) ( (KnowledgeBaseImpl) kbase ).getRuleBase() ).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> otns = ( (KnowledgeBaseImpl) kbase ).getRete().getObjectTypeNodes();
         ObjectType stot = new ClassObjectType( StockTick.class );
         for (ObjectTypeNode otn : otns) {
             if (otn.getObjectType().isAssignableFrom( stot )) {

@@ -16,33 +16,33 @@
 
 package org.drools.core.event;
 
-import org.drools.core.RuleBase;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.rule.Package;
 import org.drools.core.rule.Rule;
 import org.kie.api.definition.process.Process;
 
 import java.util.Iterator;
 
-public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventListener> {
-    private transient RuleBase ruleBase;
+public class KnowledgeBaseEventSupport extends AbstractEventSupport<KnowledgeBaseEventListener> {
+    private transient InternalKnowledgeBase kBase;
 
-    public RuleBaseEventSupport() {
+    public KnowledgeBaseEventSupport() {
 
     }
 
-    public RuleBaseEventSupport(final RuleBase ruleBase) {
-        this.ruleBase = ruleBase;
+    public KnowledgeBaseEventSupport(final InternalKnowledgeBase kBase) {
+        this.kBase = kBase;
     }
 
-    public void setRuleBase(RuleBase ruleBase) {
-        this.ruleBase = ruleBase;
+    public void setKnowledgeBase(InternalKnowledgeBase kBase) {
+        this.kBase = kBase;
     }
 
     public void fireBeforePackageAdded(final Package newPkg) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final BeforePackageAddedEvent event = new BeforePackageAddedEvent(this.ruleBase, newPkg);
+            final BeforePackageAddedEvent event = new BeforePackageAddedEvent(this.kBase, newPkg);
 
             do {
                 iter.next().beforePackageAdded(event);
@@ -51,10 +51,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterPackageAdded(final Package newPkg) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final AfterPackageAddedEvent event = new AfterPackageAddedEvent(this.ruleBase, newPkg);
+            final AfterPackageAddedEvent event = new AfterPackageAddedEvent(this.kBase, newPkg);
 
             do {
                 iter.next().afterPackageAdded(event);
@@ -63,10 +63,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireBeforePackageRemoved(final Package pkg) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final BeforePackageRemovedEvent event = new BeforePackageRemovedEvent(this.ruleBase, pkg);
+            final BeforePackageRemovedEvent event = new BeforePackageRemovedEvent(this.kBase, pkg);
 
             do {
                 iter.next().beforePackageRemoved(event);
@@ -75,10 +75,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterPackageRemoved(final Package pkg) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final AfterPackageRemovedEvent event = new AfterPackageRemovedEvent(this.ruleBase, pkg);
+            final AfterPackageRemovedEvent event = new AfterPackageRemovedEvent(this.kBase, pkg);
 
             do {
                 iter.next().afterPackageRemoved(event);
@@ -87,10 +87,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireBeforeRuleBaseLocked() {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final BeforeRuleBaseLockedEvent event = new BeforeRuleBaseLockedEvent(this.ruleBase);
+            final BeforeRuleBaseLockedEvent event = new BeforeRuleBaseLockedEvent(this.kBase);
 
             do {
                 iter.next().beforeRuleBaseLocked(event);
@@ -99,10 +99,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterRuleBaseLocked() {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final AfterRuleBaseLockedEvent event = new AfterRuleBaseLockedEvent(this.ruleBase);
+            final AfterRuleBaseLockedEvent event = new AfterRuleBaseLockedEvent(this.kBase);
 
             do {
                 iter.next().afterRuleBaseLocked(event);
@@ -111,10 +111,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireBeforeRuleBaseUnlocked() {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final BeforeRuleBaseUnlockedEvent event = new BeforeRuleBaseUnlockedEvent(this.ruleBase);
+            final BeforeRuleBaseUnlockedEvent event = new BeforeRuleBaseUnlockedEvent(this.kBase);
 
             do {
                 iter.next().beforeRuleBaseUnlocked(event);
@@ -123,10 +123,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterRuleBaseUnlocked() {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final AfterRuleBaseUnlockedEvent event = new AfterRuleBaseUnlockedEvent(this.ruleBase);
+            final AfterRuleBaseUnlockedEvent event = new AfterRuleBaseUnlockedEvent(this.kBase);
 
             do {
                 iter.next().afterRuleBaseUnlocked(event);
@@ -135,10 +135,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireBeforeRuleAdded(final Package newPkg, final Rule rule) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final BeforeRuleAddedEvent event = new BeforeRuleAddedEvent(this.ruleBase, newPkg, rule);
+            final BeforeRuleAddedEvent event = new BeforeRuleAddedEvent(this.kBase, newPkg, rule);
 
             do {
                 iter.next().beforeRuleAdded(event);
@@ -147,10 +147,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterRuleAdded(final Package newPkg, final Rule rule) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final AfterRuleAddedEvent event = new AfterRuleAddedEvent(this.ruleBase, newPkg, rule);
+            final AfterRuleAddedEvent event = new AfterRuleAddedEvent(this.kBase, newPkg, rule);
 
             do {
                 iter.next().afterRuleAdded(event);
@@ -159,10 +159,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireBeforeRuleRemoved(final Package pkg, final Rule rule) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final BeforeRuleRemovedEvent event = new BeforeRuleRemovedEvent(this.ruleBase, pkg, rule);
+            final BeforeRuleRemovedEvent event = new BeforeRuleRemovedEvent(this.kBase, pkg, rule);
 
             do {
                 iter.next().beforeRuleRemoved(event);
@@ -171,10 +171,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterRuleRemoved(final Package pkg, final Rule rule) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final AfterRuleRemovedEvent event = new AfterRuleRemovedEvent(this.ruleBase, pkg, rule);
+            final AfterRuleRemovedEvent event = new AfterRuleRemovedEvent(this.kBase, pkg, rule);
 
             do {
                 iter.next().afterRuleRemoved(event);
@@ -183,10 +183,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireBeforeFunctionRemoved(final Package pkg, final String function) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final BeforeFunctionRemovedEvent event = new BeforeFunctionRemovedEvent(this.ruleBase, pkg, function);
+            final BeforeFunctionRemovedEvent event = new BeforeFunctionRemovedEvent(this.kBase, pkg, function);
 
             do {
                 iter.next().beforeFunctionRemoved(event);
@@ -195,10 +195,10 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterFunctionRemoved(final Package pkg, final String function) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
-            final AfterFunctionRemovedEvent event = new AfterFunctionRemovedEvent(this.ruleBase, pkg, function);
+            final AfterFunctionRemovedEvent event = new AfterFunctionRemovedEvent(this.kBase, pkg, function);
                     
             do {
                 iter.next().afterFunctionRemoved(event);
@@ -207,7 +207,7 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
     
     public void fireBeforeProcessAdded(final Process process) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
             final BeforeProcessAddedEvent event = new BeforeProcessAddedEvent(process);
@@ -219,7 +219,7 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterProcessAdded(final Process process) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
             final AfterProcessAddedEvent event = new AfterProcessAddedEvent(process);
@@ -231,7 +231,7 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireBeforeProcessRemoved(final Process process) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
             final BeforeProcessRemovedEvent event = new BeforeProcessRemovedEvent(process);
@@ -243,7 +243,7 @@ public class RuleBaseEventSupport extends AbstractEventSupport<RuleBaseEventList
     }
 
     public void fireAfterProcessRemoved(final Process process) {
-        final Iterator<RuleBaseEventListener> iter = getEventListenersIterator();
+        final Iterator<KnowledgeBaseEventListener> iter = getEventListenersIterator();
 
         if (iter.hasNext()) {
             final AfterProcessRemovedEvent event = new AfterProcessRemovedEvent(process);

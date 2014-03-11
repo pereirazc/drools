@@ -16,43 +16,31 @@
 
 package org.drools.core.util.debug;
 
+import org.drools.core.WorkingMemory;
+import org.drools.core.common.AbstractWorkingMemory;
+import org.drools.core.common.NetworkNode;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
+import org.drools.core.reteoo.EntryPointNode;
+import org.drools.core.reteoo.LeftTupleSink;
+import org.drools.core.reteoo.LeftTupleSource;
+import org.drools.core.reteoo.NodeTypeEnums;
+import org.drools.core.reteoo.ObjectSink;
+import org.drools.core.reteoo.ObjectSource;
+import org.drools.core.reteoo.ObjectTypeNode;
+import org.drools.core.reteoo.QueryTerminalNode;
+import org.drools.core.reteoo.Rete;
+import org.drools.core.reteoo.RuleTerminalNode;
+import org.drools.core.rule.Rule;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.drools.core.WorkingMemory;
-import org.drools.core.common.AbstractWorkingMemory;
-import org.drools.core.common.NetworkNode;
-import org.drools.core.impl.StatefulKnowledgeSessionImpl;
-import org.drools.core.reteoo.AccumulateNode;
-import org.drools.core.reteoo.AlphaNode;
-import org.drools.core.reteoo.EntryPointNode;
-import org.drools.core.reteoo.EvalConditionNode;
-import org.drools.core.reteoo.ExistsNode;
-import org.drools.core.reteoo.FromNode;
-import org.drools.core.reteoo.JoinNode;
-import org.drools.core.reteoo.LeftInputAdapterNode;
-import org.drools.core.reteoo.LeftTupleSink;
-import org.drools.core.reteoo.LeftTupleSource;
-import org.drools.core.reteoo.NodeTypeEnums;
-import org.drools.core.reteoo.NotNode;
-import org.drools.core.reteoo.ObjectSink;
-import org.drools.core.reteoo.ObjectSource;
-import org.drools.core.reteoo.ObjectTypeNode;
-import org.drools.core.reteoo.PropagationQueuingNode;
-import org.drools.core.reteoo.QueryTerminalNode;
-import org.drools.core.reteoo.Rete;
-import org.drools.core.reteoo.ReteooRuleBase;
-import org.drools.core.reteoo.ReteooWorkingMemoryInterface;
-import org.drools.core.reteoo.RightInputAdapterNode;
-import org.drools.core.reteoo.RuleTerminalNode;
-import org.drools.core.rule.Rule;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-
 public class SessionInspector {
 
-    private ReteooWorkingMemoryInterface                           session;
+    private AbstractWorkingMemory          session;
     private Map<Short, NetworkNodeVisitor> visitors;
 
     // default initializer
@@ -101,7 +89,7 @@ public class SessionInspector {
     }
     
     public SessionInspector(StatefulKnowledgeSession session) {
-        this.session = ((StatefulKnowledgeSessionImpl) session).session;
+        this.session = (AbstractWorkingMemory)((StatefulKnowledgeSessionImpl) session).session;
     }
 
     public SessionInspector(WorkingMemory session) {
@@ -110,12 +98,11 @@ public class SessionInspector {
 
     public StatefulKnowledgeSessionInfo getSessionInfo() {
         StatefulKnowledgeSessionInfo info = new StatefulKnowledgeSessionInfo();
-        ReteooRuleBase rulebase = (ReteooRuleBase) session.getRuleBase();
 
         info.setSession( session );
 
         Stack<NetworkNode> nodeStack = new Stack<NetworkNode>();
-        gatherNodeInfo( rulebase.getRete(),
+        gatherNodeInfo( session.getKnowledgeBase().getRete(),
                         nodeStack,
                         info );
 

@@ -18,57 +18,57 @@ package org.drools.core.event;
 
 import java.util.EventObject;
 
-import org.drools.core.RuleBase;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.rule.Package;
 import org.drools.core.rule.Rule;
 
-public class RuleBaseEvent extends EventObject {
+public class KnowledgeBaseEvent extends EventObject {
 
     private static final long serialVersionUID = 510l;
-    private final RuleBase    ruleBase;
-    private final Package     pkg;
-    private final Rule        rule;
-    private final String      function;
+    private final InternalKnowledgeBase kBase;
+    private final Package               pkg;
+    private final Rule                  rule;
+    private final String                function;
 
-    public RuleBaseEvent(final RuleBase ruleBase) {
-        super( ruleBase );
-        this.ruleBase = ruleBase;
+    public KnowledgeBaseEvent(final InternalKnowledgeBase kBase) {
+        super( kBase );
+        this.kBase = kBase;
         this.pkg = null;
         this.rule = null;
         this.function = null;
     }
 
-    public RuleBaseEvent(final RuleBase ruleBase,
-                         final Package pkg) {
-        super( ruleBase );
-        this.ruleBase = ruleBase;
+    public KnowledgeBaseEvent(final InternalKnowledgeBase kBase,
+                              final Package pkg) {
+        super( kBase );
+        this.kBase = kBase;
         this.pkg = pkg;
         this.rule = null;
         this.function = null;
     }
 
-    public RuleBaseEvent(final RuleBase ruleBase,
-                         final Package pkg,
-                         final Rule rule) {
-        super( ruleBase );
-        this.ruleBase = ruleBase;
+    public KnowledgeBaseEvent(final InternalKnowledgeBase kBase,
+                              final Package pkg,
+                              final Rule rule) {
+        super( kBase );
+        this.kBase = kBase;
         this.pkg = pkg;
         this.rule = rule;
         this.function = null;
     }
 
-    public RuleBaseEvent(final RuleBase ruleBase,
-                         final Package pkg,
-                         final String function) {
-        super( ruleBase );
-        this.ruleBase = ruleBase;
+    public KnowledgeBaseEvent(final InternalKnowledgeBase kBase,
+                              final Package pkg,
+                              final String function) {
+        super( kBase );
+        this.kBase = kBase;
         this.pkg = pkg;
         this.rule = null;
         this.function = function;
     }
 
-    public RuleBase getRuleBase() {
-        return this.ruleBase;
+    public InternalKnowledgeBase getKnowledgeBase() {
+        return this.kBase;
     }
 
     public Package getPackage() {

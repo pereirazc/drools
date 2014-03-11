@@ -9,11 +9,12 @@ import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.core.RuleBase;
 import org.drools.core.common.InternalWorkingMemory;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.base.ClassFieldAccessorCache;
 import org.drools.core.base.ClassFieldAccessorStore;
 import org.drools.core.base.ClassObjectType;
@@ -29,6 +30,7 @@ import org.drools.core.rule.MVELDialectRuntimeData;
 import org.drools.core.rule.Package;
 import org.drools.core.rule.Pattern;
 import org.drools.core.spi.InternalReadAccessor;
+import org.kie.internal.KnowledgeBaseFactory;
 
 public class MVELEvalBuilderTest {
 
@@ -81,8 +83,9 @@ public class MVELEvalBuilderTest {
                                                                   evalDescr );
         ((MVELEvalExpression) eval.getEvalExpression()).compile( (MVELDialectRuntimeData) pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectRuntimeRegistry().getDialectData( "mvel" ) );
 
-        final RuleBase ruleBase = RuleBaseFactory.newRuleBase();
-        final InternalWorkingMemory wm = (InternalWorkingMemory) ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         MockLeftTupleSink sink = new MockLeftTupleSink();
         final Cheese cheddar = new Cheese( "cheddar",

@@ -20,20 +20,17 @@ import org.drools.core.SessionConfiguration;
 import org.drools.core.StatelessSession;
 import org.drools.core.StatelessSessionResult;
 import org.drools.core.base.MapGlobalResolver;
-import org.drools.core.common.AbstractWorkingMemory.WorkingMemoryReteAssertAction;
-import org.drools.core.common.InternalFactHandle;
-import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.InternalStatelessSession;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.WorkingMemoryFactory;
 import org.drools.core.event.AgendaEventListener;
 import org.drools.core.event.AgendaEventSupport;
-import org.drools.core.event.RuleBaseEventListener;
+import org.drools.core.event.KnowledgeBaseEventListener;
 import org.drools.core.event.RuleEventListenerSupport;
 import org.drools.core.event.WorkingMemoryEventListener;
 import org.drools.core.event.WorkingMemoryEventSupport;
 import org.drools.core.impl.EnvironmentFactory;
-import org.drools.core.rule.EntryPointId;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.spi.AgendaFilter;
 import org.drools.core.spi.GlobalExporter;
 import org.drools.core.spi.GlobalResolver;
@@ -57,48 +54,48 @@ public class ReteooStatelessSession
     private AgendaEventSupport        agendaEventSupport        = new AgendaEventSupport();
     private RuleEventListenerSupport  ruleEventListenerSupport  = new RuleEventListenerSupport();
     private GlobalResolver            globalResolver            = new MapGlobalResolver();
-    private GlobalExporter       globalExporter;
-    private InternalRuleBase     ruleBase;
-    private AgendaFilter         agendaFilter;
-    private SessionConfiguration sessionConf;
-    private WorkingMemoryFactory wmFactory;
+    private GlobalExporter            globalExporter;
+    private InternalKnowledgeBase     kBase;
+    private AgendaFilter              agendaFilter;
+    private SessionConfiguration      sessionConf;
+    private WorkingMemoryFactory      wmFactory;
 
     public ReteooStatelessSession() {
     }
 
-    public ReteooStatelessSession(final InternalRuleBase ruleBase) {
-        this.ruleBase = ruleBase;
-        this.wmFactory = ruleBase.getConfiguration().getComponentFactory().getWorkingMemoryFactory();
+    public ReteooStatelessSession(final InternalKnowledgeBase kBase) {
+        this.kBase = kBase;
+        this.wmFactory = kBase.getConfiguration().getComponentFactory().getWorkingMemoryFactory();
         this.sessionConf = SessionConfiguration.getDefaultInstance(); // create one of these and re-use
     }
 
     public void readExternal(ObjectInput in) throws IOException,
             ClassNotFoundException {
-        ruleBase = (InternalRuleBase) in.readObject();
+        kBase = (InternalKnowledgeBase) in.readObject();
         agendaFilter = (AgendaFilter) in.readObject();
         globalResolver = (GlobalResolver) in.readObject();
         globalExporter = (GlobalExporter) in.readObject();
         this.sessionConf = SessionConfiguration.getDefaultInstance(); // create one of these and re-use
-        this.wmFactory = ruleBase.getConfiguration().getComponentFactory().getWorkingMemoryFactory();
+        this.wmFactory = kBase.getConfiguration().getComponentFactory().getWorkingMemoryFactory();
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeObject(ruleBase);
+        out.writeObject(kBase);
         out.writeObject(agendaFilter);
         out.writeObject(globalResolver);
         out.writeObject(globalExporter);
     }
 
-    public InternalRuleBase getRuleBase() {
-        return this.ruleBase;
+    public InternalKnowledgeBase getKnowledgeBase() {
+        return this.kBase;
     }
 
     public InternalWorkingMemory newWorkingMemory() {
-        this.ruleBase.readLock();
+        this.kBase.readLock();
         try {
-            InternalWorkingMemory wm = wmFactory.createWorkingMemory(this.ruleBase.nextWorkingMemoryCounter(),
-                                                                     this.ruleBase,
-                                                                     ruleBase.newFactHandleFactory(),
+            InternalWorkingMemory wm = wmFactory.createWorkingMemory(kBase.nextWorkingMemoryCounter(),
+                                                                     kBase,
+                                                                     kBase.newFactHandleFactory(),
                                                                      null,
                                                                      1,
                                                                      this.sessionConf,
@@ -112,7 +109,7 @@ public class ReteooStatelessSession
 
             return wm;
         } finally {
-            this.ruleBase.readUnlock();
+            this.kBase.readUnlock();
         }
     }
 
@@ -140,16 +137,16 @@ public class ReteooStatelessSession
         return this.agendaEventSupport.getEventListeners();
     }
 
-    public void addEventListener(RuleBaseEventListener listener) {
-        this.ruleBase.addEventListener(listener);
+    public void addEventListener(KnowledgeBaseEventListener listener) {
+        kBase.addEventListener(listener);
     }
 
     public List getRuleBaseEventListeners() {
-        return this.ruleBase.getRuleBaseEventListeners();
+        return kBase.getRuleBaseEventListeners();
     }
 
-    public void removeEventListener(RuleBaseEventListener listener) {
-        this.ruleBase.removeEventListener(listener);
+    public void removeEventListener(KnowledgeBaseEventListener listener) {
+        kBase.removeEventListener(listener);
     }
 
     public void setAgendaFilter(AgendaFilter agendaFilter) {

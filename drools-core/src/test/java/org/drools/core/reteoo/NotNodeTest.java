@@ -27,7 +27,6 @@ import java.beans.IntrospectionException;
 
 import org.drools.core.FactException;
 import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.common.AbstractWorkingMemory;
 import org.drools.core.common.BetaConstraints;
 import org.drools.core.common.DefaultBetaConstraints;
@@ -36,6 +35,7 @@ import org.drools.core.common.EmptyBetaConstraints;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.PropagationContextFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.test.model.Cheese;
 import org.drools.core.test.model.DroolsTestCase;
 import org.drools.core.reteoo.builder.BuildContext;
@@ -46,6 +46,7 @@ import org.drools.core.spi.PropagationContext;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.internal.KnowledgeBaseFactory;
 
 @Ignore("phreak")
 public class NotNodeTest extends DroolsTestCase {
@@ -74,18 +75,18 @@ public class NotNodeTest extends DroolsTestCase {
 
         when(constraint.createContextEntry()).thenReturn(c);
 
-        InternalRuleBase rbase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
 
         this.rule = new Rule("test-rule");
-        pctxFactory = rbase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
         this.context = pctxFactory.createPropagationContext(0, PropagationContext.INSERTION, null, null, null);
-        this.workingMemory = new AbstractWorkingMemory(1, rbase);
+        this.workingMemory = new AbstractWorkingMemory(1, kBase);
 
         final RuleBaseConfiguration configuration = new RuleBaseConfiguration();
 
-        ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        BuildContext buildContext = new BuildContext(ruleBase,
-                                                     ruleBase.getReteooBuilder().getIdGenerator());
+        kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        BuildContext buildContext = new BuildContext(kBase,
+                                                     kBase.getReteooBuilder().getIdGenerator());
 
         this.objectSource = new MockObjectSource(155);
         this.tupleSource = new MockTupleSource(60);
@@ -360,9 +361,9 @@ public class NotNodeTest extends DroolsTestCase {
 
         final BetaConstraints nullConstraints = EmptyBetaConstraints.getInstance();
 
-        ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        BuildContext buildContext = new BuildContext( ruleBase,
-                                                      ruleBase.getReteooBuilder().getIdGenerator() );
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        BuildContext buildContext = new BuildContext( kBase,
+                                                      kBase.getReteooBuilder().getIdGenerator() );
 
         final NotNode notNode = new NotNode( 1,
                                              this.tupleSource,
@@ -387,13 +388,13 @@ public class NotNodeTest extends DroolsTestCase {
         conf.setPhreakEnabled(false);
         conf.setSequential( true );
 
-        ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase( conf );
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(conf);
 
         this.workingMemory = new AbstractWorkingMemory( 1,
-                                                      ruleBase );
+                                                        kBase );
 
-        BuildContext buildContext = new BuildContext( ruleBase,
-                                                      ruleBase.getReteooBuilder().getIdGenerator() );
+        BuildContext buildContext = new BuildContext( kBase,
+                                                      kBase.getReteooBuilder().getIdGenerator() );
 
         buildContext.setTupleMemoryEnabled( false );
         buildContext.setObjectTypeNodeMemoryEnabled( false );

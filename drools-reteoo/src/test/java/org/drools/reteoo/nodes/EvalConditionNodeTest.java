@@ -17,17 +17,17 @@
 package org.drools.reteoo.nodes;
 
 import org.drools.core.FactException;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.common.AbstractWorkingMemory;
 import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.PropagationContextFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.reteoo.EvalConditionNode;
 import org.drools.core.reteoo.LeftTuple;
 import org.drools.core.reteoo.LeftTupleImpl;
 import org.drools.core.reteoo.MockEvalCondition;
 import org.drools.core.reteoo.MockLeftTupleSink;
 import org.drools.core.reteoo.MockTupleSource;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.test.model.DroolsTestCase;
 import org.drools.core.reteoo.EvalConditionNode.EvalMemory;
 import org.drools.core.reteoo.builder.BuildContext;
@@ -36,6 +36,7 @@ import org.drools.core.spi.PropagationContext;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.internal.KnowledgeBaseFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -44,19 +45,20 @@ import static org.junit.Assert.assertNotNull;
 public class EvalConditionNodeTest extends DroolsTestCase {
     private PropagationContext    context;
     private AbstractWorkingMemory workingMemory;
-    private ReteooRuleBase ruleBase;
+    private InternalKnowledgeBase kBase;
     private BuildContext          buildContext;
 
     @Before
     public void setUp() {
-        this.ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        this.buildContext = new BuildContext(ruleBase,
-                                             ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator());
+        this.kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        this.buildContext = new BuildContext(kBase,
+                                             kBase.getReteooBuilder().getIdGenerator());
 
-        PropagationContextFactory pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        PropagationContextFactory pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
         this.context = pctxFactory.createPropagationContext(0, PropagationContext.INSERTION, null, null, null);
 
-        this.workingMemory = (AbstractWorkingMemory) this.ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        this.workingMemory = (AbstractWorkingMemory) ksession.session;
     }
 
     @Test
@@ -84,7 +86,7 @@ public class EvalConditionNodeTest extends DroolsTestCase {
     @Test
     public void testMemory() {
         final AbstractWorkingMemory workingMemory = new AbstractWorkingMemory( 1,
-                                                                           (ReteooRuleBase) RuleBaseFactory.newRuleBase() );
+                                                                               (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase() );
 
         final MockTupleSource source = new MockTupleSource( 12 );
 

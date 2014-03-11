@@ -2,15 +2,12 @@ package org.drools.compiler.integrationtests;
 
 import static org.junit.Assert.assertFalse;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.compiler.Address;
 import org.drools.compiler.CommonTestMethodBase;
 import org.drools.compiler.Person;
-import org.drools.core.RuleBaseFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.KieBase;

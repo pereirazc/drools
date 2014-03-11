@@ -65,16 +65,15 @@ import org.drools.core.event.BeforeRuleAddedEvent;
 import org.drools.core.event.BeforeRuleBaseLockedEvent;
 import org.drools.core.event.BeforeRuleBaseUnlockedEvent;
 import org.drools.core.event.BeforeRuleRemovedEvent;
+import org.drools.core.event.KnowledgeBaseEventListener;
 import org.drools.core.event.ObjectInsertedEvent;
 import org.drools.core.event.ObjectRetractedEvent;
 import org.drools.core.event.ObjectUpdatedEvent;
-import org.drools.core.event.RuleBaseEventListener;
 import org.drools.core.event.RuleFlowGroupActivatedEvent;
 import org.drools.core.event.RuleFlowGroupDeactivatedEvent;
 import org.drools.core.event.WorkingMemoryEventListener;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.impl.StatelessKnowledgeSessionImpl;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.ReteooWorkingMemoryInterface;
 import org.drools.core.rule.Declaration;
 import org.drools.core.runtime.process.InternalProcessRuntime;
@@ -109,7 +108,7 @@ public abstract class WorkingMemoryLogger
     WorkingMemoryEventListener,
     AgendaEventListener,
     ProcessEventListener,
-    RuleBaseEventListener {
+    KnowledgeBaseEventListener {
 
     private List<ILogEventFilter>    filters = new ArrayList<ILogEventFilter>();
 
@@ -130,37 +129,37 @@ public abstract class WorkingMemoryLogger
         if (processRuntime != null) {
             processRuntime.addEventListener( this );
         }
-        workingMemory.addEventListener( (RuleBaseEventListener) this );
+        workingMemory.addEventListener( (KnowledgeBaseEventListener) this );
     }
     
     public WorkingMemoryLogger(final KnowledgeRuntimeEventManager session) {
         if (session instanceof StatefulKnowledgeSessionImpl) {
             StatefulKnowledgeSessionImpl statefulSession = ((StatefulKnowledgeSessionImpl) session);
-            isPhreak = ((ReteooRuleBase)statefulSession.getRuleBase()).getConfig().isPhreakEnabled();
+            isPhreak = statefulSession.getKnowledgeBase().getConfiguration().isPhreakEnabled();
             WorkingMemoryEventManager eventManager = statefulSession.session;
             eventManager.addEventListener( (WorkingMemoryEventListener) this );
             eventManager.addEventListener( (AgendaEventListener) this );
-            eventManager.addEventListener( (RuleBaseEventListener) this );
+            eventManager.addEventListener( (KnowledgeBaseEventListener) this );
             InternalProcessRuntime processRuntime = ((StatefulKnowledgeSessionImpl) session).session.getProcessRuntime();
             if (processRuntime != null) {
                 processRuntime.addEventListener( this );
             }
         } else if (session instanceof StatelessKnowledgeSessionImpl) {
             StatelessKnowledgeSessionImpl statelessSession = ((StatelessKnowledgeSessionImpl) session);
-            isPhreak = ((ReteooRuleBase)statelessSession.getRuleBase()).getConfig().isPhreakEnabled();
+            isPhreak = statelessSession.getKnowledgeBase().getConfiguration().isPhreakEnabled();
             statelessSession.addWorkingMemoryEventListener( this );
             statelessSession.addAgendaEventListener( this );
             statelessSession.addEventListener( this );
-            statelessSession.getRuleBase().addEventListener( this );
+            statelessSession.getKnowledgeBase().addEventListener( this );
         } else if (session instanceof CommandBasedStatefulKnowledgeSession) {
             StatefulKnowledgeSessionImpl statefulSession =
                     ((StatefulKnowledgeSessionImpl)((KnowledgeCommandContext)((CommandBasedStatefulKnowledgeSession) session).getCommandService().getContext()).getKieSession());
-            isPhreak = ((ReteooRuleBase)statefulSession.getRuleBase()).getConfig().isPhreakEnabled();
+            isPhreak = statefulSession.getKnowledgeBase().getConfiguration().isPhreakEnabled();
             ReteooWorkingMemoryInterface eventManager = statefulSession.session;
             eventManager.addEventListener( (WorkingMemoryEventListener) this );
             eventManager.addEventListener( (AgendaEventListener) this );
             InternalProcessRuntime processRuntime = eventManager.getProcessRuntime();
-            eventManager.addEventListener( (RuleBaseEventListener) this );
+            eventManager.addEventListener( (KnowledgeBaseEventListener) this );
             if (processRuntime != null) {
                 processRuntime.addEventListener( this );
             }

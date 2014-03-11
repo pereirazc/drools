@@ -18,19 +18,19 @@ package org.drools.core;
 
 import java.util.List;
 
-import org.drools.core.event.RuleBaseEventListener;
+import org.drools.core.event.KnowledgeBaseEventListener;
 
 /**
  * The RuleBaseEventManager class is implemented by classes wishing to add,remove and get the various RuleBase EventListeners.
  */
-public interface RuleBaseEventManager {
+public interface KnowledgeBaseEventManager {
     /**
      * Add an event listener.
      * 
      * @param listener
      *            The listener to add.
      */
-    public void addEventListener(RuleBaseEventListener listener);
+    public void addEventListener(KnowledgeBaseEventListener listener);
 
     /**
      * Remove an event listener.
@@ -38,13 +38,13 @@ public interface RuleBaseEventManager {
      * @param listener
      *            The listener to remove.
      */
-    public void removeEventListener(RuleBaseEventListener listener);
+    public void removeEventListener(KnowledgeBaseEventListener listener);
 
     /**
      * Returns all event listeners.
      * 
      * @return listeners The listeners.
      */
-    public List<RuleBaseEventListener> getRuleBaseEventListeners();
+    public List<KnowledgeBaseEventListener> getRuleBaseEventListeners();
 
 }

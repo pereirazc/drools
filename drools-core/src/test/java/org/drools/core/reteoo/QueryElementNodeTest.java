@@ -16,12 +16,11 @@
 
 package org.drools.core.reteoo;
 
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.base.DroolsQuery;
 import org.drools.core.common.AbstractWorkingMemory;
 import org.drools.core.common.InternalFactHandle;
-import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.PropagationContextFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.test.model.DroolsTestCase;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.Declaration;
@@ -35,25 +34,25 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.rule.Variable;
+import org.kie.internal.KnowledgeBaseFactory;
 
 import static org.junit.Assert.*;
 
 public class QueryElementNodeTest extends DroolsTestCase {
     private PropagationContext  context;
     private AbstractWorkingMemory workingMemory;
-    private ReteooRuleBase      ruleBase;
+    private InternalKnowledgeBase kBase;
     private BuildContext        buildContext;
 
     @Before
     public void setUp() {
-        this.ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        this.buildContext = new BuildContext( ruleBase,
-                                              ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator() );
-        PropagationContextFactory pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        this.kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        this.buildContext = new BuildContext( kBase,
+                                              kBase.getReteooBuilder().getIdGenerator() );
+        PropagationContextFactory pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
         this.context = pctxFactory.createPropagationContext(0, PropagationContext.INSERTION, null, null, null);
 
-        this.workingMemory = new InstrumentedWorkingMemory( 0,
-                                       (InternalRuleBase) this.ruleBase );
+        this.workingMemory = new InstrumentedWorkingMemory( 0, this.kBase );
     }
 
     @Test
@@ -148,9 +147,9 @@ public class QueryElementNodeTest extends DroolsTestCase {
     public static class InstrumentedWorkingMemory extends AbstractWorkingMemory {
 
         public InstrumentedWorkingMemory(final int id,
-                                         final InternalRuleBase ruleBase) {
+                                         final InternalKnowledgeBase kBase) {
             super( id,
-                   ruleBase );
+                   kBase );
         }
 
         public void insert(final InternalFactHandle handle,

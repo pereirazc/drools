@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.spi.AgendaFilter;
 import org.drools.core.spi.AsyncExceptionHandler;
 import org.drools.core.spi.GlobalResolver;
@@ -87,7 +88,7 @@ public interface WorkingMemory extends WorkingMemoryEventManager, WorkingMemoryE
      *
      * @return The <code>RuleBase</code>.
      */
-    RuleBase getRuleBase();
+    InternalKnowledgeBase getKnowledgeBase();
 
     /**
      * Fire all items on the agenda until empty.

@@ -5,6 +5,7 @@ import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.lang.descr.PackageDescr;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalRuleBase;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.runtime.rule.impl.AgendaImpl;
 import org.junit.Assert;
@@ -231,7 +232,7 @@ public class CommonTestMethodBase extends Assert {
         kBaseConfig.setOption(phreak);
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(kBaseConfig);
         try {
-            kbase = org.drools.compiler.integrationtests.SerializationHelper.serializeObject(kbase, ((InternalRuleBase) ((KnowledgeBaseImpl) kbase).ruleBase).getRootClassLoader());
+            kbase = org.drools.compiler.integrationtests.SerializationHelper.serializeObject(kbase, ((InternalKnowledgeBase)kbase).getRootClassLoader());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

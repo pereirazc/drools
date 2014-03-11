@@ -1,7 +1,7 @@
 package org.drools.compiler.phreak;
 
-import org.drools.core.FactHandle;import org.drools.core.base.ClassObjectType;
-import org.drools.core.common.InternalFactHandle;import org.drools.core.common.InternalRuleBase;
+import org.drools.core.base.ClassObjectType;
+import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.NodeMemories;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
@@ -12,7 +12,6 @@ import org.drools.core.reteoo.LeftInputAdapterNode;
 import org.drools.core.reteoo.LeftInputAdapterNode.LiaNodeMemory;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.PathMemory;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.ReteooWorkingMemoryInterface;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.SegmentMemory;
@@ -32,12 +31,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertNotSame;
 import static junit.framework.TestCase.assertSame;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class RemoveRuleTest {
 
@@ -640,7 +636,7 @@ public class RemoveRuleTest {
     }
 
     private RuleTerminalNode getRtn(String ruleName, KnowledgeBase kbase) {
-        return ( RuleTerminalNode ) ((ReteooRuleBase)((KnowledgeBaseImpl) kbase).ruleBase).getReteooBuilder().getTerminalNodes(ruleName)[0];
+        return ( RuleTerminalNode ) ((KnowledgeBaseImpl) kbase).getReteooBuilder().getTerminalNodes(ruleName)[0];
     }
 
     private KnowledgeBase buildKnowledgeBase(String ruleName, String rule) {
@@ -703,7 +699,7 @@ public class RemoveRuleTest {
     }
 
     public ObjectTypeNode getObjectTypeNode(KnowledgeBase kbase, Class<?> nodeClass) {
-        List<ObjectTypeNode> nodes = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> nodes = ((KnowledgeBaseImpl)kbase).getRete().getObjectTypeNodes();
         for ( ObjectTypeNode n : nodes ) {
             if ( ((ClassObjectType)n.getObjectType()).getClassType() == nodeClass ) {
                 return n;

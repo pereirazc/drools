@@ -1,8 +1,42 @@
 package org.drools.compiler.integrationtests;
 
+import org.drools.compiler.Address;
+import org.drools.compiler.Cheese;
+import org.drools.compiler.CommonTestMethodBase;
+import org.drools.compiler.Person;
+import org.drools.compiler.TestEnum;
+import org.drools.core.base.ClassFieldReader;
+import org.drools.core.base.ClassObjectType;
+import org.drools.core.base.extractors.MVELObjectClassFieldReader;
+import org.drools.core.base.mvel.MVELDebugHandler;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.reteoo.AlphaNode;
+import org.drools.core.reteoo.ObjectTypeNode;
+import org.drools.core.rule.MapBackedClassLoader;
+import org.drools.core.rule.constraint.MvelConstraint;
+import org.drools.core.spi.AlphaNodeFieldConstraint;
+import org.drools.core.spi.FieldValue;
+import org.drools.core.type.DateFormatsImpl;
+import org.drools.core.util.DateUtils;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.kie.api.KieBase;
+import org.kie.api.KieBaseConfiguration;
+import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.StatelessKieSession;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.KnowledgeBaseFactory;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderConfiguration;
+import org.kie.internal.builder.KnowledgeBuilderFactory;
+import org.kie.internal.io.ResourceFactory;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.mvel2.MVEL;
+import org.mvel2.ParserContext;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -17,45 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-
-import org.drools.compiler.Address;
-import org.drools.compiler.Cheese;
-import org.drools.compiler.CommonTestMethodBase;
-import org.drools.compiler.Person;
-import org.drools.compiler.TestEnum;
-import org.drools.core.WorkingMemory;
-import org.drools.core.base.ClassFieldReader;
-import org.drools.core.base.ClassObjectType;
-import org.drools.core.base.extractors.MVELObjectClassFieldReader;
-import org.drools.core.base.mvel.MVELDebugHandler;
-import org.drools.core.common.InternalRuleBase;
-import org.drools.compiler.compiler.DroolsParserException;
-import org.drools.core.util.DateUtils;
-import org.drools.core.impl.KnowledgeBaseImpl;
-import org.drools.core.reteoo.AlphaNode;
-import org.drools.core.reteoo.ObjectTypeNode;
-import org.drools.core.rule.MapBackedClassLoader;
-import org.drools.core.rule.Package;
-import org.drools.core.rule.constraint.MvelConstraint;
-import org.drools.core.spi.AlphaNodeFieldConstraint;
-import org.drools.core.spi.FieldValue;
-import org.drools.core.type.DateFormatsImpl;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.kie.api.KieBase;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.StatelessKieSession;
-import org.kie.internal.KnowledgeBase;
-import org.kie.api.KieBaseConfiguration;
-import org.kie.internal.KnowledgeBaseFactory;
-import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.kie.api.io.ResourceType;
-import org.mvel2.MVEL;
-import org.mvel2.ParserContext;
 
 public class MVELTest extends CommonTestMethodBase {
     
@@ -457,7 +452,7 @@ public class MVELTest extends CommonTestMethodBase {
         assertEquals( "r1", list.get(0) );
         
         // Check it was built with MVELReturnValueExpression constraint
-        List<ObjectTypeNode> nodes = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> nodes = ((InternalKnowledgeBase)kbase).getRete().getObjectTypeNodes();
         ObjectTypeNode node = null;
         for ( ObjectTypeNode n : nodes ) {
             if ( ((ClassObjectType)n.getObjectType()).getClassType() == Person.class ) {
@@ -513,7 +508,7 @@ public class MVELTest extends CommonTestMethodBase {
         assertEquals( "r1", list.get(0) );
         
         // Check it was built with MVELReturnValueExpression constraint
-        List<ObjectTypeNode> nodes = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> nodes = ((InternalKnowledgeBase)kbase).getRete().getObjectTypeNodes();
         ObjectTypeNode node = null;
         for ( ObjectTypeNode n : nodes ) {
             if ( ((ClassObjectType)n.getObjectType()).getClassType() == Person.class ) {
@@ -577,7 +572,7 @@ public class MVELTest extends CommonTestMethodBase {
         assertEquals( "r1", list.get(0) );
         
         // Check it was built with MVELReturnValueExpression constraint
-        List<ObjectTypeNode> nodes = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> nodes = ((InternalKnowledgeBase)kbase).getRete().getObjectTypeNodes();
         ObjectTypeNode node = null;
         for ( ObjectTypeNode n : nodes ) {
             if ( ((ClassObjectType)n.getObjectType()).getClassType() == Person.class ) {
@@ -640,7 +635,7 @@ public class MVELTest extends CommonTestMethodBase {
         assertEquals( "r1", list.get(0) );
         
         // Check it was built with MVELReturnValueExpression constraint
-        List<ObjectTypeNode> nodes = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> nodes = ((InternalKnowledgeBase)kbase).getRete().getObjectTypeNodes();
         ObjectTypeNode node = null;
         for ( ObjectTypeNode n : nodes ) {
             if ( ((ClassObjectType)n.getObjectType()).getClassType() == Person.class ) {

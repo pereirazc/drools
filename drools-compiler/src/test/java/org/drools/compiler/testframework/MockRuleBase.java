@@ -12,7 +12,7 @@ import org.drools.core.RuleBase;
 import org.drools.core.SessionConfiguration;
 import org.drools.core.StatefulSession;
 import org.drools.core.StatelessSession;
-import org.drools.core.event.RuleBaseEventListener;
+import org.drools.core.event.KnowledgeBaseEventListener;
 import org.drools.core.rule.Package;
 import org.kie.api.definition.type.FactType;
 import org.kie.api.marshalling.Marshaller;
@@ -81,14 +81,14 @@ public class MockRuleBase implements RuleBase {
     public void unlock() {
     }
 
-    public void addEventListener(RuleBaseEventListener listener) {
+    public void addEventListener(KnowledgeBaseEventListener listener) {
     }
 
     public List getRuleBaseEventListeners() {
         return null;
     }
 
-    public void removeEventListener(RuleBaseEventListener listener) {
+    public void removeEventListener(KnowledgeBaseEventListener listener) {
     }
 
     public void addPackage(Package pkg) {

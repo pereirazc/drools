@@ -369,8 +369,7 @@ public class QueryTest extends CommonTestMethodBase {
         ReteooWorkingMemoryInterface reteWorkingMemory = sessionImpl.session;
         AbstractWorkingMemory abstractWorkingMemory = (AbstractWorkingMemory) reteWorkingMemory;
 
-        InternalRuleBase ruleBase = (InternalRuleBase) abstractWorkingMemory.getRuleBase();
-        Collection<EntryPointNode> entryPointNodes = ruleBase.getRete().getEntryPointNodes().values();
+        Collection<EntryPointNode> entryPointNodes = abstractWorkingMemory.getKnowledgeBase().getRete().getEntryPointNodes().values();
 
         EntryPointNode defaultEntryPointNode = null;
         for ( EntryPointNode epNode : entryPointNodes ) {

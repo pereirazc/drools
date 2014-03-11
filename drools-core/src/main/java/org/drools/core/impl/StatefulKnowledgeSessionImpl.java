@@ -16,16 +16,7 @@
 
 package org.drools.core.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-
 import org.drools.core.FactException;
-import org.drools.core.RuleBase;
 import org.drools.core.WorkingMemory;
 import org.drools.core.command.impl.FixedKnowledgeCommandContext;
 import org.drools.core.command.impl.GenericCommand;
@@ -74,15 +65,12 @@ import org.drools.core.runtime.rule.impl.AgendaImpl;
 import org.drools.core.runtime.rule.impl.NativeQueryResults;
 import org.drools.core.spi.Activation;
 import org.drools.core.time.TimerService;
-import org.kie.api.event.rule.RuleRuntimeEventListener;
-import org.kie.internal.KnowledgeBase;
 import org.kie.api.command.Command;
-import org.kie.internal.command.Context;
+import org.kie.api.event.KieRuntimeEventManager;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.AgendaEventListener;
-import org.kie.internal.process.CorrelationAwareProcessRuntime;
-import org.kie.internal.process.CorrelationKey;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.kie.api.event.rule.RuleRuntimeEventListener;
+import org.kie.api.logger.KieRuntimeLogger;
 import org.kie.api.runtime.Calendars;
 import org.kie.api.runtime.Channel;
 import org.kie.api.runtime.Environment;
@@ -94,27 +82,43 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.runtime.rule.Agenda;
 import org.kie.api.runtime.rule.AgendaFilter;
+import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.api.runtime.rule.LiveQuery;
 import org.kie.api.runtime.rule.QueryResults;
-import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.ViewChangedEventListener;
 import org.kie.api.time.SessionClock;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.command.Context;
+import org.kie.internal.process.CorrelationAwareProcessRuntime;
+import org.kie.internal.process.CorrelationKey;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
 
-public class StatefulKnowledgeSessionImpl extends AbstractRuntime
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+public class StatefulKnowledgeSessionImpl
         implements
         StatefulKnowledgeSession,
         InternalWorkingMemoryEntryPoint,
         InternalKnowledgeRuntime,
         KieSession,
-        CorrelationAwareProcessRuntime {
+        CorrelationAwareProcessRuntime,
+        KieRuntimeEventManager {
 
     public ReteooWorkingMemoryInterface session;
     public KnowledgeBase                kbase;
 
+    private KieRuntimeLogger logger;
+
     public StatefulKnowledgeSessionImpl(AbstractWorkingMemory session) {
         this( session,
-              new KnowledgeBaseImpl( session.getRuleBase() ) );
+              session.getKnowledgeBase() );
     }
 
     public StatefulKnowledgeSessionImpl(AbstractWorkingMemory session,
@@ -122,6 +126,14 @@ public class StatefulKnowledgeSessionImpl extends AbstractRuntime
         this.session = session;
         this.kbase = kbase;
         this.session.setKnowledgeRuntime( this );
+    }
+
+    public KieRuntimeLogger getLogger() {
+        return logger;
+    }
+
+    public void setLogger(KieRuntimeLogger logger) {
+        this.logger = logger;
     }
 
     public void reset() {
@@ -223,7 +235,7 @@ public class StatefulKnowledgeSessionImpl extends AbstractRuntime
 
     public KnowledgeBase getKieBase() {
         if ( this.kbase == null ) {
-            this.kbase = new KnowledgeBaseImpl( session.getRuleBase() );
+            this.kbase = session.getKnowledgeBase();
         }
         return this.kbase;
     }
@@ -783,8 +795,8 @@ public class StatefulKnowledgeSessionImpl extends AbstractRuntime
         return this.session.getObjectTypeConfigurationRegistry();
     }
 
-    public RuleBase getRuleBase() {
-        return ((KnowledgeBaseImpl) this.kbase).ruleBase;
+    public InternalKnowledgeBase getKnowledgeBase() {
+        return (InternalKnowledgeBase)this.kbase;
     }
 
     public QueryResults getQueryResults(String query,

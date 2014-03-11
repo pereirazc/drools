@@ -51,19 +51,18 @@ import org.drools.compiler.rule.builder.RuleConditionBuilder;
 import org.drools.compiler.rule.builder.dialect.DialectError;
 import org.drools.compiler.runtime.pipeline.impl.DroolsJaxbHelperProviderImpl;
 import org.drools.core.PackageIntegrationException;
-import org.drools.core.RuleBase;
 import org.drools.core.RuntimeDroolsException;
 import org.drools.core.base.ClassFieldAccessorCache;
 import org.drools.core.builder.conf.impl.JaxbConfigurationImpl;
 import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.ProjectClassLoader;
 import org.drools.core.definitions.impl.KnowledgePackageImp;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.io.impl.BaseResource;
 import org.drools.core.io.impl.ClassPathResource;
 import org.drools.core.io.impl.DescrResource;
 import org.drools.core.io.impl.ReaderResource;
 import org.drools.core.io.internal.InternalResource;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.rule.Function;
 import org.drools.core.rule.ImportDeclaration;
 import org.drools.core.rule.JavaDialectRuntimeData;
@@ -135,7 +134,7 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
     /**
      * Optional RuleBase for incremental live building
      */
-    private ReteooRuleBase ruleBase;
+    private InternalKnowledgeBase kBase;
 
     /**
      * default dialect
@@ -179,7 +178,7 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
      * Use this when package is starting from scratch.
      */
     public KnowledgeBuilderImpl() {
-        this((RuleBase) null,
+        this((InternalKnowledgeBase) null,
              null);
     }
 
@@ -192,8 +191,8 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
              null);
     }
 
-    public KnowledgeBuilderImpl(final RuleBase ruleBase) {
-        this(ruleBase,
+    public KnowledgeBuilderImpl(final InternalKnowledgeBase kBase) {
+        this(kBase,
              null);
     }
 
@@ -206,7 +205,7 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
      * being used by a PackageBuilder.
      */
     public KnowledgeBuilderImpl(final KnowledgeBuilderConfigurationImpl configuration) {
-        this((RuleBase) null,
+        this((InternalKnowledgeBase) null,
              configuration);
     }
 
@@ -245,7 +244,7 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
         typeBuilder = new TypeDeclarationBuilder(this);
     }
 
-    public KnowledgeBuilderImpl(RuleBase ruleBase,
+    public KnowledgeBuilderImpl(InternalKnowledgeBase kBase,
                                 KnowledgeBuilderConfigurationImpl configuration) {
         if (configuration == null) {
             this.configuration = new KnowledgeBuilderConfigurationImpl();
@@ -253,8 +252,8 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
             this.configuration = configuration;
         }
 
-        if (ruleBase != null) {
-            this.rootClassLoader = ((InternalRuleBase) ruleBase).getRootClassLoader();
+        if (kBase != null) {
+            this.rootClassLoader = kBase.getRootClassLoader();
         } else {
             this.rootClassLoader = this.configuration.getClassLoader();
         }
@@ -272,7 +271,7 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
         this.pkgRegistryMap = new LinkedHashMap<String, PackageRegistry>();
         this.results = new ArrayList<KnowledgeBuilderResult>();
 
-        this.ruleBase = (ReteooRuleBase) ruleBase;
+        this.kBase = kBase;
 
         processBuilder = createProcessBuilder();
         typeBuilder = new TypeDeclarationBuilder(this);
@@ -298,8 +297,8 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
         return resource;
     }
 
-    ReteooRuleBase getRuleBase() {
-        return ruleBase;
+    InternalKnowledgeBase getKnowledgeBase() {
+        return kBase;
     }
 
     TypeDeclarationBuilder getTypeBuilder() {
@@ -867,11 +866,11 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
         updateResults();
 
         // iterate and compile
-        if (!hasErrors() && this.ruleBase != null) {
+        if (!hasErrors() && this.kBase != null) {
             for (RuleDescr ruleDescr : packageDescr.getRules()) {
                 if( filterAccepts( ruleDescr.getNamespace(), ruleDescr.getName() ) ) {
                     pkgRegistry = this.pkgRegistryMap.get(ruleDescr.getNamespace());
-                    this.ruleBase.addRule(pkgRegistry.getPackage(), pkgRegistry.getPackage().getRule(ruleDescr.getName()));
+                    this.kBase.addRule(pkgRegistry.getPackage(), pkgRegistry.getPackage().getRule(ruleDescr.getName()));
                 }
             }
         }
@@ -997,7 +996,7 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
         Map<String, RuleBuildContext> ruleCxts = buildRuleBuilderContext(packageDescr.getRules());
 
         Package pkg = pkgRegistry.getPackage();
-        if (this.ruleBase != null) {
+        if (this.kBase != null) {
             boolean needsRemoval = false;
 
             // first, check if any rules no longer exist
@@ -1021,10 +1020,10 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
 
             if (needsRemoval) {
                 try {
-                    this.ruleBase.lock();
+                    this.kBase.lock();
                     for( Rule rule : pkg.getRules() ) {
                         if (filterAcceptsRemoval( rule.getPackageName(), rule.getName() ) ) {
-                            this.ruleBase.removeRule(pkg, pkg.getRule(rule.getName()));
+                            this.kBase.removeRule(pkg, pkg.getRule(rule.getName()));
                             pkg.removeRule(rule);
                         }
                     }
@@ -1032,12 +1031,12 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
                         if (filterAccepts(ruleDescr.getNamespace(), ruleDescr.getName()) ) {
                             if (pkg.getRule(ruleDescr.getName()) != null) {
                                 // XXX: this one notifies listeners
-                                this.ruleBase.removeRule(pkg, pkg.getRule(ruleDescr.getName()));
+                                this.kBase.removeRule(pkg, pkg.getRule(ruleDescr.getName()));
                             }
                         }
                     }
                 } finally {
-                    this.ruleBase.unlock();
+                    this.kBase.unlock();
                 }
             }
         }
@@ -1414,20 +1413,20 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
 
     PackageRegistry newPackage(final PackageDescr packageDescr) {
         Package pkg;
-        if (this.ruleBase == null || (pkg = this.ruleBase.getPackage(packageDescr.getName())) == null) {
+        if (this.kBase == null || (pkg = this.kBase.getPackage(packageDescr.getName())) == null) {
             // there is no rulebase or it does not define this package so define it
             pkg = new Package(packageDescr.getName());
             pkg.setClassFieldAccessorCache(new ClassFieldAccessorCache(this.rootClassLoader));
 
             // if there is a rulebase then add the package.
-            if (this.ruleBase != null) {
+            if (this.kBase != null) {
                 // Must lock here, otherwise the assumption about addPackage/getPackage behavior below might be violated
-                this.ruleBase.lock();
+                this.kBase.lock();
                 try {
-                    this.ruleBase.addPackage(pkg);
-                    pkg = this.ruleBase.getPackage(packageDescr.getName());
+                    this.kBase.addPackage(pkg);
+                    pkg = this.kBase.getPackage(packageDescr.getName());
                 } finally {
-                    this.ruleBase.unlock();
+                    this.kBase.unlock();
                 }
             } else {
                 // the RuleBase will also initialise the
@@ -2035,29 +2034,29 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
             }
         }
 
-        if (ruleBase != null) {
-            ruleBase.removeObjectsGeneratedFromResource(resource);
+        if (kBase != null) {
+            kBase.removeObjectsGeneratedFromResource(resource);
         }
 
         return modified;
     }
 
     public void startPackageUpdate() {
-        if (ruleBase != null) {
-            ruleBase.lock();
+        if (kBase != null) {
+            kBase.lock();
         }
     }
 
     public void completePackageUpdate() {
-        if (ruleBase != null) {
-            ruleBase.unlock();
+        if (kBase != null) {
+            kBase.unlock();
         }
     }
 
     public void setAllRuntimesDirty(Collection<String> packages) {
-        if (ruleBase != null) {
+        if (kBase != null) {
             for (String pkgName : packages) {
-                Package pkg = ruleBase.getPackage(pkgName);
+                Package pkg = kBase.getPackage(pkgName);
                 if (pkg != null) {
                     pkg.getDialectRuntimeRegistry().getDialectData("java").setDirty(true);
                 }
@@ -2066,9 +2065,9 @@ public class KnowledgeBuilderImpl implements KnowledgeBuilder {
     }
 
     public void rewireClassObjectTypes(Collection<String> packages) {
-        if (ruleBase != null) {
+        if (kBase != null) {
             for (String pkgName : packages) {
-                Package pkg = ruleBase.getPackage(pkgName);
+                Package pkg = kBase.getPackage(pkgName);
                 if (pkg != null) {
                     pkg.getClassFieldAccessorStore().wire();
                 }

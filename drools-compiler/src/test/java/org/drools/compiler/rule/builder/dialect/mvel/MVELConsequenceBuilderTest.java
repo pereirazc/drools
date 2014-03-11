@@ -3,17 +3,6 @@ package org.drools.compiler.rule.builder.dialect.mvel;
 import org.drools.compiler.Cheese;
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
-import org.drools.core.RuleBase;
-import org.drools.core.RuleBaseFactory;
-import org.drools.core.WorkingMemory;
-import org.drools.core.base.ClassObjectType;
-import org.drools.core.base.DefaultKnowledgeHelper;
-import org.drools.core.base.mvel.MVELConsequence;
-import org.drools.core.base.mvel.MVELDebugHandler;
-import org.drools.core.common.AgendaItem;
-import org.drools.core.common.AgendaItemImpl;
-import org.drools.core.common.InternalFactHandle;
-import org.drools.core.common.InternalRuleBase;
 import org.drools.compiler.compiler.Dialect;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.compiler.compiler.DrlParser;
@@ -22,7 +11,19 @@ import org.drools.compiler.compiler.PackageRegistry;
 import org.drools.compiler.lang.descr.AttributeDescr;
 import org.drools.compiler.lang.descr.PackageDescr;
 import org.drools.compiler.lang.descr.RuleDescr;
+import org.drools.compiler.rule.builder.RuleBuildContext;
+import org.drools.compiler.rule.builder.RuleBuilder;
+import org.drools.core.base.ClassObjectType;
+import org.drools.core.base.DefaultKnowledgeHelper;
+import org.drools.core.base.mvel.MVELConsequence;
+import org.drools.core.base.mvel.MVELDebugHandler;
+import org.drools.core.common.AgendaItem;
+import org.drools.core.common.AgendaItemImpl;
+import org.drools.core.common.InternalFactHandle;
+import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.PropagationContextFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.reteoo.CompositeObjectSinkAdapterTest;
 import org.drools.core.reteoo.LeftTupleImpl;
 import org.drools.core.reteoo.RuleTerminalNode;
@@ -34,11 +35,10 @@ import org.drools.core.rule.MVELDialectRuntimeData;
 import org.drools.core.rule.Package;
 import org.drools.core.rule.Pattern;
 import org.drools.core.rule.Rule;
-import org.drools.compiler.rule.builder.RuleBuildContext;
-import org.drools.compiler.rule.builder.RuleBuilder;
 import org.drools.core.spi.ObjectType;
 import org.drools.core.spi.PatternExtractor;
 import org.junit.Test;
+import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.conf.LanguageLevelOption;
 import org.mvel2.ParserContext;
 import org.mvel2.compiler.ExpressionCompiler;
@@ -51,12 +51,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class MVELConsequenceBuilderTest {
 
@@ -100,10 +95,13 @@ public class MVELConsequenceBuilderTest {
         final MVELConsequenceBuilder builder = new MVELConsequenceBuilder();
         builder.build( context, Rule.DEFAULT_CONSEQUENCE_NAME );
 
-        InternalRuleBase ruleBase = (InternalRuleBase)  RuleBaseFactory.newRuleBase();
-        PropagationContextFactory pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
-        ruleBase.addPackage( pkg );
-        final WorkingMemory wm = ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+
+        PropagationContextFactory pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        kBase.addPackage(pkg);
+
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         final Cheese cheddar = new Cheese( "cheddar", 10 );
         final InternalFactHandle f0 = (InternalFactHandle) wm.insert( cheddar );
@@ -112,7 +110,7 @@ public class MVELConsequenceBuilderTest {
 
         final AgendaItem item = new AgendaItemImpl( 0, tuple, 10,
                                                 pctxFactory.createPropagationContext(1, 1, null, tuple, null),
-                                                new RuleTerminalNode(0, new CompositeObjectSinkAdapterTest.MockBetaNode(), context.getRule(), subrule, 0, new BuildContext( (InternalRuleBase) ruleBase, null )), null, null);
+                                                new RuleTerminalNode(0, new CompositeObjectSinkAdapterTest.MockBetaNode(), context.getRule(), subrule, 0, new BuildContext( kBase, null )), null, null);
         final DefaultKnowledgeHelper kbHelper = new DefaultKnowledgeHelper( wm );
         kbHelper.setActivation( item );
         ((MVELConsequence) context.getRule().getConsequence()).compile(  (MVELDialectRuntimeData) pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectRuntimeRegistry().getDialectData( "mvel" ));
@@ -167,8 +165,9 @@ public class MVELConsequenceBuilderTest {
         final MVELConsequenceBuilder builder = new MVELConsequenceBuilder();
         builder.build( context, Rule.DEFAULT_CONSEQUENCE_NAME );
 
-        final RuleBase ruleBase = RuleBaseFactory.newRuleBase();
-        final WorkingMemory wm = ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
 
         final Cheese cheddar = new Cheese( "cheddar",
                                            10 );

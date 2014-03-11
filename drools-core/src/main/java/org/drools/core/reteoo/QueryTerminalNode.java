@@ -81,7 +81,7 @@ public class QueryTerminalNode extends AbstractTerminalNode implements LeftTuple
                              final BuildContext context) {
         super( id,
                context.getPartitionId(),
-               context.getRuleBase().getConfiguration().isMultithreadEvaluation(),
+               context.getKnowledgeBase().getConfiguration().isMultithreadEvaluation(),
                source );
         this.query = (Query) rule;
         this.subrule = subrule;

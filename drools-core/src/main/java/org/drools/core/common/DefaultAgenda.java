@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.drools.core.RuleBaseConfiguration;
 import org.drools.core.WorkingMemory;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.phreak.RuleAgendaItem;
 import org.drools.core.phreak.RuleExecutor;
 import org.drools.core.phreak.StackEntry;
@@ -123,38 +124,24 @@ public class DefaultAgenda
     public DefaultAgenda() {
     }
 
-    /**
-     * Construct.
-     *
-     * @param rb
-     *            The <code>InternalRuleBase</code> of this agenda.
-     */
-    public DefaultAgenda(InternalRuleBase rb) {
-        this( rb,
+    public DefaultAgenda(InternalKnowledgeBase kBase) {
+        this( kBase,
               true );
     }
 
-    /**
-     * Construct.
-     *
-     * @param rb
-     *            The <code>InternalRuleBase</code> of this agenda.
-     * @param initMain
-     *            Flag to initialize the MAIN agenda group
-     */
-    public DefaultAgenda(InternalRuleBase rb,
+    public DefaultAgenda(InternalKnowledgeBase kBase,
                          boolean initMain) {
 
         this.agendaGroups = new HashMap<String, InternalAgendaGroup>();
         this.activationGroups = new HashMap<String, ActivationGroup>();
         this.focusStack = new LinkedList<AgendaGroup>();
-        this.agendaGroupFactory = rb.getConfiguration().getAgendaGroupFactory();
+        this.agendaGroupFactory = kBase.getConfiguration().getAgendaGroupFactory();
 
         if ( initMain ) {
             // MAIN should always be the first AgendaGroup and can never be
             // removed
             this.main = agendaGroupFactory.createAgendaGroup( AgendaGroup.MAIN,
-                                                              rb );
+                                                              kBase );
 
             this.agendaGroups.put( AgendaGroup.MAIN,
                                    this.main );
@@ -163,15 +150,15 @@ public class DefaultAgenda
         }
         eager = new LinkedList<RuleAgendaItem>();
 
-        Object object = ClassUtils.instantiateObject( rb.getConfiguration().getConsequenceExceptionHandler(),
-                                                      rb.getConfiguration().getClassLoader() );
+        Object object = ClassUtils.instantiateObject( kBase.getConfiguration().getConsequenceExceptionHandler(),
+                                                      kBase.getConfiguration().getClassLoader() );
         if ( object instanceof ConsequenceExceptionHandler ) {
             this.legacyConsequenceExceptionHandler = (ConsequenceExceptionHandler) object;
         } else {
             this.consequenceExceptionHandler = (org.kie.api.runtime.rule.ConsequenceExceptionHandler) object;
         }
 
-        this.declarativeAgenda = rb.getConfiguration().isDeclarativeAgenda();
+        this.declarativeAgenda = kBase.getConfiguration().isDeclarativeAgenda();
     }
 
     public void readExternal(ObjectInput in) throws IOException,
@@ -246,7 +233,7 @@ public class DefaultAgenda
 
     public void setWorkingMemory(final InternalWorkingMemory workingMemory) {
         this.workingMemory = workingMemory;
-        RuleBaseConfiguration rbc = ((InternalRuleBase) this.workingMemory.getRuleBase()).getConfiguration();
+        RuleBaseConfiguration rbc = this.workingMemory.getKnowledgeBase().getConfiguration();
         if ( rbc.isSequential() ) {
             this.knowledgeHelper = rbc.getComponentFactory().getKnowledgeHelperFactory().newSequentialKnowledgeHelper( this.workingMemory );
         } else {
@@ -569,11 +556,11 @@ public class DefaultAgenda
      * @see org.kie.common.AgendaI#getAgendaGroup(java.lang.String)
      */
     public AgendaGroup getAgendaGroup(final String name) {
-        return getAgendaGroup( name, workingMemory == null ? null : ((InternalRuleBase) workingMemory.getRuleBase()) );
+        return getAgendaGroup( name, workingMemory == null ? null : workingMemory.getKnowledgeBase() );
     }
 
     public AgendaGroup getAgendaGroup(final String name,
-                                      InternalRuleBase ruleBase) {
+                                      InternalKnowledgeBase kBase) {
         String groupName = (name == null || name.length() == 0) ? AgendaGroup.MAIN : name;
 
         InternalAgendaGroup agendaGroup = this.agendaGroups.get( groupName );
@@ -581,7 +568,7 @@ public class DefaultAgenda
             // The AgendaGroup is defined but not yet added to the
             // Agenda, so create the AgendaGroup and add to the Agenda.
             agendaGroup = agendaGroupFactory.createAgendaGroup( name,
-                                                                ruleBase );
+                                                                kBase );
             addAgendaGroup( agendaGroup );
         }
 
@@ -925,7 +912,7 @@ public class DefaultAgenda
                 // if there is a group with focus
                 if ( group != null ) {
                     RuleAgendaItem item;
-                    if ( ((InternalRuleBase)workingMemory.getRuleBase()).getConfiguration().isSequential() ) {
+                    if ( workingMemory.getKnowledgeBase().getConfiguration().isSequential() ) {
                         item = (RuleAgendaItem) group.remove();
                         item.setBlocked(true);
                     }   else {

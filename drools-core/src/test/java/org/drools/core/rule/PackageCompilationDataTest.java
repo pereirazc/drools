@@ -23,12 +23,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.security.CodeSource;
 
+import org.drools.core.impl.KnowledgeBaseImpl;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.drools.core.base.ClassFieldAccessorCache;
 import org.drools.core.common.InternalRuleBase;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.WorkingMemory;
 import org.drools.core.spi.EvalExpression;
 import org.drools.core.spi.Tuple;
@@ -60,8 +60,8 @@ public class PackageCompilationDataTest {
     @Test
     public void testCodeSourceUrl() throws Exception {
         final String className = TestEvalExpression.class.getName();
-        
-        ReteooRuleBase rb = new ReteooRuleBase( "xxx", null );
+
+        KnowledgeBaseImpl rb = new KnowledgeBaseImpl( "xxx", null );
         
         Package pkg = new Package( "org.drools" );
         pkg.setClassFieldAccessorCache( new ClassFieldAccessorCache( Thread.currentThread().getContextClassLoader() ) );

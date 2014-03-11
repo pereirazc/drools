@@ -16,29 +16,9 @@
 
 package org.drools.core.reteoo;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.drools.core.FactHandle;
-import org.drools.core.RuleBaseFactory;
-import org.drools.core.StatefulSession;
-import org.drools.core.common.AbstractWorkingMemory;
-import org.drools.core.reteoo.builder.NodeFactory;
-import org.junit.Test;
-import org.kie.internal.KnowledgeBase;
-import org.kie.internal.KnowledgeBaseFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.kie.api.runtime.rule.EntryPoint;
-
-import static org.junit.Assert.*;
-
-import org.drools.core.RuleBase;
 import org.drools.core.base.MapGlobalResolver;
+import org.drools.core.common.AbstractWorkingMemory;
 import org.drools.core.common.EqualityKey;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.InternalWorkingMemory;
@@ -46,14 +26,29 @@ import org.drools.core.common.NamedEntryPoint;
 import org.drools.core.common.RuleBasePartitionId;
 import org.drools.core.common.TruthMaintenanceSystem;
 import org.drools.core.common.WorkingMemoryAction;
-import org.drools.core.test.model.Cheese;
-import org.drools.core.test.model.Person;
-import org.drools.core.impl.KnowledgeBaseImpl;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
 import org.drools.core.marshalling.impl.ProtobufMessages;
+import org.drools.core.reteoo.builder.NodeFactory;
 import org.drools.core.rule.EntryPointId;
 import org.drools.core.spi.GlobalResolver;
+import org.drools.core.test.model.Cheese;
+import org.drools.core.test.model.Person;
+import org.junit.Test;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.EntryPoint;
+import org.kie.internal.KnowledgeBaseFactory;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.*;
 
 public class ReteooWorkingMemoryTest {
     /*
@@ -61,13 +56,16 @@ public class ReteooWorkingMemoryTest {
      */
     @Test
     public void testBasicWorkingMemoryActions() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) RuleBaseFactory.newRuleBase().newStatefulSession();
-        final TruthMaintenanceSystem tms = ((NamedEntryPoint)workingMemory.getWorkingMemoryEntryPoint( EntryPointId.DEFAULT.getEntryPointId() ) ).getTruthMaintenanceSystem();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory)ksession.session;
+
+        final TruthMaintenanceSystem tms = ((NamedEntryPoint)workingMemory.getWorkingMemoryEntryPoint(EntryPointId.DEFAULT.getEntryPointId()) ).getTruthMaintenanceSystem();
         final String string = "test";
 
         workingMemory.insert( string );
 
-        FactHandle fd = workingMemory.insertLogical( string );
+        FactHandle fd = workingMemory.insertLogical(string);
 
         assertEquals( 1,
                       tms.getEqualityKeyMap().size() );
@@ -109,11 +107,14 @@ public class ReteooWorkingMemoryTest {
 
     @Test
     public void testId() {
-        final ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        InternalWorkingMemory workingMemory = (InternalWorkingMemory) ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
+
         assertEquals( 0,
                       workingMemory.getId() );
-        workingMemory = (InternalWorkingMemory) ruleBase.newStatefulSession();
+        ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        workingMemory = ksession.session;
         assertEquals( 1,
                       workingMemory.getId() );
     }
@@ -126,8 +127,11 @@ public class ReteooWorkingMemoryTest {
         map.put( "global2",
                  "value2" );
         final GlobalResolver resolver = new MapGlobalResolver(map);
-        final ReteooRuleBase ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        final InternalWorkingMemory workingMemory = (InternalWorkingMemory) ruleBase.newStatefulSession();
+
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
+
         workingMemory.setGlobalResolver( resolver );
         assertEquals( "value1",
                       workingMemory.getGlobal( "global1" ) );
@@ -137,26 +141,24 @@ public class ReteooWorkingMemoryTest {
 
     @Test
     public void testObjectIterator() {
-        final RuleBase ruleBase = RuleBaseFactory.newRuleBase();
-        final StatefulSession session = ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        KieSession ksession = kBase.newKieSession();
 
-        session.insert( new Person( "bob", 35) );
-        session.insert( new Cheese( "stilton", 35) );
-        session.insert( new Cheese( "brie", 35) );
-        session.insert( new Person( "steve", 55) );
-        session.insert( new Person( "tom", 100) );
+        ksession.insert( new Person( "bob", 35) );
+        ksession.insert( new Cheese( "stilton", 35) );
+        ksession.insert( new Cheese( "brie", 35) );
+        ksession.insert( new Person( "steve", 55) );
+        ksession.insert( new Person( "tom", 100) );
 
         int i = 0;
-        for ( Iterator it = session.iterateFactHandles(); it.hasNext(); ) {
-            Object object = it.next();
+        for ( org.kie.api.runtime.rule.FactHandle fh : ksession.getFactHandles()) {
             if ( i++ > 5 ) {
                 fail( "should not iterate for than 3 times" );
             }
         }
 
         i = 0;
-        for ( Iterator it = session.iterateObjects(); it.hasNext(); ) {
-            Object object = it.next();
+        for ( org.kie.api.runtime.rule.FactHandle fh : ksession.getFactHandles()) {
             if ( i++ > 5 ) {
                 fail( "should not iterate for than 3 times" );
             }
@@ -165,8 +167,9 @@ public class ReteooWorkingMemoryTest {
 
     @Test
     public void testExecuteQueueActions() {
-        final RuleBase ruleBase = RuleBaseFactory.newRuleBase();
-        final AbstractWorkingMemory wm = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory wm = ksession.session;
         final ReentrantAction action = new ReentrantAction();
         wm.queueWorkingMemoryAction( action );
         wm.executeQueuedActions();
@@ -176,21 +179,20 @@ public class ReteooWorkingMemoryTest {
     @Test
     public void testDifferentEntryPointsOnSameFact() {
         //JBRULES-2971
-        
-        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        ReteooRuleBase rbase = ( ReteooRuleBase ) ((KnowledgeBaseImpl)kbase).getRuleBase();
-        Rete rete = rbase.getRete();
 
-        NodeFactory nFacotry = ((ReteooRuleBase) rbase).getConfiguration().getComponentFactory().getNodeFactoryService();
-        EntryPointNode epn = nFacotry.buildEntryPointNode( rbase.getReteooBuilder().getIdGenerator().getNextId(),
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        Rete rete = kBase.getRete();
+
+        NodeFactory nFacotry = kBase.getConfiguration().getComponentFactory().getNodeFactoryService();
+        EntryPointNode epn = nFacotry.buildEntryPointNode( kBase.getReteooBuilder().getIdGenerator().getNextId(),
                                                             RuleBasePartitionId.MAIN_PARTITION,
-                                                            rbase.getConfiguration().isMultithreadEvaluation(),
+                                                            kBase.getConfiguration().isMultithreadEvaluation(),
                                                             rete,
                                                             new EntryPointId( "xxx" ) );
-        
-        
-        rbase.getRete().addObjectSink( epn );
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+
+
+        kBase.getRete().addObjectSink( epn );
+        StatefulKnowledgeSession ksession = kBase.newStatefulKnowledgeSession();
         org.kie.api.runtime.rule.FactHandle f1 = ksession.insert( "f1" );
         
         EntryPoint ep = ksession.getEntryPoint( "xxx" );

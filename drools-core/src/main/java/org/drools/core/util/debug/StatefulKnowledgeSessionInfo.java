@@ -16,6 +16,13 @@
 
 package org.drools.core.util.debug;
 
+import org.drools.core.common.AbstractWorkingMemory;
+import org.drools.core.common.NetworkNode;
+import org.drools.core.impl.KnowledgeBaseImpl;
+import org.drools.core.reteoo.ReteooWorkingMemoryInterface;
+import org.drools.core.rule.Package;
+import org.drools.core.rule.Rule;
+
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,14 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.drools.core.common.NetworkNode;
-import org.drools.core.reteoo.ReteooRuleBase;
-import org.drools.core.reteoo.ReteooWorkingMemoryInterface;
-import org.drools.core.rule.Package;
-import org.drools.core.rule.Rule;
-
 public class StatefulKnowledgeSessionInfo {
-    private ReteooWorkingMemoryInterface      session;
+    private AbstractWorkingMemory             session;
     private Map<NetworkNode, DefaultNodeInfo> nodesInfo;
     private List<String>                      log;
 
@@ -49,11 +50,11 @@ public class StatefulKnowledgeSessionInfo {
     }
 
     public Package[] getPackages() {
-        return this.session.getRuleBase().getPackages();
+        return ((KnowledgeBaseImpl) this.session.getKnowledgeBase()).getPackages();
     }
 
     public int getNodeCount() {
-        return ((ReteooRuleBase) this.session.getRuleBase()).getNodeCount();
+        return ((KnowledgeBaseImpl) this.session.getKnowledgeBase()).getNodeCount();
     }
 
     public int getExternalFactCount() {
@@ -108,11 +109,11 @@ public class StatefulKnowledgeSessionInfo {
         return this.nodesInfo.values();
     }
 
-    public ReteooWorkingMemoryInterface getSession() {
+    public AbstractWorkingMemory getSession() {
         return session;
     }
 
-    public void setSession(ReteooWorkingMemoryInterface session) {
+    public void setSession(AbstractWorkingMemory session) {
         this.session = session;
     }
 

@@ -82,8 +82,7 @@ public class ModifyInterceptor
 
     private void calculateModificationMask(KnowledgeHelper knowledgeHelper, WithNode node) {
         Class<?> nodeClass = node.getEgressType();
-        InternalRuleBase ruleBase = (InternalRuleBase)knowledgeHelper.getWorkingMemory().getRuleBase();
-        TypeDeclaration typeDeclaration = ruleBase.getTypeDeclaration(nodeClass);
+        TypeDeclaration typeDeclaration = knowledgeHelper.getWorkingMemory().getKnowledgeBase().getTypeDeclaration(nodeClass);
         if (typeDeclaration == null || !typeDeclaration.isPropertyReactive()) {
             modificationMask = Long.MAX_VALUE;
             return;

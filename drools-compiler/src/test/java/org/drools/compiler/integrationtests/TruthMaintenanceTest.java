@@ -1,7 +1,6 @@
 package org.drools.compiler.integrationtests;
 
 import static org.drools.compiler.integrationtests.SerializationHelper.getSerialisedStatefulKnowledgeSession;
-import static org.drools.compiler.integrationtests.SerializationHelper.getSerialisedStatefulSession;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

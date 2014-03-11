@@ -28,16 +28,13 @@ import org.drools.compiler.CheeseEqual;
 import org.drools.compiler.Cheesery;
 import org.drools.compiler.Cheesery.Maturity;
 import org.drools.compiler.Child;
-import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
-import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
-import org.drools.core.ClassObjectFilter;
 import org.drools.compiler.CommonTestMethodBase;
 import org.drools.compiler.DomainObjectHolder;
 import org.drools.compiler.FactA;
 import org.drools.compiler.FactB;
 import org.drools.compiler.FactC;
-import org.drools.core.FactHandle;
 import org.drools.compiler.FirstClass;
+import org.drools.compiler.Foo;
 import org.drools.compiler.FromTestClass;
 import org.drools.compiler.Guess;
 import org.drools.compiler.IndexedNumber;
@@ -45,7 +42,6 @@ import org.drools.compiler.LongAddress;
 import org.drools.compiler.Message;
 import org.drools.compiler.MockPersistentSet;
 import org.drools.compiler.Move;
-import org.drools.compiler.Foo;
 import org.drools.compiler.ObjectWithSet;
 import org.drools.compiler.Order;
 import org.drools.compiler.OrderItem;
@@ -58,18 +54,28 @@ import org.drools.compiler.Pet;
 import org.drools.compiler.PolymorphicFact;
 import org.drools.compiler.Primitives;
 import org.drools.compiler.RandomNumber;
-import org.drools.core.RuleBase;
-import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.RuleBaseFactory;
 import org.drools.compiler.SecondClass;
 import org.drools.compiler.Sensor;
 import org.drools.compiler.SpecialString;
 import org.drools.compiler.State;
-import org.drools.core.StatefulSession;
 import org.drools.compiler.StockTick;
+import org.drools.compiler.Target;
 import org.drools.compiler.TestParam;
 import org.drools.compiler.Triangle;
 import org.drools.compiler.Win;
+import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
+import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
+import org.drools.compiler.compiler.DescrBuildError;
+import org.drools.compiler.compiler.DrlParser;
+import org.drools.compiler.compiler.DroolsError;
+import org.drools.compiler.compiler.ParserError;
+import org.drools.compiler.lang.DrlDumper;
+import org.drools.compiler.lang.descr.AttributeDescr;
+import org.drools.compiler.lang.descr.PackageDescr;
+import org.drools.compiler.lang.descr.RuleDescr;
+import org.drools.compiler.rule.builder.dialect.java.JavaDialectConfiguration;
+import org.drools.compiler.rule.builder.dialect.mvel.MVELDialectConfiguration;
+import org.drools.core.ClassObjectFilter;
 import org.drools.core.audit.WorkingMemoryConsoleLogger;
 import org.drools.core.base.RuleNameEndsWithAgendaFilter;
 import org.drools.core.base.RuleNameEqualsAgendaFilter;
@@ -77,27 +83,28 @@ import org.drools.core.base.RuleNameMatchesAgendaFilter;
 import org.drools.core.base.RuleNameStartsWithAgendaFilter;
 import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.InternalFactHandle;
-import org.drools.compiler.Target;
-import org.drools.compiler.compiler.DescrBuildError;
-import org.drools.compiler.compiler.DrlParser;
-import org.drools.compiler.compiler.DroolsError;
-import org.drools.compiler.compiler.ParserError;
 import org.drools.core.impl.EnvironmentFactory;
-import org.drools.compiler.lang.DrlDumper;
-import org.drools.compiler.lang.descr.AttributeDescr;
-import org.drools.compiler.lang.descr.PackageDescr;
-import org.drools.compiler.lang.descr.RuleDescr;
 import org.drools.core.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.marshalling.impl.IdentityPlaceholderResolverStrategy;
 import org.drools.core.reteoo.LeftTuple;
-import org.drools.core.rule.*;
-import org.drools.compiler.rule.builder.dialect.java.JavaDialectConfiguration;
-import org.drools.compiler.rule.builder.dialect.mvel.MVELDialectConfiguration;
+import org.drools.core.rule.MapBackedClassLoader;
 import org.drools.core.runtime.rule.impl.AgendaImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kie.api.KieBaseConfiguration;
+import org.kie.api.command.Setter;
+import org.kie.api.conf.EqualityBehaviorOption;
+import org.kie.api.conf.RemoveIdentitiesOption;
+import org.kie.api.definition.rule.Rule;
+import org.kie.api.definition.type.FactType;
+import org.kie.api.event.rule.ObjectDeletedEvent;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
+import org.kie.api.io.ResourceType;
+import org.kie.api.marshalling.ObjectMarshallingStrategy;
+import org.kie.api.runtime.Environment;
+import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.rule.EntryPoint;
+import org.kie.api.runtime.rule.FactHandle;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
@@ -105,26 +112,15 @@ import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderError;
 import org.kie.internal.builder.KnowledgeBuilderErrors;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.builder.conf.RuleEngineOption;
 import org.kie.internal.builder.conf.LanguageLevelOption;
+import org.kie.internal.builder.conf.RuleEngineOption;
 import org.kie.internal.command.CommandFactory;
-import org.kie.api.command.Setter;
-import org.kie.api.conf.EqualityBehaviorOption;
-import org.kie.api.conf.RemoveIdentitiesOption;
 import org.kie.internal.conf.SequentialOption;
 import org.kie.internal.conf.ShareAlphaNodesOption;
 import org.kie.internal.definition.KnowledgePackage;
-import org.kie.api.definition.rule.Rule;
-import org.kie.api.definition.type.FactType;
-import org.kie.api.event.rule.ObjectDeletedEvent;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.kie.api.io.ResourceType;
-import org.kie.api.marshalling.ObjectMarshallingStrategy;
-import org.kie.api.runtime.Environment;
-import org.kie.api.runtime.EnvironmentName;
 import org.kie.internal.runtime.StatelessKnowledgeSession;
-import org.kie.api.runtime.rule.EntryPoint;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mvel2.MVEL;
@@ -154,10 +150,7 @@ import java.util.jar.JarInputStream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
   * Run all the tests with the ReteOO engine implementation
@@ -288,8 +281,8 @@ import static org.mockito.Mockito.verify;
          StatefulKnowledgeSession ksession_1 = createKnowledgeSession( kbase );
          String expected_1 = "expected_1";
          String expected_2 = "expected_2";
-         org.kie.api.runtime.rule.FactHandle handle_1 = ksession_1.insert( expected_1 );
-         org.kie.api.runtime.rule.FactHandle handle_2 = ksession_1.insert( expected_2 );
+         FactHandle handle_1 = ksession_1.insert( expected_1 );
+         FactHandle handle_2 = ksession_1.insert( expected_2 );
          ksession_1.fireAllRules();
          Collection<StatefulKnowledgeSession> coll_1 = kbase.getStatefulKnowledgeSessions();
          assertTrue( coll_1.size() == 1 );
@@ -320,7 +313,7 @@ import static org.mockito.Mockito.verify;
          for ( int i = 0; i < 20; i++ ) {
              Object object = new Object();
              ksession.insert( object );
-             org.kie.api.runtime.rule.FactHandle factHandle = ksession.getFactHandle( object );
+             FactHandle factHandle = ksession.getFactHandle( object );
              assertNotNull( factHandle );
              assertEquals( object,
                            ksession.getObject( factHandle ) );
@@ -1178,7 +1171,7 @@ import static org.mockito.Mockito.verify;
                             list );
          final Cheese mycheese = new Cheese( "cheddar",
                                              4 );
-         org.kie.api.runtime.rule.FactHandle handle = session.insert( mycheese );
+         FactHandle handle = session.insert( mycheese );
          session.fireAllRules();
 
          assertEquals( 2,
@@ -1193,7 +1186,7 @@ import static org.mockito.Mockito.verify;
          session.delete( handle );
          final Cheese mycheese2 = new Cheese( "notcheddar",
                                               4 );
-         org.kie.api.runtime.rule.FactHandle handle2 = session.insert( mycheese2 );
+         FactHandle handle2 = session.insert( mycheese2 );
          session.fireAllRules();
 
          assertEquals( "rule 4",
@@ -1208,7 +1201,7 @@ import static org.mockito.Mockito.verify;
          session.delete( handle2 );
          final Cheese mycheese3 = new Cheese( "stilton",
                                               6 );
-         org.kie.api.runtime.rule.FactHandle handle3 = session.insert( mycheese3 );
+         FactHandle handle3 = session.insert( mycheese3 );
          session.fireAllRules();
          //System.out.println(list.toString());
          assertEquals( "rule 3",
@@ -1223,7 +1216,7 @@ import static org.mockito.Mockito.verify;
          session.delete( handle3 );
          final Cheese mycheese4 = new Cheese( "notstilton",
                                               6 );
-         org.kie.api.runtime.rule.FactHandle handle4 = session.insert( mycheese4 );
+         FactHandle handle4 = session.insert( mycheese4 );
          session.fireAllRules();
          //System.out.println(((List) session.getGlobal( "list" )).toString());
          assertTrue( ((List) session.getGlobal( "list" )).size() == 0 );
@@ -1235,7 +1228,7 @@ import static org.mockito.Mockito.verify;
          session.delete( handle4 );
          final Cheese mycheese5 = new Cheese( "stilton",
                                               7 );
-         org.kie.api.runtime.rule.FactHandle handle5 = session.insert( mycheese5 );
+         FactHandle handle5 = session.insert( mycheese5 );
          session.fireAllRules();
          //System.out.println(((List) session.getGlobal( "list" )).toString());
          assertEquals( 0,
@@ -1294,7 +1287,7 @@ import static org.mockito.Mockito.verify;
 
              final Cheese mycheese = new Cheese( "cheddar",
                                                  4 );
-             org.kie.api.runtime.rule.FactHandle handle = ksession.insert( mycheese );
+             FactHandle handle = ksession.insert( mycheese );
              ksession.fireAllRules();
 
              assertEquals( 1,
@@ -1398,8 +1391,8 @@ import static org.mockito.Mockito.verify;
                                             15 );
          bigCheese.setCheese( cheddar );
 
-         final org.kie.api.runtime.rule.FactHandle bigCheeseHandle = ksession.insert( bigCheese );
-         final org.kie.api.runtime.rule.FactHandle cheddarHandle = ksession.insert( cheddar );
+         final FactHandle bigCheeseHandle = ksession.insert( bigCheese );
+         final FactHandle cheddarHandle = ksession.insert( cheddar );
          ksession.fireAllRules();
 
          ArgumentCaptor<org.kie.api.event.rule.ObjectUpdatedEvent> arg = ArgumentCaptor.forClass( org.kie.api.event.rule.ObjectUpdatedEvent.class );
@@ -1462,7 +1455,7 @@ import static org.mockito.Mockito.verify;
          DefaultFactHandle helloHandle = (DefaultFactHandle) ksession.insert( "hello" );
          DefaultFactHandle goodbyeHandle = (DefaultFactHandle) ksession.insert( "goodbye" );
 
-         org.kie.api.runtime.rule.FactHandle key = new DefaultFactHandle( helloHandle.toExternalForm() );
+         FactHandle key = new DefaultFactHandle( helloHandle.toExternalForm() );
          assertEquals( "hello",
                        ksession.getObject( key ) );
 
@@ -1610,7 +1603,7 @@ import static org.mockito.Mockito.verify;
          final Cell cell = new Cell( 0 );
 
          session.insert( cell1 );
-         org.kie.api.runtime.rule.FactHandle cellHandle = session.insert( cell );
+         FactHandle cellHandle = session.insert( cell );
 
          session = SerializationHelper.getSerialisedStatefulKnowledgeSession( session,
                                                                               true );
@@ -1676,7 +1669,7 @@ import static org.mockito.Mockito.verify;
 
          final Cheese cheddar = new Cheese( "cheddar",
                                             5 );
-         final org.kie.api.runtime.rule.FactHandle h = session.insert( cheddar );
+         final FactHandle h = session.insert( cheddar );
 
          session.fireAllRules();
 
@@ -2027,7 +2020,7 @@ import static org.mockito.Mockito.verify;
      }
 
      /**
-      * @see JBRULES-1415 Certain uses of from causes NullPointerException in WorkingMemoryLogger
+      * JBRULES-1415 Certain uses of from causes NullPointerException in WorkingMemoryLogger
       */
      @Test
      public void testFromDeclarationWithWorkingMemoryLogger() throws Exception {
@@ -2971,7 +2964,7 @@ import static org.mockito.Mockito.verify;
          final Guess guess = new Guess();
          guess.setValue( new Integer( 5 ) );
 
-         final org.kie.api.runtime.rule.FactHandle handle = ksession.insert( guess );
+         final FactHandle handle = ksession.insert( guess );
 
          ksession.fireAllRules();
 
@@ -3018,7 +3011,7 @@ import static org.mockito.Mockito.verify;
          final Cheese stilton = new Cheese( "stilton",
                                             15 );
 
-         final org.kie.api.runtime.rule.FactHandle stiltonHandle = wm.insert( stilton );
+         final FactHandle stiltonHandle = wm.insert( stilton );
 
          ArgumentCaptor<org.kie.api.event.rule.ObjectInsertedEvent> oic = ArgumentCaptor.forClass( org.kie.api.event.rule.ObjectInsertedEvent.class );
          verify( wmel ).objectInserted( oic.capture() );
@@ -3247,8 +3240,8 @@ import static org.mockito.Mockito.verify;
          final Cheese muzzarella = new Cheese( "muzzarella",
                                                9 );
          final int sum = stilton.getPrice() + muzzarella.getPrice();
-         final org.kie.api.runtime.rule.FactHandle stiltonHandle = ksession.insert( stilton );
-         final org.kie.api.runtime.rule.FactHandle muzzarellaHandle = ksession.insert( muzzarella );
+         final FactHandle stiltonHandle = ksession.insert( stilton );
+         final FactHandle muzzarellaHandle = ksession.insert( muzzarella );
 
          ksession.fireAllRules();
 
@@ -4097,11 +4090,11 @@ import static org.mockito.Mockito.verify;
 
          Person p1 = new Person( "darth",
                                  30 );
-         org.kie.api.runtime.rule.FactHandle fh1 = ksession.insert( p1 );
+         FactHandle fh1 = ksession.insert( p1 );
 
          Person p2 = new Person( "darth",
                                  25 );
-         org.kie.api.runtime.rule.FactHandle fh2 = ksession.insert( p2 ); // creates activation.
+         FactHandle fh2 = ksession.insert( p2 ); // creates activation.
 
          p1.setName( "yoda" );
          ksession.update( fh1,
@@ -4167,19 +4160,19 @@ import static org.mockito.Mockito.verify;
 
          Person p0 = new Person( "yoda", 0 );
          p0.setLikes( "cheddar" );
-         org.kie.api.runtime.rule.FactHandle fh0 = ksession.insert( p0 );
+         FactHandle fh0 = ksession.insert( p0 );
 
          Person p1 = new Person( "darth", 15 );
          p1.setLikes( "cheddar" );
-         org.kie.api.runtime.rule.FactHandle fh1 = ksession.insert( p1 );
+         FactHandle fh1 = ksession.insert( p1 );
 
          Person p2 = new Person( "darth", 25 );
          p2.setLikes( "cheddar" );
-         org.kie.api.runtime.rule.FactHandle fh2 = ksession.insert( p2 ); // creates activation.
+         FactHandle fh2 = ksession.insert( p2 ); // creates activation.
 
          Person p3 = new Person( "darth", 30 );
          p3.setLikes( "brie" );
-         org.kie.api.runtime.rule.FactHandle fh3 = ksession.insert( p3 );
+         FactHandle fh3 = ksession.insert( p3 );
 
          ksession.fireAllRules();
          // selects p1 and p3
@@ -4356,8 +4349,8 @@ import static org.mockito.Mockito.verify;
                              list );
 
          Person p = new Person( "ackbar" );
-         org.kie.api.runtime.rule.FactHandle ph = ksession.insert( p );
-         org.kie.api.runtime.rule.FactHandle sh = ksession.insert( "ackbar" );
+         FactHandle ph = ksession.insert( p );
+         FactHandle sh = ksession.insert( "ackbar" );
          ksession.fireAllRules();
          ksession.dispose();
 
@@ -4497,7 +4490,7 @@ import static org.mockito.Mockito.verify;
                                                   "3",
                                                   "4",
                                                   "5" );
-         final org.kie.api.runtime.rule.FactHandle handle = ksession.insert( first );
+         final FactHandle handle = ksession.insert( first );
          ksession.fireAllRules();
          assertEquals( 1,
                        results.size() );
@@ -5124,7 +5117,7 @@ import static org.mockito.Mockito.verify;
                              list );
 
          final PolymorphicFact fact = new PolymorphicFact( new Integer( 10 ) );
-         final org.kie.api.runtime.rule.FactHandle handle = ksession.insert( fact );
+         final FactHandle handle = ksession.insert( fact );
 
          ksession.fireAllRules();
 
@@ -5168,7 +5161,7 @@ import static org.mockito.Mockito.verify;
          fact.setBooleanWrapper( new Boolean( true ) );
          fact.setObject( new Boolean( true ) );
          fact.setCharPrimitive( 'X' );
-         final org.kie.api.runtime.rule.FactHandle handle = ksession.insert( fact );
+         final FactHandle handle = ksession.insert( fact );
 
          ksession.fireAllRules();
 
@@ -5557,27 +5550,25 @@ import static org.mockito.Mockito.verify;
          CheeseEqual cheese = new CheeseEqual( "stilton",
                                                10 );
          ksession.insert( cheese );
-         org.kie.api.runtime.rule.FactHandle fh = ksession.getFactHandle( new CheeseEqual( "stilton",
+         FactHandle fh = ksession.getFactHandle( new CheeseEqual( "stilton",
                                                                                           10 ) );
          assertNotNull( fh );
      }
 
      @Test
      public void testGetFactHandleIdentityBehavior() throws Exception {
-         final RuleBaseConfiguration conf = new RuleBaseConfiguration();
-         conf.setAssertBehaviour( RuleBaseConfiguration.AssertBehaviour.IDENTITY );
-         RuleBase ruleBase = RuleBaseFactory.newRuleBase(conf);
-
-         ruleBase = SerializationHelper.serializeObject( ruleBase );
-         final StatefulSession session = ruleBase.newStatefulSession();
+         KieBaseConfiguration kbc = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
+         kbc.setOption(EqualityBehaviorOption.IDENTITY);
+         KnowledgeBase kbase = SerializationHelper.serializeObject(loadKnowledgeBase(kbc));
+         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
 
          CheeseEqual cheese = new CheeseEqual( "stilton",
                                                10 );
-         session.insert( cheese );
-         FactHandle fh1 = session.getFactHandle( new Cheese( "stilton",
+         ksession.insert( cheese );
+         FactHandle fh1 = ksession.getFactHandle( new Cheese( "stilton",
                                                              10 ) );
          assertNull( fh1 );
-         FactHandle fh2 = session.getFactHandle( cheese );
+         FactHandle fh2 = ksession.getFactHandle( cheese );
          assertNotNull( fh2 );
      }
 
@@ -5619,8 +5610,8 @@ import static org.mockito.Mockito.verify;
          Cheese cheese2 = new Cheese();
          bob.setCheese( cheese2 );
 
-         org.kie.api.runtime.rule.FactHandle p = session.insert( bob );
-         org.kie.api.runtime.rule.FactHandle c = session.insert( cheesery );
+         FactHandle p = session.insert( bob );
+         FactHandle c = session.insert( cheesery );
 
          session.fireAllRules();
 
@@ -5835,8 +5826,8 @@ import static org.mockito.Mockito.verify;
          FactA a = new FactA();
          FactB b = new FactB( Integer.valueOf( 0 ) );
 
-         org.kie.api.runtime.rule.FactHandle aHandle = ksession.insert( a );
-         org.kie.api.runtime.rule.FactHandle bHandle = ksession.insert( b );
+         FactHandle aHandle = ksession.insert( a );
+         FactHandle bHandle = ksession.insert( b );
 
          ksession.fireAllRules();
 
@@ -6365,8 +6356,8 @@ import static org.mockito.Mockito.verify;
 
          ksession.addEventListener( wml );
 
-         org.kie.api.runtime.rule.FactHandle personFH = ksession.insert( new Person( "Toni" ) );
-         org.kie.api.runtime.rule.FactHandle petFH = ksession.insert( new Pet( "Toni" ) );
+         FactHandle personFH = ksession.insert( new Person( "Toni" ) );
+         FactHandle petFH = ksession.insert( new Pet( "Toni" ) );
 
          int fired = ksession.fireAllRules();
          assertEquals( 1,
@@ -6557,8 +6548,8 @@ import static org.mockito.Mockito.verify;
          A a2 = new A( "x2",
                        null );
 
-         FactHandle fa1 = (FactHandle) ksession.insert( a1 );
-         FactHandle fa2 = (FactHandle) ksession.insert( a2 );
+         FactHandle fa1 = ksession.insert( a1 );
+         FactHandle fa2 = ksession.insert( a2 );
 
          // make sure the 'exists' is obeyed when fact is cycled causing add/remove node memory
          ksession.update( fa1,
@@ -6612,8 +6603,8 @@ import static org.mockito.Mockito.verify;
          A a2 = new A( "x2",
                        null );
 
-         FactHandle fa1 = (FactHandle) ksession.insert( a1 );
-         FactHandle fa2 = (FactHandle) ksession.insert( a2 );
+         FactHandle fa1 = ksession.insert( a1 );
+         FactHandle fa2 = ksession.insert( a2 );
 
          // make sure the 'exists' is obeyed when fact is cycled causing add/remove node memory
          ksession.update( fa1,
@@ -6663,9 +6654,9 @@ import static org.mockito.Mockito.verify;
          A a3 = new A( "1",
                        "2" );
 
-         FactHandle fa1 = (FactHandle) ksession.insert( a1 );
-         FactHandle fa2 = (FactHandle) ksession.insert( a2 );
-         FactHandle fa3 = (FactHandle) ksession.insert( a3 );
+         FactHandle fa1 = ksession.insert( a1 );
+         FactHandle fa2 = ksession.insert( a2 );
+         FactHandle fa3 = ksession.insert( a3 );
          ksession.fireAllRules();
 
          // a1 is blocked by a2
@@ -6716,7 +6707,7 @@ import static org.mockito.Mockito.verify;
                              list );
 
          Person p1 = new Person( "darth", 25 );
-         org.kie.api.runtime.rule.FactHandle fh = ksession.insert( p1 );
+         FactHandle fh = ksession.insert( p1 );
          ksession.fireAllRules();
          assertEquals( 0, list.size() );
 
@@ -6763,9 +6754,9 @@ import static org.mockito.Mockito.verify;
          A a3 = new A( "1",
                        "2" );
 
-         FactHandle fa1 = (FactHandle) ksession.insert( a1 );
-         FactHandle fa2 = (FactHandle) ksession.insert( a2 );
-         FactHandle fa3 = (FactHandle) ksession.insert( a3 );
+         FactHandle fa1 = ksession.insert( a1 );
+         FactHandle fa2 = ksession.insert( a2 );
+         FactHandle fa3 = ksession.insert( a3 );
 
          // a2, a3 are blocked by a1
          // modify a1, so that a1,a3 are now blocked by a2
@@ -7752,7 +7743,7 @@ import static org.mockito.Mockito.verify;
          //upon final rule firing an NPE will be thrown in org.drools.core.rule.Accumulate
          for ( int i = 0; i < magicFoos.length; i++ ) {
              Foo tehFoo = fooList[magicFoos[i]];
-             org.kie.api.runtime.rule.FactHandle fooFactHandle = ksession.getFactHandle( tehFoo );
+             FactHandle fooFactHandle = ksession.getFactHandle( tehFoo );
              tehFoo.setBar( barList[magicBars[i]] );
              ksession.update( fooFactHandle, tehFoo );
              ksession.fireAllRules();
@@ -8355,7 +8346,7 @@ import static org.mockito.Mockito.verify;
 
          Person p1 = new Person( "John", "nobody", 25 );
          ksession.execute( CommandFactory.newInsert( p1 ) );
-         org.kie.api.runtime.rule.FactHandle fh = ksession.getFactHandle( p1 );
+         FactHandle fh = ksession.getFactHandle( p1 );
 
          Person p = new Person( "Frank", "nobody", 30 );
          List<Setter> setterList = new ArrayList<Setter>();
@@ -8435,7 +8426,7 @@ import static org.mockito.Mockito.verify;
          ksession.insert( new FactC() );
          ksession.fireAllRules();
 
-         for ( org.kie.api.runtime.rule.FactHandle fact : ksession.getFactHandles() ) {
+         for ( FactHandle fact : ksession.getFactHandles() ) {
              InternalFactHandle internalFact = (InternalFactHandle) fact;
              assertTrue( internalFact.getObject() instanceof FactB );
          }

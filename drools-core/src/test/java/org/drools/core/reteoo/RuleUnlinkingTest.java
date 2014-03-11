@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.base.ClassObjectType;
 import org.drools.core.common.AbstractWorkingMemory;
 import org.drools.core.common.DefaultFactHandle;
@@ -13,6 +12,7 @@ import org.drools.core.common.EmptyBetaConstraints;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.NetworkNode;
 import org.drools.core.common.PropagationContextFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.phreak.SegmentUtilities;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.GroupElement;
@@ -25,7 +25,7 @@ import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.conf.RuleEngineOption;
 
 public class RuleUnlinkingTest {
-    ReteooRuleBase       ruleBase;
+    InternalKnowledgeBase kBase;
     BuildContext         buildContext;
     PropagationContext   context;
 
@@ -91,12 +91,12 @@ public class RuleUnlinkingTest {
     }
 
     public void setUp(int type) {
-        KieBaseConfiguration kconf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
+        KieBaseConfiguration kconf = org.kie.internal.KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
         kconf.setOption( RuleEngineOption.PHREAK );
-        ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase((RuleBaseConfiguration) kconf);
-        buildContext = new BuildContext( ruleBase, ruleBase.getReteooBuilder().getIdGenerator() );
+        kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        buildContext = new BuildContext( kBase, kBase.getReteooBuilder().getIdGenerator() );
 
-        PropagationContextFactory pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        PropagationContextFactory pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
         context = pctxFactory.createPropagationContext(0, PropagationContext.INSERTION, null, null, null);
 
         ObjectTypeNode otn = new ObjectTypeNode( 4, null, new ClassObjectType( String.class ), buildContext );
@@ -158,9 +158,11 @@ public class RuleUnlinkingTest {
     public void testRuleSegmentsAllLinkedTestMasks() {
         setUp( JOIN_NODE );
 
-        KieBaseConfiguration kconf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
+        KieBaseConfiguration kconf = org.kie.internal.KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
         kconf.setOption( RuleEngineOption.PHREAK );
-        AbstractWorkingMemory wm = new AbstractWorkingMemory( 1, (ReteooRuleBase) RuleBaseFactory.newRuleBase((RuleBaseConfiguration)kconf) );
+
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(kconf);
+        AbstractWorkingMemory wm = new AbstractWorkingMemory( 1, kBase );
 
         PathMemory rs = (PathMemory) wm.getNodeMemory( rtn1 );
         assertFalse( rs.isRuleLinked() );
@@ -179,9 +181,11 @@ public class RuleUnlinkingTest {
     public void testSegmentNodeReferencesToSegments() {
         setUp( JOIN_NODE );
 
-        KieBaseConfiguration kconf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
+        KieBaseConfiguration kconf = org.kie.internal.KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
         kconf.setOption( RuleEngineOption.PHREAK );
-        AbstractWorkingMemory wm = new AbstractWorkingMemory( 1, (ReteooRuleBase) RuleBaseFactory.newRuleBase((RuleBaseConfiguration)kconf) );
+
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(kconf);
+        AbstractWorkingMemory wm = new AbstractWorkingMemory( 1, kBase );
 
         BetaMemory bm = null;
         List<PathMemory> list;
@@ -275,9 +279,11 @@ public class RuleUnlinkingTest {
     public void testRuleSegmentLinking() {
         setUp( JOIN_NODE );
 
-        KieBaseConfiguration kconf = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
+        KieBaseConfiguration kconf = org.kie.internal.KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
         kconf.setOption( RuleEngineOption.PHREAK );
-        AbstractWorkingMemory wm = new AbstractWorkingMemory( 1, (ReteooRuleBase) RuleBaseFactory.newRuleBase((RuleBaseConfiguration)kconf) );
+
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(kconf);
+        AbstractWorkingMemory wm = new AbstractWorkingMemory( 1, kBase );
 
         BetaMemory bm = null;
         List<PathMemory> list;

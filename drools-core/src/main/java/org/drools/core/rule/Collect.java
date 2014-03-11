@@ -99,7 +99,7 @@ public class Collect extends ConditionalElement
                 String className = determineResultClassName( objType );
                 this.cls = (Class<Collection<Object>>) Class.forName( className,
                                                                       true,
-                                                                      ((InternalRuleBase) wm.getRuleBase()).getRootClassLoader() );
+                                                                      wm.getKnowledgeBase().getRootClassLoader() );
             }
             return this.cls.newInstance();
         } catch ( final ClassCastException cce ) {

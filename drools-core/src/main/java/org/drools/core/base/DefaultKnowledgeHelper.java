@@ -48,7 +48,6 @@ import org.drools.core.factmodel.traits.TraitType;
 import org.drools.core.factmodel.traits.TraitableBean;
 import org.drools.core.phreak.RuleAgendaItem;
 import org.drools.core.reteoo.ObjectTypeConf;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.rule.Declaration;
 import org.drools.core.rule.Package;
@@ -681,7 +680,7 @@ public class DefaultKnowledgeHelper
     }
 
     protected  <K> ClassDefinition lookupClassDefinition( K core ) {
-        Package pack = this.getWorkingMemory().getRuleBase().getPackage( core.getClass().getPackage().getName() );
+        Package pack = this.getWorkingMemory().getKnowledgeBase().getPackage( core.getClass().getPackage().getName() );
         if ( pack != null ) {
             TypeDeclaration decl = pack.getTypeDeclaration( core.getClass() );
             if ( decl != null ) {
@@ -956,7 +955,7 @@ public class DefaultKnowledgeHelper
             } else if ( core.hasTrait( trait.getName() ) ) {
                 removedTypes = core.removeTrait( trait.getName() );
             } else {
-                HierarchyEncoder hier = ((ReteooRuleBase) this.workingMemory.getRuleBase()).getConfiguration().getComponentFactory().getTraitRegistry().getHierarchy();
+                HierarchyEncoder hier = this.workingMemory.getKnowledgeBase().getConfiguration().getComponentFactory().getTraitRegistry().getHierarchy();
                 BitSet code = hier.getCode( trait.getName() );
                 removedTypes = core.removeTrait( code );
             }

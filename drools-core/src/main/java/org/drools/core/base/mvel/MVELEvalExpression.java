@@ -90,7 +90,7 @@ public class MVELEvalExpression
                             factory );
 
         // do we have any functions for this namespace?
-        Package pkg = workingMemory.getRuleBase().getPackage( "MAIN" );
+        Package pkg = workingMemory.getKnowledgeBase().getPackage( "MAIN" );
         if ( pkg != null ) {
             MVELDialectRuntimeData data = (MVELDialectRuntimeData) pkg.getDialectRuntimeRegistry().getDialectData( this.id );
             factory.setNextFactory( data.getFunctionFactory() );

@@ -16,17 +16,7 @@
 
 package org.drools.core.management;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.management.ObjectName;
-
 import org.drools.core.WorkingMemory;
-import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.event.ActivationCancelledEvent;
 import org.drools.core.event.ActivationCreatedEvent;
@@ -37,6 +27,7 @@ import org.drools.core.event.AgendaGroupPushedEvent;
 import org.drools.core.event.BeforeActivationFiredEvent;
 import org.drools.core.event.RuleFlowGroupActivatedEvent;
 import org.drools.core.event.RuleFlowGroupDeactivatedEvent;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.management.KieSessionMonitoringImpl.AgendaStats.AgendaStatsData;
 import org.drools.core.management.KieSessionMonitoringImpl.ProcessStats.ProcessInstanceStatsData;
 import org.drools.core.management.KieSessionMonitoringImpl.ProcessStats.ProcessStatsData;
@@ -46,6 +37,14 @@ import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
 import org.kie.api.management.KieSessionMonitoringMBean;
+
+import javax.management.ObjectName;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An MBean to monitor a given knowledge session
@@ -57,14 +56,14 @@ public class KieSessionMonitoringImpl implements KieSessionMonitoringMBean {
     private static final long NANO_TO_MILLISEC = 1000000;
     
     private InternalWorkingMemory ksession;
-    private InternalRuleBase kbase;
+    private InternalKnowledgeBase kbase;
     private ObjectName name;
     public AgendaStats agendaStats;
     public ProcessStats processStats;
     
     public KieSessionMonitoringImpl(InternalWorkingMemory ksession) {
         this.ksession = ksession;
-        this.kbase = (InternalRuleBase) ksession.getRuleBase();
+        this.kbase = ksession.getKnowledgeBase();
         this.name = DroolsManagementAgent.createObjectName(KSESSION_PREFIX + ":type="+kbase.getId()+",group=Sessions,sessionId=Session-"+ksession.getId());
         this.agendaStats = new AgendaStats();
         this.processStats = new ProcessStats();
@@ -93,7 +92,7 @@ public class KieSessionMonitoringImpl implements KieSessionMonitoringMBean {
         return ksession;
     }
 
-    public InternalRuleBase getKbase() {
+    public InternalKnowledgeBase getKbase() {
         return kbase;
     }
 

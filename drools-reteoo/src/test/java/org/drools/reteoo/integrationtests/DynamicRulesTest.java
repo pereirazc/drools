@@ -768,15 +768,15 @@ public class DynamicRulesTest extends CommonTestMethodBase {
 
         assertEquals( 2, kbase.getKnowledgePackages().size() );
         assertEquals( 4,
-                      ((InternalRuleBase)kbase.getRuleBase()).getPackagesMap().get("org.drools.compiler").getRules().length );
+                      kbase.getPackagesMap().get("org.drools.compiler").getRules().length );
 
         kbase.removeRule( "org.drools.compiler", "Apply Discount on all books" );
         assertEquals( 3,
-                      ((InternalRuleBase)kbase.getRuleBase()).getPackagesMap().get("org.drools.compiler").getRules().length );
+                      kbase.getPackagesMap().get("org.drools.compiler").getRules().length );
 
         kbase.removeRule( "org.drools.compiler", "like book" );
         assertEquals( 2,
-                      ((InternalRuleBase)kbase.getRuleBase()).getPackagesMap().get("org.drools.compiler").getRules().length );
+                      kbase.getPackagesMap().get("org.drools.compiler").getRules().length );
 
         kbase.removeKnowledgePackage( "org.drools.compiler" );
         assertEquals( 1,

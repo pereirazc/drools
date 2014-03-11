@@ -18,6 +18,7 @@ package org.drools.core.common;
 
 import org.drools.core.conflict.PhreakConflictResolver;
 import org.drools.core.conflict.SequentialConflictResolver;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
 import org.drools.core.marshalling.impl.MarshallerWriteContext;
@@ -40,7 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * for requested salience values.
  *
  * @see PriorityQueue
- * @see ActivationQueue
  */
 public class AgendaGroupQueueImpl
         implements
@@ -65,23 +65,21 @@ public class AgendaGroupQueueImpl
 
     /**
      * Construct an <code>AgendaGroup</code> with the given name.
-     *
-     * @param name The <AgendaGroup> name.
      */
     public AgendaGroupQueueImpl() {
 
     }
 
     public AgendaGroupQueueImpl(final String name,
-                                final InternalRuleBase ruleBase) {
+                                final InternalKnowledgeBase kBase) {
         this.name = name;
-        if (ruleBase.getConfiguration().isPhreakEnabled()) {
+        if (kBase.getConfiguration().isPhreakEnabled()) {
             this.priorityQueue = new BinaryHeapQueue(new PhreakConflictResolver());
         } else {
-            if (ruleBase.getConfiguration().isSequential()) {
+            if (kBase.getConfiguration().isSequential()) {
                 this.priorityQueue = new BinaryHeapQueue(new SequentialConflictResolver());
             } else {
-                this.priorityQueue = new BinaryHeapQueue(ruleBase.getConfiguration().getConflictResolver());
+                this.priorityQueue = new BinaryHeapQueue(kBase.getConfiguration().getConflictResolver());
             }
         }
 

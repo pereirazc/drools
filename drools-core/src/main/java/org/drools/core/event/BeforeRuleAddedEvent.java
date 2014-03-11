@@ -17,17 +17,18 @@
 package org.drools.core.event;
 
 import org.drools.core.RuleBase;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.rule.Package;
 import org.drools.core.rule.Rule;
 
-public class BeforeRuleAddedEvent extends RuleBaseEvent {
+public class BeforeRuleAddedEvent extends KnowledgeBaseEvent {
 
     private static final long serialVersionUID = 510l;
 
-    public BeforeRuleAddedEvent(final RuleBase ruleBase,
+    public BeforeRuleAddedEvent(final InternalKnowledgeBase kBase,
                                 final Package pkg,
                                 final Rule rule) {
-        super( ruleBase,
+        super( kBase,
                pkg,
                rule );
     }

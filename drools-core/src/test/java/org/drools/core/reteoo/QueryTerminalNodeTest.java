@@ -16,10 +16,7 @@
 
 package org.drools.core.reteoo;
 
-import org.drools.core.FactHandle;
 import org.drools.core.QueryResult;
-import org.drools.core.QueryResults;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.WorkingMemory;
 import org.drools.core.base.ClassFieldAccessorCache;
 import org.drools.core.base.ClassFieldAccessorStore;
@@ -28,6 +25,7 @@ import org.drools.core.base.ClassObjectType;
 import org.drools.core.base.DroolsQuery;
 import org.drools.core.base.FieldFactory;
 import org.drools.core.common.EmptyBetaConstraints;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.MvelConstraintTestUtil;
 import org.drools.core.rule.Query;
@@ -35,6 +33,10 @@ import org.drools.core.rule.constraint.MvelConstraint;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.FactHandle;
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.internal.KnowledgeBaseFactory;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
@@ -46,7 +48,7 @@ import static org.junit.Assert.fail;
 
 @Ignore("phreak")
 public class QueryTerminalNodeTest {
-    private ReteooRuleBase   ruleBase;
+    private InternalKnowledgeBase kBase;
     private BuildContext     buildContext;
     private EntryPointNode   entryPoint;
 
@@ -56,15 +58,15 @@ public class QueryTerminalNodeTest {
     public void setUp() throws Exception {
         store.setClassFieldAccessorCache( new ClassFieldAccessorCache( Thread.currentThread().getContextClassLoader() ) );
         store.setEagerWire( true );
-        this.ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        this.buildContext = new BuildContext( ruleBase,
-                                              ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator() );
+        this.kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        this.buildContext = new BuildContext( kBase,
+                                              kBase.getReteooBuilder().getIdGenerator() );
         this.entryPoint = new EntryPointNode( 0,
-                                              this.ruleBase.getRete(),
+                                              this.kBase.getRete(),
                                               buildContext );
         this.entryPoint.attach(buildContext);
     }
-
+/*
     @Test
     public void testQueryTerminalNode() {
         final ClassObjectType queryObjectType = new ClassObjectType( DroolsQuery.class );
@@ -114,8 +116,8 @@ public class QueryTerminalNodeTest {
                                    buildContext );
         alphaNode.attach(buildContext);
 
-        BuildContext buildContext = new BuildContext( ruleBase,
-                                                      ruleBase.getReteooBuilder().getIdGenerator() );
+        BuildContext buildContext = new BuildContext( kBase,
+                                                      kBase.getReteooBuilder().getIdGenerator() );
         buildContext.setTupleMemoryEnabled( false );
 
         final JoinNode joinNode = new JoinNode( this.buildContext.getNextId(),
@@ -149,26 +151,26 @@ public class QueryTerminalNodeTest {
             fail( "Should not throw any exception: " + e.getMessage() );
         }
 
-        final WorkingMemory workingMemory = ruleBase.newStatefulSession();
-        QueryResults results = workingMemory.getQueryResults( "query-1" );
+        KieSession kSession = kBase.newKieSession();
+        QueryResults results = kSession.getQueryResults( "query-1" );
 
         assertEquals( 0,
                       results.size() );
 
         final Cheese stilton1 = new Cheese( "stilton",
                                             100 );
-        final FactHandle handle1 = workingMemory.insert( stilton1 );
+        final FactHandle handle1 = kSession.insert( stilton1 );
 
-        results = workingMemory.getQueryResults( "query-1" );
+        results = kSession.getQueryResults( "query-1" );
 
         assertEquals( 1,
                       results.size() );
 
         final Cheese cheddar = new Cheese( "cheddar",
                                            55 );
-        workingMemory.insert( cheddar );
+        kSession.insert( cheddar );
 
-        results = workingMemory.getQueryResults( "query-1" );
+        results = kSession.getQueryResults( "query-1" );
 
         assertEquals( 1,
                       results.size() );
@@ -176,9 +178,9 @@ public class QueryTerminalNodeTest {
         final Cheese stilton2 = new Cheese( "stilton",
                                             5 );
 
-        final FactHandle handle2 = workingMemory.insert( stilton2 );
+        final FactHandle handle2 = kSession.insert( stilton2 );
 
-        results = workingMemory.getQueryResults( "query-1" );
+        results = kSession.getQueryResults( "query-1" );
 
         assertEquals( 2,
                       results.size() );
@@ -210,20 +212,20 @@ public class QueryTerminalNodeTest {
             i++;
         }
 
-        workingMemory.retract( handle1 );
-        results = workingMemory.getQueryResults( "query-1" );
+        kSession.delete( handle1 );
+        results = kSession.getQueryResults( "query-1" );
 
         assertEquals( 1,
                       results.size() );
 
-        workingMemory.retract( handle2 );
-        results = workingMemory.getQueryResults( "query-1" );
+        kSession.retract( handle2 );
+        results = kSession.getQueryResults( "query-1" );
 
         assertEquals( 0,
                       results.size() );
 
     }
-
+*/
     public class Cheese {
         private String type;
         private int    price;

@@ -37,7 +37,7 @@ import org.kie.api.runtime.Environment;
 public interface RuleBase
     extends
     Externalizable,
-    RuleBaseEventManager {
+    KnowledgeBaseEventManager {
 
     public static final int RETEOO = 1;
 

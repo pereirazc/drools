@@ -470,7 +470,7 @@ public class CepEspTest extends CommonTestMethodBase {
         KnowledgeBase kbase = loadKnowledgeBase( "test_CEP_EventExpiration.drl" );
 
         // read in the source
-        TypeDeclaration factType = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getTypeDeclaration( StockTick.class );
+        TypeDeclaration factType = ((KnowledgeBaseImpl)kbase).getTypeDeclaration( StockTick.class );
         final TimeIntervalParser parser = new TimeIntervalParser();
 
         assertEquals( parser.parse( "1h30m" )[0].longValue(),
@@ -484,10 +484,9 @@ public class CepEspTest extends CommonTestMethodBase {
         kbc.setOption( EventProcessingOption.STREAM );
         KnowledgeBase kbase = loadKnowledgeBase( kbc, "test_CEP_EventExpiration2.drl" );
 
-        final InternalRuleBase internal = (InternalRuleBase) ((KnowledgeBaseImpl)kbase).ruleBase;
         final TimeIntervalParser parser = new TimeIntervalParser();
 
-        Map<ObjectType, ObjectTypeNode> objectTypeNodes = internal.getRete().getObjectTypeNodes( EntryPointId.DEFAULT );
+        Map<ObjectType, ObjectTypeNode> objectTypeNodes = ((KnowledgeBaseImpl)kbase).getRete().getObjectTypeNodes( EntryPointId.DEFAULT );
         ObjectTypeNode node = objectTypeNodes.get( new ClassObjectType( StockTick.class ) );
 
         assertNotNull( node );
@@ -504,10 +503,9 @@ public class CepEspTest extends CommonTestMethodBase {
         conf.setOption( EventProcessingOption.STREAM );
         final KnowledgeBase kbase = loadKnowledgeBase( conf, "test_CEP_EventExpiration3.drl" );
         
-        final InternalRuleBase internal = (InternalRuleBase) ((KnowledgeBaseImpl)kbase).ruleBase;
         final TimeIntervalParser parser = new TimeIntervalParser();
 
-        Map<ObjectType, ObjectTypeNode> objectTypeNodes = internal.getRete().getObjectTypeNodes( EntryPointId.DEFAULT );
+        Map<ObjectType, ObjectTypeNode> objectTypeNodes = ((KnowledgeBaseImpl)kbase).getRete().getObjectTypeNodes( EntryPointId.DEFAULT );
         ObjectTypeNode node = objectTypeNodes.get( new ClassObjectType( StockTick.class ) );
 
         assertNotNull( node );

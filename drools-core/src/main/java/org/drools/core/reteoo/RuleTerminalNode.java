@@ -106,7 +106,7 @@ public class RuleTerminalNode extends AbstractTerminalNode {
                             final BuildContext context) {
         super( id,
                context.getPartitionId(),
-               context.getRuleBase().getConfiguration().isMultithreadEvaluation(),
+               context.getKnowledgeBase().getConfiguration().isMultithreadEvaluation(),
                source );
         this.rule = rule;
         this.subrule = subrule;
@@ -399,7 +399,7 @@ public class RuleTerminalNode extends AbstractTerminalNode {
                                                                                                 MatchCancelledCause.CLEAR );
             }
 
-            PropagationContextFactory pctxFactory =((InternalRuleBase)workingMemory.getRuleBase()).getConfiguration().getComponentFactory().getPropagationContextFactory();
+            PropagationContextFactory pctxFactory = workingMemory.getKnowledgeBase().getConfiguration().getComponentFactory().getPropagationContextFactory();
             final PropagationContext propagationContext = pctxFactory.createPropagationContext(workingMemory.getNextPropagationIdCounter(), PropagationContext.RULE_REMOVAL, null, null, null);
             TruthMaintenanceSystemHelper.removeLogicalDependencies( activation,
                                                                     propagationContext,

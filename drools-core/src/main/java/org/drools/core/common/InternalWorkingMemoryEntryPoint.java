@@ -19,6 +19,7 @@ package org.drools.core.common;
 import org.drools.core.FactException;
 import org.drools.core.FactHandle;
 import org.drools.core.RuleBase;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.rule.EntryPointId;
 import org.drools.core.rule.Rule;
@@ -29,7 +30,7 @@ import org.kie.api.runtime.rule.EntryPoint;
 
 public interface InternalWorkingMemoryEntryPoint extends EntryPoint {
     ObjectTypeConfigurationRegistry getObjectTypeConfigurationRegistry();
-    RuleBase getRuleBase();
+    InternalKnowledgeBase getKnowledgeBase();
     public void delete(final FactHandle factHandle,
                         final Rule rule,
                         final Activation activation) throws FactException;

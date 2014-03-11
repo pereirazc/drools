@@ -1,28 +1,27 @@
 package org.drools.compiler.phreak;
 
-import static org.drools.compiler.phreak.A.a;
-import static org.drools.compiler.phreak.B.b;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.beans.IntrospectionException;
-
 import org.drools.core.RuleBaseConfiguration;
 import org.drools.core.common.EmptyBetaConstraints;
 import org.drools.core.common.InternalWorkingMemory;
+import org.drools.core.impl.KnowledgeBaseImpl;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.phreak.PhreakJoinNode;
 import org.drools.core.reteoo.BetaMemory;
 import org.drools.core.reteoo.JoinNode;
 import org.drools.core.reteoo.LeftTupleSink;
 import org.drools.core.reteoo.NodeTypeEnums;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.SegmentMemory;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.MVELDialectRuntimeData;
 import org.drools.core.rule.Rule;
 import org.junit.Test;
 
+import java.beans.IntrospectionException;
+
+import static org.drools.compiler.phreak.B.b;
 import static org.drools.compiler.phreak.Pair.t;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ScenarioTest {
     BuildContext          buildContext;
@@ -50,7 +49,7 @@ public class ScenarioTest {
         
         joinNode.addTupleSink( sinkNode );
 
-        wm = (InternalWorkingMemory) buildContext.getRuleBase().newStatefulSession( true );
+        wm = ((StatefulKnowledgeSessionImpl)buildContext.getKnowledgeBase().newStatefulKnowledgeSession()).session;
         
         bm =(BetaMemory)  wm.getNodeMemory( joinNode );
         
@@ -752,7 +751,7 @@ public class ScenarioTest {
 
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
 
-        ReteooRuleBase rbase = new ReteooRuleBase( "ID",
+        KnowledgeBaseImpl rbase = new KnowledgeBaseImpl( "ID",
                                                    conf );
         BuildContext buildContext = new BuildContext( rbase,
                                                       rbase.getReteooBuilder().getIdGenerator() );

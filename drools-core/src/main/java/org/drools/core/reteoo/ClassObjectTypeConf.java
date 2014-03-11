@@ -35,6 +35,7 @@ import org.drools.core.common.InternalRuleBase;
 import org.drools.core.factmodel.traits.Thing;
 import org.drools.core.factmodel.traits.Traitable;
 import org.drools.core.factmodel.traits.TraitableBean;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.reteoo.builder.PatternBuilder;
 import org.drools.core.rule.EntryPointId;
@@ -78,7 +79,7 @@ public class ClassObjectTypeConf
 
     public ClassObjectTypeConf(final EntryPointId entryPoint,
                                final Class< ? > clazz,
-                               final InternalRuleBase ruleBase) {        
+                               final InternalKnowledgeBase kBase) {
         this.cls = (Activation.class.isAssignableFrom( clazz ) ) ? ClassObjectType.Match_ObjectType.getClassType() : clazz;
         this.ruleBase = ruleBase;
         this.entryPoint = entryPoint;
@@ -86,18 +87,18 @@ public class ClassObjectTypeConf
         isEvent = typeDecl != null && typeDecl.getRole() == TypeDeclaration.Role.EVENT;
         isTrait = determineTraitStatus();
 
-        ObjectType objectType = ((ReteooRuleBase) ruleBase).getClassFieldAccessorCache().getClassObjectType( new ClassObjectType( clazz,
+        ObjectType objectType = kBase.getClassFieldAccessorCache().getClassObjectType( new ClassObjectType( clazz,
                                                                                                                                     isEvent ) );
 
         this.concreteObjectTypeNode = ruleBase.getRete().getObjectTypeNodes( entryPoint ).get( objectType );
         if ( this.concreteObjectTypeNode == null ) {
-            BuildContext context = new BuildContext( ruleBase,
-                                                     ruleBase.getRete().getRuleBase().getReteooBuilder().getIdGenerator() );
+            BuildContext context = new BuildContext( kBase,
+                                                     kBase.getReteooBuilder().getIdGenerator() );
             context.setCurrentEntryPoint( entryPoint );
             if ( DroolsQuery.class == clazz ) {
                 context.setTupleMemoryEnabled( false );
                 context.setObjectTypeNodeMemoryEnabled( false );
-            } else if ( context.getRuleBase().getConfiguration().isSequential() ) {
+            } else if ( context.getKnowledgeBase().getConfiguration().isSequential() ) {
                 // We are in sequential mode, so no nodes should have memory
 //                context.setTupleMemoryEnabled( false );
 //                context.setObjectTypeNodeMemoryEnabled( false );

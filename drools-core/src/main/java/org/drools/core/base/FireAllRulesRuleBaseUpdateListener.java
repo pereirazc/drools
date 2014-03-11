@@ -24,6 +24,7 @@ import java.io.ObjectOutput;
 import org.drools.core.StatefulSession;
 import org.drools.core.event.BeforeRuleBaseUnlockedEvent;
 import org.drools.core.event.DefaultRuleBaseEventListener;
+import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.spi.RuleBaseUpdateListener;
 
 public class FireAllRulesRuleBaseUpdateListener extends DefaultRuleBaseEventListener
@@ -50,7 +51,7 @@ public class FireAllRulesRuleBaseUpdateListener extends DefaultRuleBaseEventList
     }
 
     public void beforeRuleBaseUnlocked(BeforeRuleBaseUnlockedEvent event) {
-        if ( session.getRuleBase().getAdditionsSinceLock() > 0 ) {
+        if ( ((KnowledgeBaseImpl)session.getKnowledgeBase()).getAdditionsSinceLock() > 0 ) {
             session.fireAllRules();
         }
     }

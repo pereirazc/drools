@@ -20,7 +20,7 @@ import java.util.List;
 public class AlphaNetworkModifyTest extends CommonTestMethodBase {
     
     public ObjectTypeNode getObjectTypeNode(KnowledgeBase kbase, String nodeName) {
-        List<ObjectTypeNode> nodes = ((InternalRuleBase)((KnowledgeBaseImpl)kbase).ruleBase).getRete().getObjectTypeNodes();
+        List<ObjectTypeNode> nodes = ((KnowledgeBaseImpl)kbase).getRete().getObjectTypeNodes();
         for ( ObjectTypeNode n : nodes ) {
             if ( ((ClassObjectType)n.getObjectType()).getClassType().getSimpleName().equals( nodeName ) ) {
                 return n;

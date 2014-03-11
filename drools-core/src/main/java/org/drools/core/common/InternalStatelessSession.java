@@ -17,7 +17,11 @@
 package org.drools.core.common;
 
 import org.drools.core.StatelessSession;
+import org.drools.core.impl.InternalKnowledgeBase;
 
 public interface InternalStatelessSession extends StatelessSession {
-    InternalRuleBase getRuleBase();
+
+    InternalKnowledgeBase getKnowledgeBase();
+
+
 }

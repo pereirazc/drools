@@ -122,7 +122,7 @@ public class MVELAccumulator
         VariableResolverFactory factory = factoryContext.getInitFactory();
         initUnit.updateFactory( null, null, null, (LeftTuple) leftTuple, localVars, (InternalWorkingMemory) workingMemory, workingMemory.getGlobalResolver(), factory  );
         
-        Package pkg = workingMemory.getRuleBase().getPackage( "MAIN" );
+        Package pkg = workingMemory.getKnowledgeBase().getPackage( "MAIN" );
         if ( pkg != null ) {
             MVELDialectRuntimeData data = (MVELDialectRuntimeData) pkg.getDialectRuntimeRegistry().getDialectData( "mvel" );
             factory.setNextFactory( data.getFunctionFactory() );

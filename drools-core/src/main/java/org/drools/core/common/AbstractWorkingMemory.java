@@ -43,7 +43,6 @@ import org.drools.core.Agenda;
 import org.drools.core.FactException;
 import org.drools.core.FactHandle;
 import org.drools.core.QueryResults;
-import org.drools.core.RuleBase;
 import org.drools.core.RuleBaseConfiguration;
 import org.drools.core.RuntimeDroolsException;
 import org.drools.core.SessionConfiguration;
@@ -59,11 +58,12 @@ import org.drools.core.base.QueryRowWithSubruleIndex;
 import org.drools.core.base.StandardQueryViewChangedEventListener;
 import org.drools.core.event.AgendaEventListener;
 import org.drools.core.event.AgendaEventSupport;
-import org.drools.core.event.RuleBaseEventListener;
+import org.drools.core.event.KnowledgeBaseEventListener;
 import org.drools.core.event.RuleEventListenerSupport;
 import org.drools.core.event.WorkingMemoryEventListener;
 import org.drools.core.event.WorkingMemoryEventSupport;
 import org.drools.core.impl.EnvironmentFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.management.DroolsManagementAgent;
 import org.drools.core.marshalling.impl.MarshallerReaderContext;
@@ -76,7 +76,6 @@ import org.drools.core.marshalling.impl.ProtobufMessages.ActionQueue.Assert;
 import org.drools.core.phreak.RuleAgendaItem;
 import org.drools.core.phreak.RuleExecutor;
 import org.drools.core.phreak.SegmentUtilities;
-import org.drools.core.phreak.StackEntry;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.InitialFactImpl;
 import org.drools.core.reteoo.LeftInputAdapterNode;
@@ -88,7 +87,6 @@ import org.drools.core.reteoo.ObjectTypeConf;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.PathMemory;
 import org.drools.core.reteoo.QueryTerminalNode;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.ReteooWorkingMemoryInterface;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.SegmentMemory;
@@ -116,7 +114,6 @@ import org.drools.core.time.TimerServiceFactory;
 import org.drools.core.type.DateFormats;
 import org.drools.core.type.DateFormatsImpl;
 import org.drools.core.util.index.LeftTupleList;
-import org.kie.api.conf.EventProcessingOption;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessEventManager;
 import org.kie.api.marshalling.Marshaller;
@@ -176,7 +173,7 @@ public class AbstractWorkingMemory
     protected List __ruleBaseEventListeners;
 
     /** The <code>RuleBase</code> with which this memory is associated. */
-    protected transient InternalRuleBase ruleBase;
+    protected transient InternalKnowledgeBase kBase;
 
     protected FactHandleFactory handleFactory;
 
@@ -241,28 +238,22 @@ public class AbstractWorkingMemory
 
 
     public AbstractWorkingMemory(final int id,
-                                 final InternalRuleBase ruleBase) {
+                                 final InternalKnowledgeBase kBase) {
         this(id,
-             ruleBase,
+             kBase,
              true,
              SessionConfiguration.getDefaultInstance(),
              EnvironmentFactory.newEnvironment());
     }
 
-    /**
-     * Construct.
-     *
-     * @param ruleBase
-     *            The backing rule-base.
-     */
     public AbstractWorkingMemory(final int id,
-                                 final InternalRuleBase ruleBase,
+                                 final InternalKnowledgeBase kBase,
                                  boolean initInitFactHandle,
                                  final SessionConfiguration config,
                                  final Environment environment) {
         this(id,
-             ruleBase,
-             ruleBase.newFactHandleFactory(),
+             kBase,
+             kBase.newFactHandleFactory(),
              initInitFactHandle,
              1,
              config,
@@ -274,7 +265,7 @@ public class AbstractWorkingMemory
     }
 
     public AbstractWorkingMemory(final int id,
-                                 final InternalRuleBase ruleBase,
+                                 final InternalKnowledgeBase kBase,
                                  final FactHandleFactory handleFactory,
                                  final InternalFactHandle initialFactHandle,
                                  final long propagationContext,
@@ -282,7 +273,7 @@ public class AbstractWorkingMemory
                                  final InternalAgenda agenda,
                                  final Environment environment) {
         this(id,
-             ruleBase,
+             kBase,
              handleFactory,
              false,
              propagationContext,
@@ -296,7 +287,7 @@ public class AbstractWorkingMemory
 
 
     public AbstractWorkingMemory(final int id,
-                                 final InternalRuleBase ruleBase,
+                                 final InternalKnowledgeBase kBase,
                                  final FactHandleFactory handleFactory,
                                  final boolean initInitFactHandle,
                                  final long propagationContext,
@@ -308,12 +299,12 @@ public class AbstractWorkingMemory
                                  final InternalAgenda agenda) {
         this.id = id;
         this.config = config;
-        this.ruleBase = ruleBase;
+        this.kBase = kBase;
         this.handleFactory = handleFactory;
-        this.pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        this.pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
         this.environment = environment;
 
-        nodeMemories = new ConcurrentNodeMemories(this.ruleBase);
+        nodeMemories = new ConcurrentNodeMemories(this.kBase);
         actionQueue = new ConcurrentLinkedQueue<WorkingMemoryAction>();
 
         Globals globals = (Globals) this.environment.get(EnvironmentName.GLOBALS);
@@ -336,7 +327,7 @@ public class AbstractWorkingMemory
                                   this.dateFormats );
         }
 
-        final RuleBaseConfiguration conf = this.ruleBase.getConfiguration();
+        final RuleBaseConfiguration conf = kBase.getConfiguration();
 
         this.sequential = conf.isSequential();
 
@@ -370,23 +361,23 @@ public class AbstractWorkingMemory
         this.lastIdleTimestamp = new AtomicLong( -1 );
 
         if ( agenda == null ) {
-            this.agenda = ruleBase.getConfiguration().getComponentFactory().getAgendaFactory().createAgenda(ruleBase);
+            this.agenda = kBase.getConfiguration().getComponentFactory().getAgendaFactory().createAgenda(kBase);
         }  else {
             this.agenda = agenda;
         }
         this.agenda.setWorkingMemory(this);
 
         if ( initInitFactHandle ) {
-            initInitialFact(ruleBase, null);
+            initInitialFact(kBase, null);
         }
     }
 
-    public void initInitialFact(InternalRuleBase ruleBase, MarshallerReaderContext context) {
+    public void initInitialFact(InternalKnowledgeBase kBase, MarshallerReaderContext context) {
         this.initialFactHandle = new DefaultFactHandle(0, InitialFactImpl.getInstance(), 0,  defaultEntryPoint );
 
         ObjectTypeConf otc = this.defaultEntryPoint.getObjectTypeConfigurationRegistry()
                                                    .getObjectTypeConf(this.defaultEntryPoint.entryPoint, this.initialFactHandle.getObject());
-        PropagationContextFactory ctxFact = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        PropagationContextFactory ctxFact = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
 
 
         final PropagationContext pctx = ctxFact.createPropagationContext(0, PropagationContext.INSERTION, null,
@@ -397,7 +388,7 @@ public class AbstractWorkingMemory
     }
 
     private void initManagementBeans() {
-        if ( this.ruleBase.getConfiguration().isMBeansEnabled() ) {
+        if ( this.kBase.getConfiguration().isMBeansEnabled() ) {
             DroolsManagementAgent.getInstance().registerKnowledgeSession( this );
         }
     }
@@ -421,9 +412,9 @@ public class AbstractWorkingMemory
             startOperation();
 
             this.lock.lock();
-            this.ruleBase.readLock();
+            this.kBase.readLock();
 
-            this.ruleBase.executeQueuedActions();
+            this.kBase.executeQueuedActions();
             executeQueuedActions();
 
             DroolsQuery queryObject = new DroolsQuery( queryName,
@@ -463,7 +454,7 @@ public class AbstractWorkingMemory
                                      this,
                                      ( queryObject.getQuery() != null ) ? queryObject.getQuery().getParameters()  : new Declaration[0] );
         } finally {
-            this.ruleBase.readUnlock();
+            this.kBase.readUnlock();
             this.lock.unlock();
             endOperation();
         }
@@ -485,10 +476,10 @@ public class AbstractWorkingMemory
 
         try {
             startOperation();
-            this.ruleBase.readLock();
+            this.kBase.readLock();
             this.lock.lock();
 
-            this.ruleBase.executeQueuedActions();
+            this.kBase.executeQueuedActions();
             executeQueuedActions();
 
             DroolsQuery queryObject = new DroolsQuery( query,
@@ -516,13 +507,13 @@ public class AbstractWorkingMemory
                                       handle );
         } finally {
             this.lock.unlock();
-            this.ruleBase.readUnlock();
+            this.kBase.readUnlock();
             endOperation();
         }
     }
 
     protected BaseNode[] evalQuery(String queryName, DroolsQuery queryObject, InternalFactHandle handle, PropagationContext pCtx) {
-        BaseNode[] tnodes = ( BaseNode[] ) ruleBase.getReteooBuilder().getTerminalNodes(queryName);
+        BaseNode[] tnodes = ( BaseNode[] ) kBase.getReteooBuilder().getTerminalNodes(queryName);
         if ( tnodes == null ) {
             throw new RuntimeException( "Query '" + queryName + "' does not exist");
         }
@@ -541,7 +532,7 @@ public class AbstractWorkingMemory
 
         LeftInputAdapterNode.doInsertObject( handle, pCtx, lian, this, lmem, false, queryObject.isOpen() );
 
-        RuleBaseConfiguration conf = this.ruleBase.getConfiguration();
+        RuleBaseConfiguration conf = this.kBase.getConfiguration();
         if( conf.isPhreakEnabled() && lmem.getSegmentMemory().getTupleQueue() != null ) {
             RuleExecutor.flushTupleQueue( lmem.getSegmentMemory().getTupleQueue() );
         }
@@ -561,7 +552,7 @@ public class AbstractWorkingMemory
 
         try {
             startOperation();
-            this.ruleBase.readLock();
+            this.kBase.readLock();
             this.lock.lock();
 
             final PropagationContext pCtx = pctxFactory.createPropagationContext(getNextPropagationIdCounter(), PropagationContext.INSERTION,
@@ -587,7 +578,7 @@ public class AbstractWorkingMemory
 
         } finally {
             this.lock.unlock();
-            this.ruleBase.readUnlock();
+            this.kBase.readUnlock();
             endOperation();
         }
     }
@@ -646,7 +637,7 @@ public class AbstractWorkingMemory
 
     public List getRuleBaseUpdateListeners() {
         if ( this.ruleBaseListeners == null || this.ruleBaseListeners == Collections.EMPTY_LIST ) {
-            String listenerName = this.ruleBase.getConfiguration().getRuleBaseUpdateHandler();
+            String listenerName = this.kBase.getConfiguration().getRuleBaseUpdateHandler();
             if ( listenerName != null && listenerName.length() > 0 ) {
                 RuleBaseUpdateListener listener = RuleBaseUpdateListenerFactory.createListener(listenerName,
                                                                                                this);
@@ -684,8 +675,8 @@ public class AbstractWorkingMemory
     // ------------------------------------------------------------
 
     public void updateEntryPointsCache() {
-        if (ruleBase.getAddedEntryNodeCache() != null) {
-            for (EntryPointNode addedNode : ruleBase.getAddedEntryNodeCache()) {
+        if (kBase.getAddedEntryNodeCache() != null) {
+            for (EntryPointNode addedNode : kBase.getAddedEntryNodeCache()) {
                 EntryPointId id = addedNode.getEntryPoint();
                 if (EntryPointId.DEFAULT.equals(id)) continue;
                 WorkingMemoryEntryPoint wmEntryPoint = new NamedEntryPoint(id, addedNode, this);
@@ -693,15 +684,15 @@ public class AbstractWorkingMemory
             }
         }
 
-        if (ruleBase.getRemovedEntryNodeCache() != null) {
-            for (EntryPointNode removedNode : ruleBase.getRemovedEntryNodeCache()) {
+        if (kBase.getRemovedEntryNodeCache() != null) {
+            for (EntryPointNode removedNode : kBase.getRemovedEntryNodeCache()) {
                 entryPoints.remove(removedNode.getEntryPoint().getEntryPointId());
             }
         }
     }
 
     private void initTransient() {
-        EntryPointNode epn = this.ruleBase.getRete().getEntryPointNode( EntryPointId.DEFAULT );
+        EntryPointNode epn = this.kBase.getRete().getEntryPointNode( EntryPointId.DEFAULT );
 
         this.defaultEntryPoint = new NamedEntryPoint( EntryPointId.DEFAULT,
                                                       epn,
@@ -786,8 +777,8 @@ public class AbstractWorkingMemory
         return this.agendaEventSupport.getEventListeners();
     }
 
-    public void addEventListener(RuleBaseEventListener listener) {
-        this.ruleBase.addEventListener( listener );
+    public void addEventListener(KnowledgeBaseEventListener listener) {
+        this.kBase.addEventListener(listener);
         this.__ruleBaseEventListeners.add( listener );
     }
 
@@ -795,8 +786,8 @@ public class AbstractWorkingMemory
         return Collections.unmodifiableList( this.__ruleBaseEventListeners );
     }
 
-    public void removeEventListener(RuleBaseEventListener listener) {
-        this.ruleBase.removeEventListener( listener );
+    public void removeEventListener(KnowledgeBaseEventListener listener) {
+        this.kBase.removeEventListener( listener );
         this.__ruleBaseEventListeners.remove( listener );
     }
 
@@ -837,10 +828,10 @@ public class AbstractWorkingMemory
         }
 
         try {
-            this.ruleBase.readLock();
+            this.kBase.readLock();
             startOperation();
             // Make sure the global has been declared in the RuleBase
-            final Map globalDefintions = this.ruleBase.getGlobals();
+            final Map globalDefintions = this.kBase.getGlobals();
             final Class type = (Class) globalDefintions.get( identifier );
             if ( (type == null) ) {
                 throw new RuntimeException( "Unexpected global [" + identifier + "]" );
@@ -853,7 +844,7 @@ public class AbstractWorkingMemory
             }
         } finally {
             endOperation();
-            this.ruleBase.readUnlock();
+            this.kBase.readUnlock();
         }
     }
 
@@ -914,8 +905,8 @@ public class AbstractWorkingMemory
         this.agenda.clearAndCancelRuleFlowGroup( group );
     }
 
-    public RuleBase getRuleBase() {
-        return this.ruleBase;
+    public InternalKnowledgeBase getKnowledgeBase() {
+        return this.kBase;
     }
 
     public void halt() {
@@ -943,7 +934,7 @@ public class AbstractWorkingMemory
                                         true ) ) {
             try {
                 startOperation();
-                ruleBase.readLock();
+                kBase.readLock();
 
                 // do we need to call this in advance?
                 executeQueuedActions();
@@ -953,7 +944,7 @@ public class AbstractWorkingMemory
                                                       fireLimit );
                 return fireCount;
             } finally {
-                ruleBase.readUnlock();
+                kBase.readUnlock();
                 endOperation();
                 this.firing.set( false );
             }
@@ -1355,7 +1346,7 @@ public class AbstractWorkingMemory
             if ( context.readBoolean() ) {
                 String pkgName = context.readUTF();
                 String ruleName = context.readUTF();
-                org.drools.core.rule.Package pkg = context.ruleBase.getPackage( pkgName );
+                org.drools.core.rule.Package pkg = context.kBase.getPackage( pkgName );
                 this.ruleOrigin = pkg.getRule( ruleName );
             }
             if ( context.readBoolean() ) {
@@ -1373,7 +1364,7 @@ public class AbstractWorkingMemory
             if ( _assert.hasTuple() ) {
                 String pkgName = _assert.getOriginPkgName();
                 String ruleName = _assert.getOriginRuleName();
-                Package pkg = context.ruleBase.getPackage( pkgName );
+                Package pkg = context.kBase.getPackage( pkgName );
                 this.ruleOrigin = pkg.getRule( ruleName );
                 this.leftTuple = context.filter.getTuplesCache().get( PersisterHelper.createActivationKey(pkgName, ruleName, _assert.getTuple()) );
             }
@@ -1445,15 +1436,14 @@ public class AbstractWorkingMemory
         }
 
         public void execute(InternalWorkingMemory workingMemory) {
-            PropagationContextFactory pctxFactory = ((InternalRuleBase) workingMemory.getRuleBase()).getConfiguration().getComponentFactory().getPropagationContextFactory();
+            PropagationContextFactory pctxFactory = workingMemory.getKnowledgeBase().getConfiguration().getComponentFactory().getPropagationContextFactory();
 
             final PropagationContext context = pctxFactory.createPropagationContext(workingMemory.getNextPropagationIdCounter(), PropagationContext.INSERTION,
                                                                                     this.ruleOrigin, this.leftTuple, this.factHandle);
-            ReteooRuleBase ruleBase = (ReteooRuleBase) workingMemory.getRuleBase();
-            ruleBase.assertObject( this.factHandle,
-                                   this.factHandle.getObject(),
-                                   context,
-                                   workingMemory );
+            workingMemory.getKnowledgeBase().assertObject(this.factHandle,
+                                                          this.factHandle.getObject(),
+                                                          context,
+                                                          workingMemory);
             context.evaluateActionQueue( workingMemory );
         }
 
@@ -1522,7 +1512,7 @@ public class AbstractWorkingMemory
 
         public void execute(InternalWorkingMemory workingMemory) {
             if (this.factHandle.isValid()) {
-                PropagationContextFactory pctxFactory = ((InternalRuleBase) workingMemory.getRuleBase()).getConfiguration().getComponentFactory().getPropagationContextFactory();
+                PropagationContextFactory pctxFactory = workingMemory.getKnowledgeBase().getConfiguration().getComponentFactory().getPropagationContextFactory();
 
                 // if the fact is still in the working memory (since it may have been previously retracted already
                 final PropagationContext context = pctxFactory.createPropagationContext(workingMemory.getNextPropagationIdCounter(), PropagationContext.EXPIRATION,
@@ -1739,7 +1729,7 @@ public class AbstractWorkingMemory
     }
 
     public void startBatchExecution(ExecutionResultImpl results) {
-        this.ruleBase.readLock();
+        this.kBase.readLock();
         this.lock.lock();
         this.batchExecutionResult = results;
     }
@@ -1751,13 +1741,13 @@ public class AbstractWorkingMemory
     public void endBatchExecution() {
         this.batchExecutionResult = null;
         this.lock.unlock();
-        this.ruleBase.readUnlock();
+        this.kBase.readUnlock();
     }
 
     public void dispose() {
-        this.ruleBase.disposeStatefulSession( this );
+        this.kBase.disposeStatefulSession( this );
 
-        if (this.ruleBase.getConfiguration().isMBeansEnabled()) {
+        if (this.kBase.getConfiguration().isMBeansEnabled()) {
             DroolsManagementAgent.getInstance().unregisterKnowledgeSession(this);
         }
         for (WorkingMemoryEntryPoint ep : this.entryPoints.values()) {
@@ -1766,7 +1756,7 @@ public class AbstractWorkingMemory
         this.workingMemoryEventSupport.reset();
         this.agendaEventSupport.reset();
         for (Iterator it = this.__ruleBaseEventListeners.iterator(); it.hasNext(); ) {
-            this.ruleBase.removeEventListener((RuleBaseEventListener) it.next());
+            this.kBase.removeEventListener((KnowledgeBaseEventListener) it.next());
         }
         if (processRuntime != null) {
             this.processRuntime.dispose();

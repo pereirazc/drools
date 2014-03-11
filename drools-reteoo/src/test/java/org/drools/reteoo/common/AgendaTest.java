@@ -17,7 +17,6 @@
 package org.drools.reteoo.common;
 
 import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.WorkingMemory;
 import org.drools.core.base.SalienceInteger;
 import org.drools.core.common.AbstractWorkingMemory;
@@ -26,15 +25,15 @@ import org.drools.core.common.AgendaItem;
 import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalAgendaGroup;
-import org.drools.core.common.InternalRuleBase;
 import org.drools.core.common.InternalRuleFlowGroup;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.PropagationContextFactory;
 import org.drools.core.event.ActivationCancelledEvent;
 import org.drools.core.event.DefaultAgendaEventListener;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.reteoo.MockTupleSource;
 import org.drools.core.reteoo.ReteooBuilder.IdGenerator;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.RuleTerminalNodeLeftTuple;
 import org.drools.core.reteoo.builder.BuildContext;
@@ -56,6 +55,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.event.rule.MatchCancelledCause;
 import org.kie.api.runtime.rule.Match;
+import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.event.rule.ActivationUnMatchListener;
 
 import java.io.IOException;
@@ -66,16 +66,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @Ignore
 public class AgendaTest extends DroolsTestCase {
-    private InternalRuleBase          ruleBase;
+    private InternalKnowledgeBase     kBase;
     private BuildContext              buildContext;
     private PropagationContextFactory pctxFactory;
 
@@ -83,15 +78,16 @@ public class AgendaTest extends DroolsTestCase {
     public void setUp() throws Exception {
         RuleBaseConfiguration config = new RuleBaseConfiguration();
         config.setPhreakEnabled(false);
-        ruleBase = (InternalRuleBase) RuleBaseFactory.newRuleBase(config);
-        buildContext = new BuildContext(ruleBase,
-                                        ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator());
-        pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        buildContext = new BuildContext(kBase,
+                                        kBase.getReteooBuilder().getIdGenerator());
+        pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
     }
 
     @Test
     public void testClearAgenda() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -203,7 +199,8 @@ public class AgendaTest extends DroolsTestCase {
 
     @Test
     public void testActivationUnMatchListener() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -285,7 +282,8 @@ public class AgendaTest extends DroolsTestCase {
 
     @Test
     public void testFilters() throws Exception {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -418,7 +416,8 @@ public class AgendaTest extends DroolsTestCase {
 
     @Test
     public void testFocusStack() throws ConsequenceException {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         // create the consequence
         final Consequence consequence = new Consequence() {
@@ -532,15 +531,15 @@ public class AgendaTest extends DroolsTestCase {
 
         // create the AgendaGroups
         final AgendaGroup agendaGroup1 = new AgendaGroupQueueImpl("agendaGroup1",
-                                                                  ruleBase);
+                                                                  kBase);
         agenda.addAgendaGroup(agendaGroup1);
 
         final AgendaGroup agendaGroup2 = new AgendaGroupQueueImpl("agendaGroup2",
-                                                                  ruleBase);
+                                                                  kBase);
         agenda.addAgendaGroup(agendaGroup2);
 
         final AgendaGroup agendaGroup3 = new AgendaGroupQueueImpl("agendaGroup3",
-                                                                  ruleBase);
+                                                                  kBase);
         agenda.addAgendaGroup(agendaGroup3);
 
         // focus at this point is MAIN
@@ -696,12 +695,13 @@ public class AgendaTest extends DroolsTestCase {
     //
     @Test
     public void testAutoFocus() throws ConsequenceException {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
         // create the agendaGroup
         final AgendaGroup agendaGroup = new AgendaGroupQueueImpl("agendaGroup",
-                                                                 ruleBase);
+                                                                 kBase);
         agenda.addAgendaGroup(agendaGroup);
 
         // create the consequence
@@ -793,12 +793,13 @@ public class AgendaTest extends DroolsTestCase {
 
     @Test
     public void testAgendaGroupLockOnActive() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
         // create the agendaGroup
         final InternalAgendaGroup agendaGroup = new AgendaGroupQueueImpl("agendaGroup",
-                                                                         ruleBase);
+                                                                         kBase);
         agenda.addAgendaGroup(agendaGroup);
 
         // create a rule for the agendaGroup
@@ -857,7 +858,8 @@ public class AgendaTest extends DroolsTestCase {
 
     @Test
     public void testActivationGroup() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -1076,7 +1078,8 @@ public class AgendaTest extends DroolsTestCase {
      */
     @Test
     public void testRuleFlowGroup() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -1252,7 +1255,8 @@ public class AgendaTest extends DroolsTestCase {
      */
     @Test
     public void testRuleFlowGroup1() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        final InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -1380,7 +1384,8 @@ public class AgendaTest extends DroolsTestCase {
      */
     @Test
     public void testRuleFlowGroup2() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        final InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -1514,7 +1519,8 @@ public class AgendaTest extends DroolsTestCase {
      */
     @Test
     public void testRuleFlowGroup3() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        final InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -1611,9 +1617,9 @@ public class AgendaTest extends DroolsTestCase {
      */
     @Test
     public void testRuleFlowGroup4() {
-        IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
-        final InternalWorkingMemory workingMemory = (InternalWorkingMemory) ruleBase.newStatefulSession();
-        ;
+        IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        final InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -1736,7 +1742,8 @@ public class AgendaTest extends DroolsTestCase {
      */
     @Test
     public void testRuleFlowGroup5() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        final InternalWorkingMemory workingMemory = ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -1791,7 +1798,8 @@ public class AgendaTest extends DroolsTestCase {
 
     @Test
     public void testRuleFlowGroupLockOnActive() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        final InternalWorkingMemory workingMemory = ksession.session;
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
         // create the agendaGroup
@@ -1855,7 +1863,7 @@ public class AgendaTest extends DroolsTestCase {
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
         conf.setPhreakEnabled(false);
         conf.setSequential(true);
-        InternalRuleBase ruleBase = (InternalRuleBase) RuleBaseFactory.newRuleBase(conf);
+        InternalKnowledgeBase kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase(conf);
 
         // create the consequence
         final Consequence consequence = new Consequence() {
@@ -1948,7 +1956,7 @@ public class AgendaTest extends DroolsTestCase {
         final RuleTerminalNodeLeftTuple tuple3_2 = new RuleTerminalNodeLeftTuple(new DefaultFactHandle(5, "cheese"), node3, true);
 
         InternalWorkingMemory workingMemory = new AbstractWorkingMemory(0,
-                                                                        ruleBase);
+                                                                        kBase);
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -2092,7 +2100,8 @@ public class AgendaTest extends DroolsTestCase {
 
     @Test
     public void testNullErrorOnGetScheduledActivations() {
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        InternalWorkingMemory workingMemory = ksession.session;
         try {
             ((InternalAgenda) workingMemory.getAgenda()).getScheduledActivations();
         } catch (NullPointerException e) {

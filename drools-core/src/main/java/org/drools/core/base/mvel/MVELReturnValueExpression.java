@@ -95,14 +95,14 @@ public class MVELReturnValueExpression
 
         
         // do we have any functions for this namespace?
-        Package pkg = workingMemory.getRuleBase().getPackage( "MAIN" );
+        Package pkg = workingMemory.getKnowledgeBase().getPackage( "MAIN" );
         if ( pkg != null ) {
             MVELDialectRuntimeData data = (MVELDialectRuntimeData) pkg.getDialectRuntimeRegistry().getDialectData( this.id );
             factory.setNextFactory( data.getFunctionFactory() );
         }
 
 
-        return ((InternalRuleBase) workingMemory.getRuleBase()).getConfiguration().getComponentFactory().getFieldFactory().getFieldValue( MVELSafeHelper.getEvaluator().executeExpression( this.expr,
+        return workingMemory.getKnowledgeBase().getConfiguration().getComponentFactory().getFieldFactory().getFieldValue( MVELSafeHelper.getEvaluator().executeExpression( this.expr,
                                                                                                handle,
                                                                                                factory ) );
     }

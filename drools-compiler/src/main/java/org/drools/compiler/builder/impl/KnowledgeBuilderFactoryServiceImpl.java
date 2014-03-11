@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.drools.core.builder.conf.impl.DecisionTableConfigurationImpl;
 import org.drools.core.builder.conf.impl.JaxbConfigurationImpl;
 import org.drools.core.builder.conf.impl.ScoreCardConfigurationImpl;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.builder.DecisionTableConfiguration;
@@ -44,7 +45,7 @@ public class KnowledgeBuilderFactoryServiceImpl implements KnowledgeBuilderFacto
 
     public KnowledgeBuilder newKnowledgeBuilder(KnowledgeBase kbase) {
         if ( kbase != null ) {
-            return new KnowledgeBuilderImpl( ((KnowledgeBaseImpl) kbase).ruleBase );
+            return new KnowledgeBuilderImpl( (InternalKnowledgeBase)kbase );
         } else {
             return new KnowledgeBuilderImpl();
         }
@@ -53,7 +54,7 @@ public class KnowledgeBuilderFactoryServiceImpl implements KnowledgeBuilderFacto
     public KnowledgeBuilder newKnowledgeBuilder(KnowledgeBase kbase,
                                                 KnowledgeBuilderConfiguration conf) {
         if ( kbase != null ) {
-            return new KnowledgeBuilderImpl( ((KnowledgeBaseImpl) kbase).ruleBase, (KnowledgeBuilderConfigurationImpl) conf );
+            return new KnowledgeBuilderImpl( (InternalKnowledgeBase)kbase, (KnowledgeBuilderConfigurationImpl) conf );
         } else {
             return new KnowledgeBuilderImpl((KnowledgeBuilderConfigurationImpl) conf );
         }        

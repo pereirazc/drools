@@ -40,7 +40,7 @@ public class CDIHelper {
     }
 
     private static void wireListnersAndWIHs(BeanCreator beanCreator, KieSessionModel model, KieSession kSession) {
-        ClassLoader cl = ((InternalRuleBase)((InternalKnowledgeBase)kSession.getKieBase()).getRuleBase()).getRootClassLoader();
+        ClassLoader cl = ((InternalKnowledgeBase)kSession.getKieBase()).getRootClassLoader();
 
         for (ListenerModel listenerModel : model.getListenerModels()) {
             Object listener;

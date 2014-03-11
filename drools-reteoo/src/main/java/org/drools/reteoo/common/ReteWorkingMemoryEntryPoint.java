@@ -2,12 +2,12 @@ package org.drools.reteoo.common;
 
 import org.drools.core.FactException;
 import org.drools.core.FactHandle;
-import org.drools.core.RuleBase;
 import org.drools.core.WorkingMemoryEntryPoint;
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.InternalWorkingMemoryEntryPoint;
 import org.drools.core.common.ObjectStore;
 import org.drools.core.common.ObjectTypeConfigurationRegistry;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.rule.EntryPointId;
 import org.drools.core.rule.Rule;
@@ -45,7 +45,7 @@ public class ReteWorkingMemoryEntryPoint implements WorkingMemoryEntryPoint, Int
 
     @Override
     public void retract(org.kie.api.runtime.rule.FactHandle handle) throws FactException {
-        delegate.retract( handle );
+        delegate.retract(handle);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ReteWorkingMemoryEntryPoint implements WorkingMemoryEntryPoint, Int
 
     @Override
     public org.kie.api.runtime.rule.FactHandle getFactHandle(Object object) {
-        return delegate.getFactHandle( object );
+        return delegate.getFactHandle(object);
     }
 
     @Override
@@ -109,8 +109,9 @@ public class ReteWorkingMemoryEntryPoint implements WorkingMemoryEntryPoint, Int
     }
 
     @Override
-    public RuleBase getRuleBase() {
-        return ((InternalWorkingMemoryEntryPoint)delegate).getRuleBase();
+    public InternalKnowledgeBase getKnowledgeBase() {
+        return ((InternalWorkingMemoryEntryPoint)delegate).getKnowledgeBase();
+
     }
 
     @Override

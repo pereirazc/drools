@@ -1,14 +1,11 @@
 package org.drools.compiler;
 
-import java.util.Collection;
-
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.integrationtests.SerializationHelper;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.lang.descr.PackageDescr;
 import org.drools.core.common.InternalAgenda;
-import org.drools.core.common.InternalRuleBase;
-import org.drools.core.impl.KnowledgeBaseImpl;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.runtime.rule.impl.AgendaImpl;
 import org.junit.Assert;
 import org.kie.api.KieBaseConfiguration;
@@ -32,6 +29,8 @@ import org.kie.internal.definition.KnowledgePackage;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.StatelessKnowledgeSession;
+
+import java.util.Collection;
 
 /**
  * This contains methods common to many of the tests in drools-compiler. </p>
@@ -232,7 +231,7 @@ public class CommonTestMethodBase extends Assert {
         kBaseConfig.setOption(phreak);
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase(kBaseConfig);
         try {
-            kbase = SerializationHelper.serializeObject(kbase, ((InternalRuleBase)((KnowledgeBaseImpl) kbase).ruleBase).getRootClassLoader() );
+            kbase = SerializationHelper.serializeObject(kbase, ((InternalKnowledgeBase) kbase).getRootClassLoader());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

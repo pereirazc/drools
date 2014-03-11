@@ -62,7 +62,7 @@ public class CopyIdentifiersGlobalExporter implements GlobalExporter {
         if ( this.identifiers == null || this.identifiers.length == 0 ) {
             // no identifiers, to get all the identifiers from that defined in
             // the rulebase
-            Map map = ((InternalRuleBase)workingMemory.getRuleBase()).getGlobals();
+            Map<String, Class<?>> map = workingMemory.getKnowledgeBase().getGlobals();
             this.identifiers = new String[ map.size() ];
             this.identifiers = (String[]) map.keySet().toArray( this.identifiers );
         }

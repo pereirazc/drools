@@ -23,7 +23,6 @@ import java.io.ObjectOutput;
 import org.drools.core.Agenda;
 import org.drools.core.FactException;
 import org.drools.core.RuleBaseConfiguration;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.FactHandle;
 import org.drools.core.WorkingMemory;
 import org.drools.core.base.ClassObjectType;
@@ -34,18 +33,20 @@ import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.EqualityKey;
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.common.InternalFactHandle;
+import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.LogicalDependency;
 import org.drools.core.common.NamedEntryPoint;
 import org.drools.core.beliefsystem.simple.SimpleLogicalDependency;
 import org.drools.core.common.PropagationContextFactory;
 import org.drools.core.common.TruthMaintenanceSystem;
+import org.drools.core.impl.InternalKnowledgeBase;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.reteoo.EntryPointNode;
 import org.drools.core.reteoo.MockObjectSink;
 import org.drools.core.reteoo.MockRightTupleSink;
 import org.drools.core.reteoo.MockTupleSource;
 import org.drools.core.reteoo.ObjectTypeNode;
 import org.drools.core.reteoo.Rete;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.RightTuple;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.RuleTerminalNodeLeftTuple;
@@ -68,6 +69,7 @@ import org.drools.core.spi.PropagationContext;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.internal.KnowledgeBaseFactory;
 
 import static org.junit.Assert.*;
 
@@ -75,28 +77,28 @@ import static org.junit.Assert.*;
 public class LogicalAssertionTest extends DroolsTestCase {
     private PropagationContextFactory pctxFactory;
 
-    private ReteooRuleBase ruleBase;
+    private InternalKnowledgeBase kBase;
     private BuildContext              buildContext;
     private EntryPointNode entryPoint;
 
     @Before
     public void setUp() throws Exception {
-        ruleBase = (ReteooRuleBase) RuleBaseFactory.newRuleBase();
-        buildContext = new BuildContext(ruleBase,
-                                        ((ReteooRuleBase) ruleBase).getReteooBuilder().getIdGenerator());
+        kBase = (InternalKnowledgeBase) KnowledgeBaseFactory.newKnowledgeBase();
+        buildContext = new BuildContext(kBase,
+                                        kBase.getReteooBuilder().getIdGenerator());
         this.entryPoint = new EntryPointNode(0,
-                                             this.ruleBase.getRete(),
+                                             this.kBase.getRete(),
                                              buildContext);
         this.entryPoint.attach(buildContext);
-        pctxFactory = ruleBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
+        pctxFactory = kBase.getConfiguration().getComponentFactory().getPropagationContextFactory();
     }
 
     @Test
     @Ignore
     public void testSingleLogicalRelationship() throws Exception {
-        IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
+        IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
 
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         // create a RuleBase with a single ObjectTypeNode we attach a
         // MockObjectSink so we can detect assertions and retractions
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode(idGenerator.getNextId(),
@@ -113,7 +115,8 @@ public class LogicalAssertionTest extends DroolsTestCase {
                                                            rule1.getLhs(),
                                                            0,
                                                            buildContext);
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ksession.session;
 
         final InternalAgenda agenda = (InternalAgenda) workingMemory.getAgenda();
 
@@ -222,9 +225,9 @@ public class LogicalAssertionTest extends DroolsTestCase {
         // MockObjectSink so w can detect assertions and retractions
         final Rule rule1 = new Rule( "test-rule1" );
 
-        IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
+        IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
 
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode( idGenerator.getNextId(),
                                                                   this.entryPoint,
                                                                   new ClassObjectType( String.class ),
@@ -240,7 +243,8 @@ public class LogicalAssertionTest extends DroolsTestCase {
                                                             0,
                                                             buildContext );
 
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ksession.session;
 
         final Agenda agenda = workingMemory.getAgenda();
 
@@ -310,7 +314,7 @@ public class LogicalAssertionTest extends DroolsTestCase {
 
         // If assert behavior in working memory is IDENTITY,
         // returned handles must not be the same
-        if ( RuleBaseConfiguration.AssertBehaviour.IDENTITY.equals( ((ReteooRuleBase) ruleBase).getConfiguration().getAssertBehaviour() ) ) {
+        if ( RuleBaseConfiguration.AssertBehaviour.IDENTITY.equals( kBase.getConfiguration().getAssertBehaviour() ) ) {
 
             assertNotSame( logicalHandle1,
                            logicalHandle2 );
@@ -331,9 +335,9 @@ public class LogicalAssertionTest extends DroolsTestCase {
         // create a RuleBase with a single ObjectTypeNode we attach a
         // MockObjectSink so we can detect assertions and retractions
         final Rule rule1 = new Rule( "test-rule1" );
-        IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
+        IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
 
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode( idGenerator.getNextId(),
                                                                   this.entryPoint,
                                                                   new ClassObjectType( String.class ),
@@ -348,7 +352,8 @@ public class LogicalAssertionTest extends DroolsTestCase {
                                                             0,
                                                             buildContext );
 
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ksession.session;
 
         final Agenda agenda = workingMemory.getAgenda();
 
@@ -482,9 +487,9 @@ public class LogicalAssertionTest extends DroolsTestCase {
         // create a RuleBase with a single ObjectTypeNode we attach a
         // MockObjectSink so we can detect assertions and retractions
         final Rule rule1 = new Rule( "test-rule1" );
-        IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
+        IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
 
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode( idGenerator.getNextId(),
                                                                   this.entryPoint,
                                                                   new ClassObjectType( String.class ),
@@ -499,7 +504,8 @@ public class LogicalAssertionTest extends DroolsTestCase {
                                                             0,
                                                             buildContext );
 
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ksession.session;
 
         final Consequence consequence = new Consequence() {
             private static final long serialVersionUID = 510l;
@@ -605,9 +611,9 @@ public class LogicalAssertionTest extends DroolsTestCase {
     @Test
     public void testMultipleLogicalRelationships() throws FactException {
         final Rule rule1 = new Rule( "test-rule1" );
-        IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
+        IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
 
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
 
         // Create a RuleBase with a single ObjectTypeNode we attach a
         // MockObjectSink so we can detect assertions and retractions
@@ -625,7 +631,8 @@ public class LogicalAssertionTest extends DroolsTestCase {
                                                             rule1.getLhs(),
                                                             0,
                                                             buildContext );
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ksession.session;
 
         final Agenda agenda = workingMemory.getAgenda();
 
@@ -768,9 +775,9 @@ public class LogicalAssertionTest extends DroolsTestCase {
         // create a RuleBase with a single ObjectTypeNode we attach a
         // MockObjectSink so we can detect assertions and retractions
         final Rule rule1 = new Rule( "test-rule1" );
-        IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
+        IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
 
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode( idGenerator.getNextId(),
                                                                   this.entryPoint,
                                                                   new ClassObjectType( String.class ),
@@ -785,7 +792,8 @@ public class LogicalAssertionTest extends DroolsTestCase {
                                                             0,
                                                             buildContext );
 
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ksession.session;
 
         final Agenda agenda = workingMemory.getAgenda();
 
@@ -851,7 +859,7 @@ public class LogicalAssertionTest extends DroolsTestCase {
         // If assert behavior in working memory is IDENTITY,
         // we need to retract object 2 times before being able to
         // succesfully logically assert a new fact
-        if ( RuleBaseConfiguration.AssertBehaviour.IDENTITY.equals( ((ReteooRuleBase) ruleBase).getConfiguration().getAssertBehaviour() ) ) {
+        if ( RuleBaseConfiguration.AssertBehaviour.IDENTITY.equals( kBase.getConfiguration().getAssertBehaviour() ) ) {
 
             workingMemory.retract( statedHandle2 );
 
@@ -889,9 +897,9 @@ public class LogicalAssertionTest extends DroolsTestCase {
         // create a RuleBase with a single ObjectTypeNode we attach a
         // MockObjectSink so we can detect assertions and retractions
         final Rule rule1 = new Rule( "test-rule1" );
-        IdGenerator idGenerator = ruleBase.getReteooBuilder().getIdGenerator();
+        IdGenerator idGenerator = kBase.getReteooBuilder().getIdGenerator();
 
-        final Rete rete = ruleBase.getRete();
+        final Rete rete = kBase.getRete();
         final ObjectTypeNode objectTypeNode = new ObjectTypeNode( idGenerator.getNextId(),
                                                                   this.entryPoint,
                                                                   new ClassObjectType( String.class ),
@@ -905,7 +913,8 @@ public class LogicalAssertionTest extends DroolsTestCase {
                                                             rule1.getLhs(),
                                                             0,
                                                             buildContext );
-        final AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ruleBase.newStatefulSession();
+        StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
+        AbstractWorkingMemory workingMemory = (AbstractWorkingMemory) ksession.session;
 
         final Agenda agenda = workingMemory.getAgenda();
 

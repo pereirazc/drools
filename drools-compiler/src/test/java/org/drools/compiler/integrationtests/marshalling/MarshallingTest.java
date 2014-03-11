@@ -1,17 +1,13 @@
 package org.drools.compiler.integrationtests.marshalling;
 
 import static org.drools.compiler.integrationtests.SerializationHelper.getSerialisedStatefulKnowledgeSession;
-import static org.drools.compiler.integrationtests.SerializationHelper.getSerialisedStatefulSession;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Reader;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,13 +32,9 @@ import org.drools.compiler.Primitives;
 import org.drools.compiler.integrationtests.IteratorToList;
 import org.drools.compiler.integrationtests.SerializationHelper;
 import org.drools.core.ClockType;
-import org.drools.core.RuleBase;
-import org.drools.core.RuleBaseFactory;
 import org.drools.core.SessionConfiguration;
-import org.drools.core.StatefulSession;
 import org.drools.core.WorkingMemory;
 import org.drools.core.base.ClassObjectType;
-import org.drools.core.common.AbstractWorkingMemory;
 import org.drools.core.common.BaseNode;
 import org.drools.core.common.DroolsObjectInputStream;
 import org.drools.core.common.DroolsObjectOutputStream;
@@ -50,26 +42,22 @@ import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalRuleBase;
 import org.drools.core.definitions.impl.KnowledgePackageImp;
 import org.drools.core.impl.EnvironmentFactory;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.KnowledgeBaseImpl;
-import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.marshalling.impl.IdentityPlaceholderResolverStrategy;
 import org.drools.core.marshalling.impl.RuleBaseNodes;
 import org.drools.core.reteoo.MockTupleSource;
 import org.drools.core.reteoo.ObjectTypeNode;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.RuleTerminalNode;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.MapBackedClassLoader;
-import org.drools.core.rule.Package;
 import org.drools.core.rule.Rule;
 import org.drools.core.runtime.rule.impl.AgendaImpl;
 import org.drools.core.spi.Consequence;
-import org.drools.core.spi.GlobalResolver;
 import org.drools.core.spi.KnowledgeHelper;
 import org.drools.core.time.impl.DurationTimer;
 import org.drools.core.time.impl.PseudoClockScheduler;
-import org.drools.core.util.DroolsStreamUtils;
 import org.drools.core.util.KeyStoreHelper;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -77,7 +65,6 @@ import org.junit.Test;
 import org.kie.api.KieBase;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.conf.EventProcessingOption;
-import org.kie.api.io.ResourceType;
 import org.kie.api.marshalling.Marshaller;
 import org.kie.api.marshalling.ObjectMarshallingStrategy;
 import org.kie.api.marshalling.ObjectMarshallingStrategyAcceptor;
@@ -92,11 +79,9 @@ import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.time.SessionClock;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
-import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.definition.KnowledgePackage;
-import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.marshalling.MarshallerFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
@@ -1088,7 +1073,7 @@ public class MarshallingTest extends CommonTestMethodBase {
         KnowledgeBase kBase = loadKnowledgeBaseFromString( rule );
 
         // Make sure the rete node map is created correctly
-        Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap( (InternalRuleBase) ((KnowledgeBaseImpl)kBase).getRuleBase() );
+        Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap((InternalKnowledgeBase) kBase);
         assertEquals( 2,
                       nodes.size() );
         assertEquals( "InitialFactImpl",
@@ -1135,7 +1120,7 @@ public class MarshallingTest extends CommonTestMethodBase {
         KnowledgeBase kBase = loadKnowledgeBaseFromString( rule1 );
 
         // Make sure the rete node map is created correctly
-        Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap( (InternalRuleBase) ((KnowledgeBaseImpl)kBase).getRuleBase() );
+        Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap((InternalKnowledgeBase) kBase);
 
         // Make sure the rete node map is created correctly
         assertEquals( 2,
@@ -1190,7 +1175,7 @@ public class MarshallingTest extends CommonTestMethodBase {
         KnowledgeBase kBase = loadKnowledgeBaseFromString( rule );
 
         // Make sure the rete node map is created correctly
-        Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap( (InternalRuleBase) ((KnowledgeBaseImpl)kBase).getRuleBase() );
+        Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap((InternalKnowledgeBase) kBase);
         assertEquals( 2,
                       nodes.size() );
         assertEquals( "Person",
@@ -1234,7 +1219,7 @@ public class MarshallingTest extends CommonTestMethodBase {
         KnowledgeBase kBase = loadKnowledgeBaseFromString( rule );
 
         // Make sure the rete node map is created correctly
-        Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap( (InternalRuleBase) ((KnowledgeBaseImpl)kBase).getRuleBase() );
+        Map<Integer, BaseNode> nodes = RuleBaseNodes.getNodeMap( (InternalKnowledgeBase) kBase );
 
         assertEquals( 4,
                       nodes.size() );
@@ -2103,7 +2088,7 @@ public class MarshallingTest extends CommonTestMethodBase {
      *
      * This is still not fixed, as mentioned in the JIRA
      *
-     * @see JBRULES-2048
+     * JBRULES-2048
      *
      * @throws Exception
      */
@@ -2213,7 +2198,7 @@ public class MarshallingTest extends CommonTestMethodBase {
                         "System.out.println(\"b\");\n" +
                         "end\n";
 
-        KieBaseConfiguration config = KnowledgeBaseFactory .newKnowledgeBaseConfiguration();
+        KieBaseConfiguration config = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
         config.setOption( EventProcessingOption.STREAM );
 
         KnowledgeBase kBase = loadKnowledgeBaseFromString(config, str);
@@ -2271,8 +2256,7 @@ public class MarshallingTest extends CommonTestMethodBase {
         KnowledgePackageImp impl = new KnowledgePackageImp();
         impl.pkg = new org.drools.core.rule.Package( "test" );
 
-        BuildContext buildContext = new BuildContext( (InternalRuleBase) knowledgeBase.getRuleBase(), ((ReteooRuleBase) knowledgeBase.getRuleBase())
-                .getReteooBuilder().getIdGenerator() );
+        BuildContext buildContext = new BuildContext( knowledgeBase, knowledgeBase.getReteooBuilder().getIdGenerator() );
         //simple rule that fires after 10 seconds
         final Rule rule = new Rule( "test-rule" );
         new RuleTerminalNode( 1, new MockTupleSource( 2 ), rule, rule.getLhs(), 0, buildContext );

@@ -26,6 +26,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.List;
 
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.kie.api.definition.rule.Rule;
 
 /**
@@ -41,7 +42,7 @@ public class RuleRemovalContext
 
     private CleanupAdapter cleanupAdapter;
 
-    private InternalRuleBase ruleBase;
+    private InternalKnowledgeBase kBase;
 
     public RuleRemovalContext(final Rule rule) {
         this.rule = rule;
@@ -76,11 +77,11 @@ public class RuleRemovalContext
                             final InternalWorkingMemory workingMemory);
     }
 
-    public InternalRuleBase getRuleBase() {
-        return ruleBase;
+    public InternalKnowledgeBase getKnowledgeBase() {
+        return kBase;
     }
 
-    public void setRuleBase(InternalRuleBase ruleBase) {
-        this.ruleBase = ruleBase;
+    public void setKnowledgeBase(InternalKnowledgeBase kBase) {
+        this.kBase = kBase;
     }
 }

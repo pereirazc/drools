@@ -1,28 +1,30 @@
 package org.drools.template.parser;
 
-import org.drools.core.Agenda;
-import org.drools.core.FactException;
-import org.drools.core.FactHandle;
-import org.drools.core.QueryResults;
-import org.drools.core.RuleBase;
-import org.drools.core.StatefulSession;
-import org.drools.core.WorkingMemoryEntryPoint;
-import org.drools.core.event.AgendaEventListener;
-import org.drools.core.event.RuleBaseEventListener;
-import org.drools.core.event.WorkingMemoryEventListener;
-import org.drools.core.process.instance.WorkItemManager;
-import org.drools.core.spi.AgendaFilter;
-import org.drools.core.spi.AgendaGroup;
-import org.drools.core.spi.AsyncExceptionHandler;
-import org.drools.core.spi.GlobalResolver;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.api.KieBase;
+import org.kie.api.command.Command;
+import org.kie.api.event.process.ProcessEventListener;
+import org.kie.api.event.rule.RuleRuntimeEventListener;
+import org.kie.api.logger.KieRuntimeLogger;
+import org.kie.api.runtime.Calendars;
+import org.kie.api.runtime.Channel;
 import org.kie.api.runtime.Environment;
+import org.kie.api.runtime.Globals;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.ObjectFilter;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.rule.EntryPoint;
+import org.kie.api.runtime.rule.LiveQuery;
+import org.kie.api.runtime.rule.ViewChangedEventListener;
 import org.kie.api.time.SessionClock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -105,20 +107,143 @@ public class ExternalSheetListenerTest {
 
     private class TestTemplateRuleBase implements TemplateRuleBase {
 
-        public StatefulSession newStatefulSession() {
-            return new StatefulSession() {
-                private static final long serialVersionUID = 510l;
+        public KieSession newStatefulSession() {
+            return new KieSession() {
 
-                public void addEventListener(WorkingMemoryEventListener arg0) {
-
-                }
-
-                public void addEventListener(AgendaEventListener arg0) {
+                @Override
+                public int getId() {
+                    throw new UnsupportedOperationException(".getId -> TODO");
 
                 }
 
-                public FactHandle insert(Object fact)
-                        throws FactException {
+                @Override
+                public void dispose() {
+                    throw new UnsupportedOperationException(".dispose -> TODO");
+
+                }
+
+                @Override
+                public void destroy() {
+                    throw new UnsupportedOperationException(".destroy -> TODO");
+
+                }
+
+                @Override
+                public <T> T execute(Command<T> command) {
+                    throw new UnsupportedOperationException(".execute -> TODO");
+
+                }
+
+                @Override
+                public <T extends SessionClock> T getSessionClock() {
+                    throw new UnsupportedOperationException(".getSessionClock -> TODO");
+
+                }
+
+                @Override
+                public void setGlobal(String identifier, Object value) {
+                    throw new UnsupportedOperationException(".setGlobal -> TODO");
+
+                }
+
+                @Override
+                public Object getGlobal(String identifier) {
+                    throw new UnsupportedOperationException(".getGlobal -> TODO");
+
+                }
+
+                @Override
+                public Globals getGlobals() {
+                    throw new UnsupportedOperationException(".getGlobals -> TODO");
+
+                }
+
+                @Override
+                public Calendars getCalendars() {
+                    throw new UnsupportedOperationException(".getCalendars -> TODO");
+
+                }
+
+                @Override
+                public Environment getEnvironment() {
+                    throw new UnsupportedOperationException(".getEnvironment -> TODO");
+
+                }
+
+                @Override
+                public KieBase getKieBase() {
+                    throw new UnsupportedOperationException(".getKieBase -> TODO");
+
+                }
+
+                @Override
+                public void registerChannel(String name, Channel channel) {
+                    throw new UnsupportedOperationException(".registerChannel -> TODO");
+
+                }
+
+                @Override
+                public void unregisterChannel(String name) {
+                    throw new UnsupportedOperationException(".unregisterChannel -> TODO");
+
+                }
+
+                @Override
+                public Map<String, Channel> getChannels() {
+                    throw new UnsupportedOperationException(".getChannels -> TODO");
+
+                }
+
+                @Override
+                public KieSessionConfiguration getSessionConfiguration() {
+                    throw new UnsupportedOperationException(".getSessionConfiguration -> TODO");
+
+                }
+
+                @Override
+                public void halt() {
+                    throw new UnsupportedOperationException(".halt -> TODO");
+
+                }
+
+                @Override
+                public org.kie.api.runtime.rule.Agenda getAgenda() {
+                    throw new UnsupportedOperationException(".getAgenda -> TODO");
+
+                }
+
+                @Override
+                public EntryPoint getEntryPoint(String name) {
+                    throw new UnsupportedOperationException(".getEntryPoint -> TODO");
+
+                }
+
+                @Override
+                public Collection<? extends EntryPoint> getEntryPoints() {
+                    throw new UnsupportedOperationException(".getEntryPoints -> TODO");
+
+                }
+
+                @Override
+                public org.kie.api.runtime.rule.QueryResults getQueryResults(String query, Object... arguments) {
+                    throw new UnsupportedOperationException(".getQueryResults -> TODO");
+
+                }
+
+                @Override
+                public LiveQuery openLiveQuery(String query, Object[] arguments, ViewChangedEventListener listener) {
+                    throw new UnsupportedOperationException(".openLiveQuery -> TODO");
+
+                }
+
+                @Override
+                public String getEntryPointId() {
+                    throw new UnsupportedOperationException(".getEntryPointId -> TODO");
+
+                }
+
+                @Override
+                public org.kie.api.runtime.rule.FactHandle insert(Object fact) {
                     if (fact instanceof Row) {
                         assertedRows.put((Row) fact, currentRow);
                         currentRow = new ArrayList<StringCell>();
@@ -128,298 +253,227 @@ public class ExternalSheetListenerTest {
                     return null;
                 }
 
-                public FactHandle insert(Object arg0, boolean arg1)
-                        throws FactException {
-                    return null;
-                }
-
-                public void clearAgenda() {
+                @Override
+                public void retract(org.kie.api.runtime.rule.FactHandle handle) {
+                    throw new UnsupportedOperationException(".retract -> TODO");
 
                 }
 
-                public void clearAgendaGroup(String arg0) {
+                @Override
+                public void delete(org.kie.api.runtime.rule.FactHandle handle) {
+                    throw new UnsupportedOperationException(".delete -> TODO");
 
                 }
 
-                public void dispose() {
+                @Override
+                public void update(org.kie.api.runtime.rule.FactHandle handle, Object object) {
+                    throw new UnsupportedOperationException(".update -> TODO");
 
                 }
 
-                public int fireAllRules() throws FactException {
-                    return 0;
-                }
-
-                public int fireAllRules(AgendaFilter arg0)
-                        throws FactException {
-                    return 0;
-                }
-
-                public Agenda getAgenda() {
-                    return null;
-                }
-
-                @SuppressWarnings("unchecked")
-                public List getAgendaEventListeners() {
-                    return null;
-                }
-
-                public FactHandle getFactHandle(Object arg0) {
-                    return null;
-                }
-
-                public AgendaGroup getFocus() {
-                    return null;
-                }
-
-                public Object getGlobal(String arg0) {
-                    return null;
-                }
-
-                public QueryResults getQueryResults(String arg0) {
-                    return null;
-                }
-
-                public RuleBase getRuleBase() {
-                    return null;
-                }
-
-                @SuppressWarnings("unchecked")
-                public List getWorkingMemoryEventListeners() {
-                    return null;
-                }
-
-                public void update(org.kie.api.runtime.rule.FactHandle arg0, Object arg1)
-                        throws FactException {
+                @Override
+                public org.kie.api.runtime.rule.FactHandle getFactHandle(Object object) {
+                    throw new UnsupportedOperationException(".getFactHandle -> TODO");
 
                 }
 
-                public void removeEventListener(WorkingMemoryEventListener arg0) {
+                @Override
+                public Object getObject(org.kie.api.runtime.rule.FactHandle factHandle) {
+                    throw new UnsupportedOperationException(".getObject -> TODO");
 
                 }
 
-                public void removeEventListener(AgendaEventListener arg0) {
-
-                }
-
-                public void retract(org.kie.api.runtime.rule.FactHandle arg0) throws FactException {
-
-                }
-
-                public void delete(org.kie.api.runtime.rule.FactHandle arg0) throws FactException {
-
-                }
-
-                public void setAsyncExceptionHandler(AsyncExceptionHandler arg0) {
-
-                }
-
-                public void setFocus(String arg0) {
-
-                }
-
-                public void setFocus(AgendaGroup arg0) {
-
-                }
-
-                public void setGlobal(String arg0, Object arg1) {
-
-                }
-
-                public void setGlobalResolver(GlobalResolver globalResolver) {
-
-                }
-
-                public ProcessInstance startProcess(String processId) {
-                    return null;
-                }
-
-                @SuppressWarnings("unchecked")
-                public Iterator iterateFactHandles() {
-                    return null;
-                }
-
-                @SuppressWarnings("unchecked")
-                public Iterator iterateFactHandles(ObjectFilter filter) {
-                    return null;
-                }
-
-                @SuppressWarnings("unchecked")
-                public Iterator iterateObjects() {
-                    return null;
-                }
-
-                @SuppressWarnings("unchecked")
-                public Iterator iterateObjects(ObjectFilter filter) {
-                    return null;
-                }
-
-                public QueryResults getQueryResults(String query,
-                                                    Object[] arguments) {
-
-                    return null;
-                }
-
-                public void modifyInsert(FactHandle factHandle,
-                                         Object object) {
-
-
-                }
-
-                public void modifyRetract(FactHandle factHandle) {
-
-
-                }
-
-                public void halt() {
-
-
-                }
-
-                public int fireAllRules(int fireLimit) throws FactException {
-                    return 0;
-                }
-
-                public int fireAllRules(AgendaFilter agendaFilter,
-                                        int fireLimit) throws FactException {
-
-                    return 0;
-                }
-
-
-                public GlobalResolver getGlobalResolver() {
-
-                    return null;
-                }
-
-                @SuppressWarnings("unchecked")
-                public List getRuleFlowEventListeners() {
-
-                    return null;
-                }
-
-                public void clearActivationGroup(String group) {
-
-
-                }
-
-                public void clearRuleFlowGroup(String group) {
-
-
-                }
-
-                public void addEventListener(RuleBaseEventListener listener) {
-
-
-                }
-
-                @SuppressWarnings("unchecked")
-                public List getRuleBaseEventListeners() {
-
-                    return null;
-                }
-
-                public void removeEventListener(RuleBaseEventListener listener) {
-
-
-                }
-
-                @SuppressWarnings("unchecked")
-                public List getRuleBaseUpdateListeners() {
-
-                    return null;
-                }
-
-                public ProcessInstance getProcessInstance(long id) {
-
-                    return null;
-                }
-
-                public ProcessInstance getProcessInstance(long id, boolean readOnly) {
-                    
-                    return null;
-                }
-
-                public WorkItemManager getWorkItemManager() {
-
-                    return null;
-                }
-
-                @SuppressWarnings("unchecked")
-                public Collection getProcessInstances() {
-
-                    return null;
-                }
-
-                public ProcessInstance startProcess(String processId,
-                                                    Map<String, Object> parameters) {
-
-                    return null;
-                }
-
-                public FactHandle getFactHandleByIdentity(Object object) {
-
-                    return null;
-                }
-
-                public WorkingMemoryEntryPoint getWorkingMemoryEntryPoint(String id) {
-
-                    return null;
-                }
-
-                public SessionClock getSessionClock() {
-                    return null;
-                }
-
-                public void fireUntilHalt() {
-                    // TODO Auto-generated method stub
-
-                }
-
-                public void fireUntilHalt(AgendaFilter agendaFilter) {
-                    // TODO Auto-generated method stub
-
-                }
-
-                public Object getObject(org.kie.api.runtime.rule.FactHandle handle) {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
-                public Environment getEnvironment() {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
-                public Collection<? extends org.kie.api.runtime.rule.FactHandle> getFactHandles() {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
-                public Collection<? extends org.kie.api.runtime.rule.FactHandle> getFactHandles(ObjectFilter filter) {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
+                @Override
                 public Collection<? extends Object> getObjects() {
-                    // TODO Auto-generated method stub
-                    return null;
+                    throw new UnsupportedOperationException(".getObjects -> TODO");
+
                 }
 
+                @Override
                 public Collection<? extends Object> getObjects(ObjectFilter filter) {
-                    // TODO Auto-generated method stub
-                    return null;
+                    throw new UnsupportedOperationException(".getObjects -> TODO");
+
                 }
 
-                public String getEntryPointId() {
-                    // TODO Auto-generated method stub
-                    return null;
+                @Override
+                public <T extends org.kie.api.runtime.rule.FactHandle> Collection<T> getFactHandles() {
+                    throw new UnsupportedOperationException(".getFactHandles -> TODO");
+
                 }
 
+                @Override
+                public <T extends org.kie.api.runtime.rule.FactHandle> Collection<T> getFactHandles(ObjectFilter filter) {
+                    throw new UnsupportedOperationException(".getFactHandles -> TODO");
+
+                }
+
+                @Override
                 public long getFactCount() {
-                    // TODO Auto-generated method stub
-                    return 0;
+                    throw new UnsupportedOperationException(".getFactCount -> TODO");
+
                 }
 
+                @Override
+                public KieRuntimeLogger getLogger() {
+                    throw new UnsupportedOperationException(".getLogger -> TODO");
+
+                }
+
+                @Override
+                public void addEventListener(ProcessEventListener listener) {
+                    throw new UnsupportedOperationException(".addEventListener -> TODO");
+
+                }
+
+                @Override
+                public void removeEventListener(ProcessEventListener listener) {
+                    throw new UnsupportedOperationException(".removeEventListener -> TODO");
+
+                }
+
+                @Override
+                public Collection<ProcessEventListener> getProcessEventListeners() {
+                    throw new UnsupportedOperationException(".getProcessEventListeners -> TODO");
+
+                }
+
+                @Override
+                public ProcessInstance startProcess(String processId) {
+                    throw new UnsupportedOperationException(".startProcess -> TODO");
+
+                }
+
+                @Override
+                public ProcessInstance startProcess(String processId, Map<String, Object> parameters) {
+                    throw new UnsupportedOperationException(".startProcess -> TODO");
+
+                }
+
+                @Override
+                public ProcessInstance createProcessInstance(String processId, Map<String, Object> parameters) {
+                    throw new UnsupportedOperationException(".createProcessInstance -> TODO");
+
+                }
+
+                @Override
+                public ProcessInstance startProcessInstance(long processInstanceId) {
+                    throw new UnsupportedOperationException(".startProcessInstance -> TODO");
+
+                }
+
+                @Override
+                public void signalEvent(String type, Object event) {
+                    throw new UnsupportedOperationException(".signalEvent -> TODO");
+
+                }
+
+                @Override
+                public void signalEvent(String type, Object event, long processInstanceId) {
+                    throw new UnsupportedOperationException(".signalEvent -> TODO");
+
+                }
+
+                @Override
+                public Collection<ProcessInstance> getProcessInstances() {
+                    throw new UnsupportedOperationException(".getProcessInstances -> TODO");
+
+                }
+
+                @Override
+                public ProcessInstance getProcessInstance(long processInstanceId) {
+                    throw new UnsupportedOperationException(".getProcessInstance -> TODO");
+
+                }
+
+                @Override
+                public ProcessInstance getProcessInstance(long processInstanceId, boolean readonly) {
+                    throw new UnsupportedOperationException(".getProcessInstance -> TODO");
+
+                }
+
+                @Override
+                public void abortProcessInstance(long processInstanceId) {
+                    throw new UnsupportedOperationException(".abortProcessInstance -> TODO");
+
+                }
+
+                @Override
+                public org.kie.api.runtime.process.WorkItemManager getWorkItemManager() {
+                    throw new UnsupportedOperationException(".getWorkItemManager -> TODO");
+
+                }
+
+                @Override
+                public void addEventListener(RuleRuntimeEventListener listener) {
+                    throw new UnsupportedOperationException(".addEventListener -> TODO");
+
+                }
+
+                @Override
+                public void removeEventListener(RuleRuntimeEventListener listener) {
+                    throw new UnsupportedOperationException(".removeEventListener -> TODO");
+
+                }
+
+                @Override
+                public Collection<RuleRuntimeEventListener> getRuleRuntimeEventListeners() {
+                    throw new UnsupportedOperationException(".getRuleRuntimeEventListeners -> TODO");
+
+                }
+
+                @Override
+                public void addEventListener(org.kie.api.event.rule.AgendaEventListener listener) {
+                    throw new UnsupportedOperationException(".addEventListener -> TODO");
+
+                }
+
+                @Override
+                public void removeEventListener(org.kie.api.event.rule.AgendaEventListener listener) {
+                    throw new UnsupportedOperationException(".removeEventListener -> TODO");
+
+                }
+
+                @Override
+                public Collection<org.kie.api.event.rule.AgendaEventListener> getAgendaEventListeners() {
+                    throw new UnsupportedOperationException(".getAgendaEventListeners -> TODO");
+
+                }
+
+                @Override
+                public int fireAllRules() {
+                    throw new UnsupportedOperationException(".fireAllRules -> TODO");
+
+                }
+
+                @Override
+                public int fireAllRules(int max) {
+                    throw new UnsupportedOperationException(".fireAllRules -> TODO");
+
+                }
+
+                @Override
+                public int fireAllRules(org.kie.api.runtime.rule.AgendaFilter agendaFilter) {
+                    throw new UnsupportedOperationException(".fireAllRules -> TODO");
+
+                }
+
+                @Override
+                public int fireAllRules(org.kie.api.runtime.rule.AgendaFilter agendaFilter, int max) {
+                    throw new UnsupportedOperationException(".fireAllRules -> TODO");
+
+                }
+
+                @Override
+                public void fireUntilHalt() {
+                    throw new UnsupportedOperationException(".fireUntilHalt -> TODO");
+
+                }
+
+                @Override
+                public void fireUntilHalt(org.kie.api.runtime.rule.AgendaFilter agendaFilter) {
+                    throw new UnsupportedOperationException(".fireUntilHalt -> TODO");
+
+                }
             };
         }
     }

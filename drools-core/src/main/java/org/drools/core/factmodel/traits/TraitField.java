@@ -214,7 +214,7 @@ public class TraitField implements Serializable, Externalizable {
     }
 
     private boolean inspectForTraitability( Object value, WorkingMemory wm ) {
-        org.drools.core.rule.Package pack = wm.getRuleBase().getPackage( value.getClass().getPackage().getName() );
+        org.drools.core.rule.Package pack = wm.getKnowledgeBase().getPackage( value.getClass().getPackage().getName() );
         if ( pack != null ) {
             TypeDeclaration decl = pack.getTypeDeclaration( value.getClass() );
             if ( decl != null ) {

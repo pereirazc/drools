@@ -9,12 +9,13 @@ import org.drools.core.RuleBaseConfiguration;
 import org.drools.core.common.EmptyBetaConstraints;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemory;
+import org.drools.core.impl.KnowledgeBaseImpl;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.drools.core.phreak.PhreakJoinNode;
 import org.drools.core.reteoo.BetaMemory;
 import org.drools.core.reteoo.JoinNode;
 import org.drools.core.reteoo.LeftTupleSink;
 import org.drools.core.reteoo.NodeTypeEnums;
-import org.drools.core.reteoo.ReteooRuleBase;
 import org.drools.core.reteoo.SegmentMemory;
 import org.drools.core.reteoo.builder.BuildContext;
 import org.drools.core.rule.MVELDialectRuntimeData;
@@ -48,9 +49,9 @@ public class PhreakJoinNodeTest {
         
         joinNode.addTupleSink( sinkNode );
 
-        wm = (InternalWorkingMemory) buildContext.getRuleBase().newStatefulSession( true );
-        
-        bm =(BetaMemory)  wm.getNodeMemory( joinNode );
+        wm = ((StatefulKnowledgeSessionImpl)buildContext.getKnowledgeBase().newStatefulKnowledgeSession()).session;
+
+        bm = (BetaMemory)  wm.getNodeMemory( joinNode );
         
         bm0 =(BetaMemory)  wm.getNodeMemory( sinkNode );
         
@@ -209,8 +210,8 @@ public class PhreakJoinNodeTest {
 
         RuleBaseConfiguration conf = new RuleBaseConfiguration();
 
-        ReteooRuleBase rbase = new ReteooRuleBase( "ID",
-                                                   conf );
+        KnowledgeBaseImpl rbase = new KnowledgeBaseImpl( "ID",
+                                                         conf );
         BuildContext buildContext = new BuildContext( rbase,
                                                       rbase.getReteooBuilder().getIdGenerator() );
 

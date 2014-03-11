@@ -28,6 +28,7 @@ import java.util.Set;
 import org.drools.core.RuleBase;
 import org.drools.core.base.ClassTypeResolver;
 import org.drools.core.common.InternalRuleBase;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.workbench.models.testscenarios.backend.populators.FactPopulator;
 import org.drools.workbench.models.testscenarios.backend.populators.FactPopulatorFactory;
@@ -91,8 +92,7 @@ public class ScenarioRunner {
 
         // This looks safe!
         final KieBase kieBase = ksession.getKieBase();
-        final RuleBase ruleBase = ( (KnowledgeBaseImpl) kieBase ).getRuleBase();
-        final ClassLoader classloader2 = ( (InternalRuleBase) ruleBase ).getRootClassLoader();
+        final ClassLoader classloader2 = ( (InternalKnowledgeBase) kieBase ).getRootClassLoader();
 
         final ClassTypeResolver resolver = new ClassTypeResolver( getImports( scenario ),
                                                                   classloader2 );

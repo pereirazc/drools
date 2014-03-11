@@ -596,11 +596,9 @@ public class IncrementalCompilationTest extends CommonTestMethodBase {
         assertNotNull(((org.drools.core.definitions.rule.impl.RuleImpl) rules.get("R2")));
         assertNotNull(((org.drools.core.definitions.rule.impl.RuleImpl) rules.get("R3")));
  
-        RuleBase rb_1 = ((InternalRuleBase) ((KnowledgeBaseImpl) kc.getKieBase()).getRuleBase());
- 
-        RuleTerminalNode rtn1_1  = (RuleTerminalNode) ((InternalRuleBase) ((KnowledgeBaseImpl)kc.getKieBase()).getRuleBase()).getReteooBuilder().getTerminalNodes( "R1" )[0];
-        RuleTerminalNode rtn2_1  = (RuleTerminalNode) ((InternalRuleBase) ((KnowledgeBaseImpl)kc.getKieBase()).getRuleBase()).getReteooBuilder().getTerminalNodes( "R2" )[0];
-        RuleTerminalNode rtn3_1  = (RuleTerminalNode) ((InternalRuleBase) ((KnowledgeBaseImpl)kc.getKieBase()).getRuleBase()).getReteooBuilder().getTerminalNodes( "R3" )[0];
+        RuleTerminalNode rtn1_1  = (RuleTerminalNode) ((KnowledgeBaseImpl)kc.getKieBase()).getReteooBuilder().getTerminalNodes( "R1" )[0];
+        RuleTerminalNode rtn2_1  = (RuleTerminalNode) ((KnowledgeBaseImpl)kc.getKieBase()).getReteooBuilder().getTerminalNodes( "R2" )[0];
+        RuleTerminalNode rtn3_1  = (RuleTerminalNode) ((KnowledgeBaseImpl)kc.getKieBase()).getReteooBuilder().getTerminalNodes( "R3" )[0];
  
         // Create a new jar for version 1.1.0
         ReleaseId releaseId2 = ks.newReleaseId("org.kie", "test-upgrade", "1.1.0");
@@ -608,9 +606,8 @@ public class IncrementalCompilationTest extends CommonTestMethodBase {
  
         // try to update the container to version 1.1.0
         kc.updateToVersion(releaseId2);
- 
-        InternalRuleBase rb_2 = ((InternalRuleBase) ((KnowledgeBaseImpl) kc.getKieBase()).getRuleBase());
-        assertSame ( rb_1, rb_2 );
+
+        KnowledgeBaseImpl rb_2 = ((KnowledgeBaseImpl) kc.getKieBase());
  
         RuleTerminalNode rtn1_2  = (RuleTerminalNode) rb_2.getReteooBuilder().getTerminalNodes( "R1" )[0];
         RuleTerminalNode rtn3_2  = (RuleTerminalNode) rb_2.getReteooBuilder().getTerminalNodes( "R3" )[0];

@@ -19,7 +19,7 @@ package org.drools.core.event;
 import java.io.Externalizable;
 import java.util.EventListener;
 
-public interface RuleBaseEventListener
+public interface KnowledgeBaseEventListener
     extends
     EventListener, Externalizable {
 

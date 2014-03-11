@@ -18,13 +18,10 @@ package org.drools.core.reteoo.builder;
 
 import org.drools.core.ActivationListenerFactory;
 import org.drools.core.base.ClassObjectType;
-import org.drools.core.base.mvel.MVELSalienceExpression;
 import org.drools.core.common.BaseNode;
-import org.drools.core.common.InternalRuleBase;
-import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.common.UpdateContext;
+import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.phreak.AddRemoveRule;
-import org.drools.core.reteoo.LeftTupleSource;
 import org.drools.core.reteoo.ReteooBuilder;
 import org.drools.core.reteoo.RuleBuilder;
 import org.drools.core.reteoo.TerminalNode;
@@ -92,7 +89,7 @@ public class ReteooRuleBuilder implements RuleBuilder {
      * 
      * @param rule
      *            The rule to add.
-     * @param rulebase
+     * @param kBase
      *            The rulebase to add the rule to.
      *            
      * @return a List<BaseNode> of terminal nodes for the rule             
@@ -103,28 +100,28 @@ public class ReteooRuleBuilder implements RuleBuilder {
      * @throws InvalidPatternException
      */
     public List<TerminalNode> addRule( final Rule rule,
-            final InternalRuleBase rulebase,
+            final InternalKnowledgeBase kBase,
             final ReteooBuilder.IdGenerator idGenerator ) throws InvalidPatternException {
         // the list of terminal nodes
         final List<TerminalNode> nodes = new ArrayList<TerminalNode>();
 
         // transform rule and gets the array of subrules
-        final GroupElement[] subrules = rule.getTransformedLhs( rulebase.getConfiguration().getComponentFactory().getLogicTransformerFactory().getLogicTransformer() );
+        final GroupElement[] subrules = rule.getTransformedLhs( kBase.getConfiguration().getComponentFactory().getLogicTransformerFactory().getLogicTransformer() );
 
         for (int i = 0; i < subrules.length; i++) {
 
             // creates a clean build context for each subrule
-            final BuildContext context = new BuildContext( rulebase,
+            final BuildContext context = new BuildContext( kBase,
                                                            idGenerator );
             context.setRule( rule );
 
             // if running in STREAM mode, calculate temporal distance for events
-            if (EventProcessingOption.STREAM.equals( rulebase.getConfiguration().getEventProcessingMode() )) {
+            if (EventProcessingOption.STREAM.equals( kBase.getConfiguration().getEventProcessingMode() )) {
                 TemporalDependencyMatrix temporal = this.utils.calculateTemporalDistance( subrules[i] );
                 context.setTemporalDistance( temporal );
             }
 
-            if (rulebase.getConfiguration().isSequential() ) {
+            if (kBase.getConfiguration().isSequential() ) {
                 context.setTupleMemoryEnabled( false );
                 context.setObjectTypeNodeMemoryEnabled( false );
             } else {
@@ -165,12 +162,12 @@ public class ReteooRuleBuilder implements RuleBuilder {
                        this.utils,
                        subrule );
 
-        if  ( context.getRuleBase().getConfiguration().isPhreakEnabled() && rule.getTimer() != null ) {
+        if  ( context.getKnowledgeBase().getConfiguration().isPhreakEnabled() && rule.getTimer() != null ) {
             builder = this.utils.getBuilderFor( Timer.class );
             builder.build( context, this.utils, rule.getTimer() );
         }
 
-        ActivationListenerFactory factory = context.getRuleBase().getConfiguration().getActivationListenerFactory( rule.getActivationListener() );
+        ActivationListenerFactory factory = context.getKnowledgeBase().getConfiguration().getActivationListenerFactory( rule.getActivationListener() );
         TerminalNode terminal = factory.createActivationListener( context.getNextId(),
                                                                   context.getTupleSource(),
                                                                   rule,
@@ -181,8 +178,8 @@ public class ReteooRuleBuilder implements RuleBuilder {
         BaseNode baseTerminalNode = (BaseNode) terminal;
         baseTerminalNode.networkUpdated(new UpdateContext());
         baseTerminalNode.attach(context);
-        if ( context.getRuleBase().getConfiguration().isPhreakEnabled() ) {
-            AddRemoveRule.addRule( terminal, context.getWorkingMemories(), context.getRuleBase() );
+        if ( context.getKnowledgeBase().getConfiguration().isPhreakEnabled() ) {
+            AddRemoveRule.addRule( terminal, context.getWorkingMemories(), context.getKnowledgeBase() );
         }
 
         // adds the terminal node to the list of nodes created/added by this sub-rule
@@ -211,10 +208,10 @@ public class ReteooRuleBuilder implements RuleBuilder {
     }
 
     public void addEntryPoint( final String id,
-            final InternalRuleBase rulebase,
+            final InternalKnowledgeBase kBase,
             final ReteooBuilder.IdGenerator idGenerator ) {
         // creates a clean build context for each subrule
-        final BuildContext context = new BuildContext( rulebase,
+        final BuildContext context = new BuildContext( kBase,
                                                        idGenerator );
         EntryPointId ep = new EntryPointId( id );
         ReteooComponentBuilder builder = utils.getBuilderFor( ep );
@@ -223,14 +220,14 @@ public class ReteooRuleBuilder implements RuleBuilder {
                 ep);
     }
 
-    public WindowNode addWindowNode( WindowDeclaration window, 
-                                     InternalRuleBase ruleBase, 
+    public WindowNode addWindowNode( WindowDeclaration window,
+                                     InternalKnowledgeBase kBase,
                                      ReteooBuilder.IdGenerator idGenerator ) {
         // creates a clean build context for each subrule
-        final BuildContext context = new BuildContext( ruleBase,
+        final BuildContext context = new BuildContext( kBase,
                                                        idGenerator );
         
-        if ( ruleBase.getConfiguration().isSequential() ) {
+        if ( kBase.getConfiguration().isSequential() ) {
             context.setTupleMemoryEnabled( false );
             context.setObjectTypeNodeMemoryEnabled( false );
         } else {
