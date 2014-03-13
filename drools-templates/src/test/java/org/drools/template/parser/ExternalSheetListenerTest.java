@@ -112,134 +112,112 @@ public class ExternalSheetListenerTest {
 
                 @Override
                 public int getId() {
-                    throw new UnsupportedOperationException(".getId -> TODO");
-
+                    return 0;
                 }
 
                 @Override
                 public void dispose() {
-                    throw new UnsupportedOperationException(".dispose -> TODO");
 
                 }
 
                 @Override
                 public void destroy() {
-                    throw new UnsupportedOperationException(".destroy -> TODO");
 
                 }
 
                 @Override
                 public <T> T execute(Command<T> command) {
-                    throw new UnsupportedOperationException(".execute -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public <T extends SessionClock> T getSessionClock() {
-                    throw new UnsupportedOperationException(".getSessionClock -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public void setGlobal(String identifier, Object value) {
-                    throw new UnsupportedOperationException(".setGlobal -> TODO");
 
                 }
 
                 @Override
                 public Object getGlobal(String identifier) {
-                    throw new UnsupportedOperationException(".getGlobal -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public Globals getGlobals() {
-                    throw new UnsupportedOperationException(".getGlobals -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public Calendars getCalendars() {
-                    throw new UnsupportedOperationException(".getCalendars -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public Environment getEnvironment() {
-                    throw new UnsupportedOperationException(".getEnvironment -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public KieBase getKieBase() {
-                    throw new UnsupportedOperationException(".getKieBase -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public void registerChannel(String name, Channel channel) {
-                    throw new UnsupportedOperationException(".registerChannel -> TODO");
 
                 }
 
                 @Override
                 public void unregisterChannel(String name) {
-                    throw new UnsupportedOperationException(".unregisterChannel -> TODO");
 
                 }
 
                 @Override
                 public Map<String, Channel> getChannels() {
-                    throw new UnsupportedOperationException(".getChannels -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public KieSessionConfiguration getSessionConfiguration() {
-                    throw new UnsupportedOperationException(".getSessionConfiguration -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public void halt() {
-                    throw new UnsupportedOperationException(".halt -> TODO");
 
                 }
 
                 @Override
                 public org.kie.api.runtime.rule.Agenda getAgenda() {
-                    throw new UnsupportedOperationException(".getAgenda -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public EntryPoint getEntryPoint(String name) {
-                    throw new UnsupportedOperationException(".getEntryPoint -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public Collection<? extends EntryPoint> getEntryPoints() {
-                    throw new UnsupportedOperationException(".getEntryPoints -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public org.kie.api.runtime.rule.QueryResults getQueryResults(String query, Object... arguments) {
-                    throw new UnsupportedOperationException(".getQueryResults -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public LiveQuery openLiveQuery(String query, Object[] arguments, ViewChangedEventListener listener) {
-                    throw new UnsupportedOperationException(".openLiveQuery -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public String getEntryPointId() {
-                    throw new UnsupportedOperationException(".getEntryPointId -> TODO");
-
+                    return null;
                 }
 
                 @Override
@@ -255,223 +233,186 @@ public class ExternalSheetListenerTest {
 
                 @Override
                 public void retract(org.kie.api.runtime.rule.FactHandle handle) {
-                    throw new UnsupportedOperationException(".retract -> TODO");
 
                 }
 
                 @Override
                 public void delete(org.kie.api.runtime.rule.FactHandle handle) {
-                    throw new UnsupportedOperationException(".delete -> TODO");
 
                 }
 
                 @Override
                 public void update(org.kie.api.runtime.rule.FactHandle handle, Object object) {
-                    throw new UnsupportedOperationException(".update -> TODO");
 
                 }
 
                 @Override
                 public org.kie.api.runtime.rule.FactHandle getFactHandle(Object object) {
-                    throw new UnsupportedOperationException(".getFactHandle -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public Object getObject(org.kie.api.runtime.rule.FactHandle factHandle) {
-                    throw new UnsupportedOperationException(".getObject -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public Collection<? extends Object> getObjects() {
-                    throw new UnsupportedOperationException(".getObjects -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public Collection<? extends Object> getObjects(ObjectFilter filter) {
-                    throw new UnsupportedOperationException(".getObjects -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public <T extends org.kie.api.runtime.rule.FactHandle> Collection<T> getFactHandles() {
-                    throw new UnsupportedOperationException(".getFactHandles -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public <T extends org.kie.api.runtime.rule.FactHandle> Collection<T> getFactHandles(ObjectFilter filter) {
-                    throw new UnsupportedOperationException(".getFactHandles -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public long getFactCount() {
-                    throw new UnsupportedOperationException(".getFactCount -> TODO");
-
+                    return 0L;
                 }
 
                 @Override
                 public KieRuntimeLogger getLogger() {
-                    throw new UnsupportedOperationException(".getLogger -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public void addEventListener(ProcessEventListener listener) {
-                    throw new UnsupportedOperationException(".addEventListener -> TODO");
 
                 }
 
                 @Override
                 public void removeEventListener(ProcessEventListener listener) {
-                    throw new UnsupportedOperationException(".removeEventListener -> TODO");
 
                 }
 
                 @Override
                 public Collection<ProcessEventListener> getProcessEventListeners() {
-                    throw new UnsupportedOperationException(".getProcessEventListeners -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public ProcessInstance startProcess(String processId) {
-                    throw new UnsupportedOperationException(".startProcess -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public ProcessInstance startProcess(String processId, Map<String, Object> parameters) {
-                    throw new UnsupportedOperationException(".startProcess -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public ProcessInstance createProcessInstance(String processId, Map<String, Object> parameters) {
-                    throw new UnsupportedOperationException(".createProcessInstance -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public ProcessInstance startProcessInstance(long processInstanceId) {
-                    throw new UnsupportedOperationException(".startProcessInstance -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public void signalEvent(String type, Object event) {
-                    throw new UnsupportedOperationException(".signalEvent -> TODO");
 
                 }
 
                 @Override
                 public void signalEvent(String type, Object event, long processInstanceId) {
-                    throw new UnsupportedOperationException(".signalEvent -> TODO");
 
                 }
 
                 @Override
                 public Collection<ProcessInstance> getProcessInstances() {
-                    throw new UnsupportedOperationException(".getProcessInstances -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public ProcessInstance getProcessInstance(long processInstanceId) {
-                    throw new UnsupportedOperationException(".getProcessInstance -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public ProcessInstance getProcessInstance(long processInstanceId, boolean readonly) {
-                    throw new UnsupportedOperationException(".getProcessInstance -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public void abortProcessInstance(long processInstanceId) {
-                    throw new UnsupportedOperationException(".abortProcessInstance -> TODO");
 
                 }
 
                 @Override
                 public org.kie.api.runtime.process.WorkItemManager getWorkItemManager() {
-                    throw new UnsupportedOperationException(".getWorkItemManager -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public void addEventListener(RuleRuntimeEventListener listener) {
-                    throw new UnsupportedOperationException(".addEventListener -> TODO");
 
                 }
 
                 @Override
                 public void removeEventListener(RuleRuntimeEventListener listener) {
-                    throw new UnsupportedOperationException(".removeEventListener -> TODO");
 
                 }
 
                 @Override
                 public Collection<RuleRuntimeEventListener> getRuleRuntimeEventListeners() {
-                    throw new UnsupportedOperationException(".getRuleRuntimeEventListeners -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public void addEventListener(org.kie.api.event.rule.AgendaEventListener listener) {
-                    throw new UnsupportedOperationException(".addEventListener -> TODO");
 
                 }
 
                 @Override
                 public void removeEventListener(org.kie.api.event.rule.AgendaEventListener listener) {
-                    throw new UnsupportedOperationException(".removeEventListener -> TODO");
 
                 }
 
                 @Override
                 public Collection<org.kie.api.event.rule.AgendaEventListener> getAgendaEventListeners() {
-                    throw new UnsupportedOperationException(".getAgendaEventListeners -> TODO");
-
+                    return null;
                 }
 
                 @Override
                 public int fireAllRules() {
-                    throw new UnsupportedOperationException(".fireAllRules -> TODO");
-
+                    return 0;
                 }
 
                 @Override
                 public int fireAllRules(int max) {
-                    throw new UnsupportedOperationException(".fireAllRules -> TODO");
-
+                    return 0;
                 }
 
                 @Override
                 public int fireAllRules(org.kie.api.runtime.rule.AgendaFilter agendaFilter) {
-                    throw new UnsupportedOperationException(".fireAllRules -> TODO");
-
+                    return 0;
                 }
 
                 @Override
                 public int fireAllRules(org.kie.api.runtime.rule.AgendaFilter agendaFilter, int max) {
-                    throw new UnsupportedOperationException(".fireAllRules -> TODO");
-
+                    return 0;
                 }
 
                 @Override
                 public void fireUntilHalt() {
-                    throw new UnsupportedOperationException(".fireUntilHalt -> TODO");
 
                 }
 
                 @Override
                 public void fireUntilHalt(org.kie.api.runtime.rule.AgendaFilter agendaFilter) {
-                    throw new UnsupportedOperationException(".fireUntilHalt -> TODO");
 
                 }
             };

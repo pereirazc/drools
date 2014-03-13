@@ -1,13 +1,6 @@
 package org.drools.core.reteoo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import org.drools.core.RuleBaseConfiguration;
 import org.drools.core.base.ClassObjectType;
-import org.drools.core.common.AbstractWorkingMemory;
 import org.drools.core.common.DefaultFactHandle;
 import org.drools.core.common.EmptyBetaConstraints;
 import org.drools.core.common.InternalFactHandle;
@@ -25,6 +18,8 @@ import org.junit.Test;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.conf.RuleEngineOption;
+
+import static org.junit.Assert.*;
 
 public class NodeSegmentUnlinkingTest {
     InternalKnowledgeBase kBase;
@@ -208,6 +203,7 @@ public class NodeSegmentUnlinkingTest {
 
         StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
         InternalWorkingMemory wm = ksession.session;
+        createSegmentMemory( n2, wm );
 
         BetaMemory bm = (BetaMemory) wm.getNodeMemory( n1 );
         assertNull( bm.getSegmentMemory() );
@@ -235,7 +231,7 @@ public class NodeSegmentUnlinkingTest {
         InternalWorkingMemory wm = ksession.session;
 
         SegmentUtilities.createSegmentMemory( liaNode, wm );
-        liaNode.assertObject( (InternalFactHandle) wm.insert( "str" ), context, wm );
+        liaNode.assertObject((InternalFactHandle) wm.insert("str"), context, wm);
         
 
         LiaNodeMemory liaMem = (LiaNodeMemory) wm.getNodeMemory( liaNode );
@@ -323,10 +319,10 @@ public class NodeSegmentUnlinkingTest {
         StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
         InternalWorkingMemory wm = ksession.session;
 
-        createSegmentMemory( n3, wm );
+        createSegmentMemory(n3, wm);
 
         BetaMemory bm = (BetaMemory) wm.getNodeMemory( n1 );
-        assertNull( bm.getSegmentMemory() );
+        assertNull(bm.getSegmentMemory());
 
         bm = (BetaMemory) wm.getNodeMemory( n3 );
         assertEquals( 1, bm.getNodePosMaskBit() );
@@ -367,7 +363,7 @@ public class NodeSegmentUnlinkingTest {
         assertEquals( 15, bm.getSegmentMemory().getAllLinkedMaskTest() );
 
         bm = (BetaMemory) wm.getNodeMemory( n6 );
-        assertEquals( 8, bm.getNodePosMaskBit() );
+        assertEquals(8, bm.getNodePosMaskBit());
         assertEquals( 15, bm.getSegmentMemory().getAllLinkedMaskTest() );
 
         // Initialise from n5
@@ -378,7 +374,7 @@ public class NodeSegmentUnlinkingTest {
         createSegmentMemory( n5, wm );
 
         bm = (BetaMemory) wm.getNodeMemory( n1 );
-        assertNull( bm.getSegmentMemory() );
+        assertNull(bm.getSegmentMemory());
 
         bm = (BetaMemory) wm.getNodeMemory( n3 );
         assertEquals( 1, bm.getNodePosMaskBit() );

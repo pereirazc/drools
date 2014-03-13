@@ -29,6 +29,7 @@ import javax.rules.StatelessRuleSession;
 
 import org.drools.core.StatelessSession;
 import org.drools.core.StatelessSessionResult;
+import org.drools.core.impl.StatelessKnowledgeSessionImpl;
 import org.drools.jsr94.rules.admin.RuleExecutionSetImpl;
 import org.drools.jsr94.rules.repository.RuleExecutionSetRepository;
 import org.drools.jsr94.rules.repository.RuleExecutionSetRepositoryException;
@@ -157,11 +158,7 @@ public class StatelessRuleSessionImpl extends AbstractRuleSessionImpl
     public List executeRules(final List objects,
                              final ObjectFilter filter) throws InvalidRuleSessionException {
         StatelessKieSession session = newStatelessSession();
-        session.execute( objects );
-
-        // TODO: retrieve facts from session
-        //return IteratorToList.convert( results.iterateObjects( new ObjectFilterAdapter( filter ) ) );
-        return objects;
+        return ((StatelessKnowledgeSessionImpl)session).executeWithResults(objects, new ObjectFilterAdapter( filter ));
     }
     
     public int getType() throws InvalidRuleSessionException {

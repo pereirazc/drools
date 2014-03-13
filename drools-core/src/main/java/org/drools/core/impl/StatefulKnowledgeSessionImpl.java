@@ -70,7 +70,6 @@ import org.kie.api.event.KieRuntimeEventManager;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.AgendaEventListener;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
-import org.kie.api.logger.KieRuntimeLogger;
 import org.kie.api.runtime.Calendars;
 import org.kie.api.runtime.Channel;
 import org.kie.api.runtime.Environment;
@@ -102,7 +101,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-public class StatefulKnowledgeSessionImpl
+public class StatefulKnowledgeSessionImpl extends AbstractRuntime
         implements
         StatefulKnowledgeSession,
         InternalWorkingMemoryEntryPoint,
@@ -114,8 +113,6 @@ public class StatefulKnowledgeSessionImpl
     public ReteooWorkingMemoryInterface session;
     public KnowledgeBase                kbase;
 
-    private KieRuntimeLogger logger;
-
     public StatefulKnowledgeSessionImpl(AbstractWorkingMemory session) {
         this( session,
               session.getKnowledgeBase() );
@@ -126,14 +123,6 @@ public class StatefulKnowledgeSessionImpl
         this.session = session;
         this.kbase = kbase;
         this.session.setKnowledgeRuntime( this );
-    }
-
-    public KieRuntimeLogger getLogger() {
-        return logger;
-    }
-
-    public void setLogger(KieRuntimeLogger logger) {
-        this.logger = logger;
     }
 
     public void reset() {
@@ -162,7 +151,7 @@ public class StatefulKnowledgeSessionImpl
 
     public void addEventListener(RuleRuntimeEventListener listener) {
         RuleRuntimeEventListenerWrapper wrapper = new RuleRuntimeEventListenerWrapper( listener );
-        this.session.addEventListener( wrapper );
+        this.session.addEventListener(wrapper);
     }
 
     public void removeEventListener(RuleRuntimeEventListener listener) {

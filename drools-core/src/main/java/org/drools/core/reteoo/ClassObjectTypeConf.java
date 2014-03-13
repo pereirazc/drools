@@ -16,22 +16,10 @@
 
 package org.drools.core.reteoo;
 
-import java.beans.PropertyChangeListener;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.drools.core.FactException;
 import org.drools.core.base.ClassObjectType;
 import org.drools.core.base.DroolsQuery;
 import org.drools.core.base.ShadowProxy;
-import org.drools.core.common.InternalRuleBase;
 import org.drools.core.factmodel.traits.Thing;
 import org.drools.core.factmodel.traits.Traitable;
 import org.drools.core.factmodel.traits.TraitableBean;
@@ -43,6 +31,17 @@ import org.drools.core.rule.TypeDeclaration;
 import org.drools.core.spi.Activation;
 import org.drools.core.spi.ObjectType;
 
+import java.beans.PropertyChangeListener;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 public class ClassObjectTypeConf
     implements
     ObjectTypeConf,
@@ -53,7 +52,7 @@ public class ClassObjectTypeConf
     private static final long          serialVersionUID = 510l;
 
     private Class< ? >                 cls;
-    private transient InternalRuleBase ruleBase;
+    private transient InternalKnowledgeBase kBase;
     private ObjectTypeNode[]           objectTypeNodes;
 
     protected boolean                  shadowEnabled;
@@ -81,16 +80,16 @@ public class ClassObjectTypeConf
                                final Class< ? > clazz,
                                final InternalKnowledgeBase kBase) {
         this.cls = (Activation.class.isAssignableFrom( clazz ) ) ? ClassObjectType.Match_ObjectType.getClassType() : clazz;
-        this.ruleBase = ruleBase;
+        this.kBase = kBase;
         this.entryPoint = entryPoint;
-        this.typeDecl = ruleBase.getTypeDeclaration( clazz );
+        this.typeDecl = kBase.getTypeDeclaration( clazz );
         isEvent = typeDecl != null && typeDecl.getRole() == TypeDeclaration.Role.EVENT;
         isTrait = determineTraitStatus();
 
         ObjectType objectType = kBase.getClassFieldAccessorCache().getClassObjectType( new ClassObjectType( clazz,
                                                                                                                                     isEvent ) );
 
-        this.concreteObjectTypeNode = ruleBase.getRete().getObjectTypeNodes( entryPoint ).get( objectType );
+        this.concreteObjectTypeNode = kBase.getRete().getObjectTypeNodes( entryPoint ).get( objectType );
         if ( this.concreteObjectTypeNode == null ) {
             BuildContext context = new BuildContext( kBase,
                                                      kBase.getReteooBuilder().getIdGenerator() );
@@ -122,7 +121,7 @@ public class ClassObjectTypeConf
 
     public void readExternal(ObjectInput stream) throws IOException,
                                                 ClassNotFoundException {
-        ruleBase = (InternalRuleBase) stream.readObject();
+        kBase = (InternalKnowledgeBase) stream.readObject();
         cls = (Class<?>) stream.readObject();
         objectTypeNodes = (ObjectTypeNode[]) stream.readObject();
         shadowEnabled = stream.readBoolean();
@@ -137,7 +136,7 @@ public class ClassObjectTypeConf
     }
 
     public void writeExternal(ObjectOutput stream) throws IOException {
-        stream.writeObject( ruleBase );
+        stream.writeObject( kBase );
         stream.writeObject( cls );
         stream.writeObject( objectTypeNodes );
         stream.writeBoolean( shadowEnabled );
@@ -216,7 +215,7 @@ public class ClassObjectTypeConf
     private ObjectTypeNode[] getMatchingObjectTypes(final Class<?> clazz) throws FactException {
         final List<ObjectTypeNode> cache = new ArrayList<ObjectTypeNode>();
 
-        for ( ObjectTypeNode node : ruleBase.getRete().getObjectTypeNodes( this.entryPoint ).values() ) {
+        for ( ObjectTypeNode node : kBase.getRete().getObjectTypeNodes( this.entryPoint ).values() ) {
             if ( clazz == DroolsQuery.class ) {
                 // for query objects only add direct matches
                 if ( ((ClassObjectType)node.getObjectType()).getClassType() == clazz ) {

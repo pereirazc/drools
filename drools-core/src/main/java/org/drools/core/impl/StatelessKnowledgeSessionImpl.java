@@ -24,6 +24,7 @@ import org.drools.core.command.impl.GenericCommand;
 import org.drools.core.command.runtime.BatchExecutionCommandImpl;
 import org.drools.core.command.runtime.rule.FireAllRulesCommand;
 import org.drools.core.common.AbstractWorkingMemory;
+import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.WorkingMemoryFactory;
 import org.drools.core.event.AgendaEventSupport;
 import org.drools.core.event.ProcessEventSupport;
@@ -52,16 +53,20 @@ import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.Globals;
 import org.kie.api.runtime.KieSessionConfiguration;
+import org.kie.api.runtime.ObjectFilter;
 import org.kie.api.runtime.StatelessKieSession;
+import org.kie.api.runtime.rule.FactHandle;
 import org.kie.internal.agent.KnowledgeAgent;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.StatelessKnowledgeSession;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -377,6 +382,23 @@ public class StatelessKnowledgeSessionImpl extends AbstractRuntime
         } finally {
             dispose();
         }
+    }
+
+    public List executeWithResults(Iterable objects, ObjectFilter filter) {
+        List list = new ArrayList();
+        newWorkingMemory();
+        try {
+            for ( Object object : objects ) {
+                ksession.insert( object );
+            }
+            ksession.fireAllRules();
+            for (FactHandle fh : ksession.getFactHandles(filter)) {
+                list.add(((InternalFactHandle) fh).getObject());
+            }
+        } finally {
+            dispose();
+        }
+        return list;
     }
 
     public Environment getEnvironment() {

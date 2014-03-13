@@ -169,8 +169,7 @@ public class MVELSalienceBuilderTest {
                                  Rule rule,
                                  Salience salience,
                                  Person person) {
-            StatefulKnowledgeSessionImpl ksession = (StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession();
-            InternalWorkingMemory wm = ksession.session;
+            wm = ((StatefulKnowledgeSessionImpl)kBase.newStatefulKnowledgeSession()).session;
 
             this.context = context;
             final InternalFactHandle f0 = (InternalFactHandle) wm.insert( person );

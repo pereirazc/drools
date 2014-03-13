@@ -20,14 +20,14 @@ public class TerminalNodeIterator
         
     }
 
-    private TerminalNodeIterator(KieBase kbase) {
+    private TerminalNodeIterator(KieBase kBase) {
         this.kBase = (InternalKnowledgeBase)kBase;
         Map<String, BaseNode[]> rules = this.kBase.getReteooBuilder().getTerminalNodes();
         nodes = rules.values().toArray( new BaseNode[rules.size()][] );
     }
     
-    public static Iterator iterator(KieBase kbase) {
-        return new TerminalNodeIterator(kbase);
+    public static Iterator iterator(KieBase kBase) {
+        return new TerminalNodeIterator(kBase);
     }
 
     public Object next() {

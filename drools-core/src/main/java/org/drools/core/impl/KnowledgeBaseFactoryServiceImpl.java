@@ -25,6 +25,7 @@ import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.KieSessionConfiguration;
 
 import java.util.Properties;
+import java.util.UUID;
 
 public class KnowledgeBaseFactoryServiceImpl implements KnowledgeBaseFactoryService {
 
@@ -45,15 +46,15 @@ public class KnowledgeBaseFactoryServiceImpl implements KnowledgeBaseFactoryServ
     }
     
     public KnowledgeBase newKnowledgeBase() {
-        return new KnowledgeBaseImpl( );
+        return newKnowledgeBase( UUID.randomUUID().toString() );
     }
     
     public KnowledgeBase newKnowledgeBase( String kbaseId ) {
-        return new KnowledgeBaseImpl( kbaseId, null );
+        return newKnowledgeBase( kbaseId, null );
     }
     
     public KnowledgeBase newKnowledgeBase(KieBaseConfiguration conf) {
-        return new KnowledgeBaseImpl( null, (RuleBaseConfiguration) conf );
+        return newKnowledgeBase( UUID.randomUUID().toString(), (RuleBaseConfiguration) conf );
     }
 
     public KnowledgeBase newKnowledgeBase(String kbaseId, 
